@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using TrendClothing.Models;
@@ -11,7 +12,7 @@ namespace TrendClothing.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-
+            Database.EnsureCreated();
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
@@ -29,28 +30,43 @@ namespace TrendClothing.Data
 
 
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+
+        //    modelBuilder.Entity<Product>()
+        //        .HasOne(p => p.Category)
+        //        .WithMany()
+        //        .HasForeignKey(p => p.CategoryId)
+        //        .OnDelete(DeleteBehavior.Restrict);
+
+        //    modelBuilder.Entity<Product>()
+        //        .HasOne(p => p.ProductType)
+        //        .WithMany()
+        //        .HasForeignKey(p => p.ProductTypeId)
+        //        .OnDelete(DeleteBehavior.Restrict);
+
+        //    modelBuilder.Entity<Product>()
+        //        .HasOne(p => p.Brand)
+        //        .WithMany()
+        //        .HasForeignKey(p => p.BrandId)
+        //        .OnDelete(DeleteBehavior.Restrict);
+        //}
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(builder);
 
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Category)
-                .WithMany()
-                .HasForeignKey(p => p.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<IdentityUser>(entity =>
+            {
+                entity.Property(e => e.Id).HasMaxLength(450);
+            });
 
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.ProductType)
-                .WithMany()
-                .HasForeignKey(p => p.ProductTypeId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Brand)
-                .WithMany()
-                .HasForeignKey(p => p.BrandId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<IdentityRole>(entity =>
+            {
+                entity.Property(e => e.Id).HasMaxLength(450);
+            });
         }
+
     }
 }
 
