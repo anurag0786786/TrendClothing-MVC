@@ -12,8 +12,8 @@ using TrendClothing.Data;
 namespace TrendClothing.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260110125009_InitialPostgres")]
-    partial class InitialPostgres
+    [Migration("20260110150643_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
