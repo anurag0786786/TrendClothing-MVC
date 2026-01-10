@@ -1,0 +1,73 @@
+﻿@model IEnumerable<TrendClothing.Models.Product>
+
+<div class="hero-section">
+    <a href="#categories" class="hero-link">
+        <div class="hero-wrapper">
+            <img src="/images/hero/hero.jpg" class="hero-img" />
+        </div>
+    </a>
+</div>
+<!-- CHOOSE CATEGORY HEADING -->
+<div class="choose-category-wrap">
+    <span class="line"></span>
+    <h2>Choose Category</h2>
+    <span class="line"></span>
+</div>
+
+
+
+
+<!-- CATEGORIES -->
+<div class="container" id="categories">
+    <div class="row text-center">
+
+        <!-- MEN -->
+        <div class="col-md-4 mb-4">
+            <a asp-action="Category"
+               asp-route-name="Men"
+               class="text-decoration-none text-dark">
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/images/categories/men.jpg" alt="Men" />
+                    </div>
+                    <div class="category-body">
+                        <h4 class="gold-text">Men</h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- WOMEN -->
+        <div class="col-md-4 mb-4">
+            <a asp-action="Category"
+               asp-route-name="Women"
+               class="text-decoration-none text-dark">
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/images/categories/women.jpg" alt="Women" />
+                    </div>
+                    <div class="category-body">
+                        <h4 class="gold-text">Women</h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- CHILDREN -->
+        <div class="col-md-4 mb-4">
+            <a asp-action="Category"
+               asp-route-name="Children"
+               class="text-decoration-none text-dark">
+                <div class="category-card">
+                    <div class="category-img">
+                        <img src="/images/categories/children.jpg" alt="Children" />
+                    </div>
+                    <div class="category-body">
+                        <h4 class="gold-text">Children</h4>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>

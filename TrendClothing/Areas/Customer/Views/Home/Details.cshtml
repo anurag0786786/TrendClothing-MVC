@@ -1,0 +1,204 @@
+﻿<link rel="stylesheet" href="~/css/details.css" asp-append-version="true" />
+
+@model TrendClothing.Models.ViewModels.ProductDetailsVM
+
+@{
+    bool hasVariants = Model.Variants != null && Model.Variants.Any();
+}
+
+<form asp-area="Customer"
+      asp-controller="Cart"
+      asp-action="AddToCart"
+      method="post">
+
+<input type="hidden" name="variantId" id="SelectedVariantId" />
+ <input type="hidden" name="returnUrl"
+           value="@Context.Request.Path@Context.Request.QueryString" />
+
+    <div class="container mt-5">
+        <div class="row">
+
+            <!-- LEFT IMAGE -->
+            <div class="col-md-6 text-center position-relative">
+                @if (Model.DiscountPercent > 0)
+                {
+                    <span class="badge bg-danger position-absolute"
+                          style="top:15px; left:15px;">
+                        @Model.DiscountPercent% OFF
+                    </span>
+                }
+
+                <img src="@Model.Product.ImageUrl"
+                     class="img-fluid rounded shadow"
+                     style="max-height:520px; object-fit:cover;" />
+            </div>
+
+            <!-- RIGHT DETAILS -->
+            <div class="col-md-6 p-4 border rounded shadow-sm">
+
+                <h2 class="fw-bold">@Model.Product.Name</h2>
+                <p class="text-muted">
+                    @Model.Product.Brand?.Name | @Model.Product.Category?.Name
+                </p>
+
+                <div class="mt-2">
+                    <span class="fs-4 fw-bold text-success">
+                        ₹ @Model.SellingPrice
+                    </span>
+
+                    @if (Model.DiscountPercent > 0)
+                    {
+                        <span class="text-muted ms-2 text-decoration-line-through">
+                            ₹ @Model.OriginalPrice
+                        </span>
+                        <span class="text-danger fw-semibold ms-2">
+                            (@Model.DiscountPercent% OFF)
+                        </span>
+                    }
+                </div>
+
+                <p class="text-muted small mb-3">
+                    inclusive of all taxes
+                </p>
+
+                @if (hasVariants)
+                {
+                    <p class="text-secondary">
+                        @Model.Product.Description
+                    </p>
+                }
+
+                <hr />
+
+                @* ================= VARIANTS ================= *@
+                @if (hasVariants)
+                {
+                    <!-- SIZE -->
+                    <div class="mb-3">
+                        <p class="fw-semibold">Select Size</p>
+
+                        @foreach (var size in Model.Variants
+                            .Select(v => v.Size)
+                            .DistinctBy(s => s.Id))
+                        {
+                            <button type="button"
+                                    class="btn btn-outline-dark me-2 mb-2 size-btn"
+                                    data-sizeid="@size.Id">
+                                @size.Name
+                            </button>
+                        }
+                    </div>
+                    <div class="text-danger fw-semibold mt-2 d-none" id="variantError">
+        Please choose a size and color first
+    </div>
+
+                    <!-- COLOR -->
+                    <div class="mb-3 d-none" id="colorSection">
+                        <p class="fw-semibold">Select Color</p>
+                        <div id="colorContainer"></div>
+                    </div>
+                }
+
+                <!-- Quantity -->
+                <div class="mb-3">
+                    <label class="fw-semibold">Quantity</label>
+                    <input asp-for="Count"
+                           class="form-control w-25"
+                           min="1"
+                           value="1" />
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary px-4 py-2"
+                        onclick="return validateVariant();">
+                    Add To Cart
+                </button>
+
+                <button type="button"
+                        class="btn btn-outline-secondary px-4 py-2"
+                        onclick="history.back()">
+                    Back
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+    var variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Variants.Select(v => new {
+            id = v.Id,
+            sizeId = v.SizeId,
+            colorName = v.Color.Name
+        })
+    ));
+
+    var sizeButtons = document.querySelectorAll(".size-btn");
+
+    sizeButtons.forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            sizeButtons.forEach(b => b.classList.remove("active"));
+            this.classList.add("active");
+
+            var sizeId = this.getAttribute("data-sizeid");
+
+            document.getElementById("colorSection").classList.remove("d-none");
+            var container = document.getElementById("colorContainer");
+            container.innerHTML = "";
+
+            variants.filter(v => v.sizeId == sizeId)
+                .forEach(v => {
+                    var colorBtn = document.createElement("button");
+                    colorBtn.type = "button";
+                    colorBtn.className = "btn btn-outline-secondary me-2 mb-2 color-btn";
+                    colorBtn.innerText = v.colorName;
+                    colorBtn.dataset.variantid = v.id;
+
+                    colorBtn.onclick = function () {
+                        document.querySelectorAll(".color-btn")
+                            .forEach(cb => cb.classList.remove("active"));
+                        this.classList.add("active");
+                        document.getElementById("SelectedVariantId").value =
+                            this.dataset.variantid;
+                    };
+
+                    container.appendChild(colorBtn);
+                });
+        });
+    });
+
+   function validateVariant() {
+
+        var hasVariants = @hasVariants.ToString().ToLower();
+        var errorDiv = document.getElementById("variantError");
+
+        // Agar product ke variants hi nahi hain
+        if (!hasVariants) {
+            if (errorDiv) {
+                errorDiv.innerText = "This product has no selectable variants";
+                errorDiv.classList.remove("d-none");
+            }
+            return false;
+        }
+
+        var variantId = document.getElementById("SelectedVariantId").value;
+
+        if (!variantId || variantId == "0") {
+            if (errorDiv) {
+                errorDiv.innerText = "Please choose a size and color first";
+                errorDiv.classList.remove("d-none");
+            }
+            return false;
+        }
+
+        // sab theek hai
+        if (errorDiv) {
+            errorDiv.classList.add("d-none");
+        }
+
+        return true;
+    }
+</script>
+}

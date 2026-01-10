@@ -1,0 +1,62 @@
+﻿.checkout-wrapper {
+    max-width: 900px;
+    margin: 40px auto;
+    text-align: center;
+}
+
+.checkout-title {
+    font-weight: 600;
+    margin-bottom: 30px;
+}
+
+.address-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    justify-content: center;
+}
+
+.address-card {
+    cursor: pointer;
+}
+
+    .address-card input {
+        display: none;
+    }
+
+.address-box {
+    background: #fff7ec;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: left;
+    min-height: 140px;
+    transition: all 0.25s ease;
+    border: 2px solid transparent;
+}
+
+.address-card input:checked + .address-box {
+    border-color: #0d6efd;
+    box-shadow: 0 10px 30px rgba(13,110,253,0.2);
+    background: #fff;
+}
+
+.add-new {
+    border: 2px dashed #ccc;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.plus-box span {
+    font-size: 40px;
+    display: block;
+}
+
+.proceed-btn {
+    margin-top: 40px;
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    border-radius: 12px;
+}

@@ -1,0 +1,18 @@
+﻿.order-table {
+    background: #fff;
+    border-radius: 8px;
+}
+
+    .order-table th {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .order-table td {
+        font-size: 0.9rem;
+    }
+
+.badge {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+}

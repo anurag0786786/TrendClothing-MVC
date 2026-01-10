@@ -1,0 +1,74 @@
+﻿@page
+@model ExternalLoginModel
+@{
+    ViewData["Title"] = "Complete Registration";
+}
+
+<link rel="stylesheet" href="~/css/auth-register.css" />
+
+<div class="register-bg"></div>
+
+<div class="register-wrapper">
+    <div class="register-card">
+
+        <!-- LEFT -->
+        <div class="register-left">
+            <h1>Hello, Friend</h1>
+            <p>Complete your account to continue with TrendClothing</p>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="register-right">
+            <h2>Complete Profile</h2>
+
+            <form asp-page-handler="Confirmation"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="input-box">
+                    <input asp-for="Input.Name" placeholder=" " />
+                    <label>Name</label>
+                </div>
+
+                <div class="input-box">
+                    <input asp-for="Input.Email" placeholder=" " readonly />
+                    <label>Email</label>
+                </div>
+
+                <div class="input-box">
+                    <input asp-for="Input.Address" placeholder=" " />
+                    <label>Address</label>
+                </div>
+
+                <div class="two-col">
+                    <div class="input-box">
+                        <input asp-for="Input.City" placeholder=" " />
+                        <label>City</label>
+                    </div>
+
+                    <div class="input-box">
+                        <input asp-for="Input.State" placeholder=" " />
+                        <label>State</label>
+                    </div>
+                </div>
+
+                <div class="input-box">
+                    <input asp-for="Input.PostalCode" placeholder=" " />
+                    <label>Postal Code</label>
+                </div>
+
+                <button type="submit" class="btn-main">
+                    COMPLETE REGISTRATION
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

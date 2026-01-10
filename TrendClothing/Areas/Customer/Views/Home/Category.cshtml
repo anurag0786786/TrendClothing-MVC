@@ -1,0 +1,143 @@
+﻿@model TrendClothing.Models.ViewModels.ProductFilterVM
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/category.css" />
+}
+
+<div class="container mt-5">
+
+    <!-- HEADER -->
+    <div class="tc-header">
+        <div class="tc-breadcrumb">
+            Home / <span>@ViewBag.CategoryName</span>
+        </div>
+
+        <!-- FIXED HEADER ROW -->
+        <div class="tc-header-row">
+
+            <!-- LEFT -->
+            <div class="tc-left d-flex align-items-center gap-3">
+                <h1 class="mb-0">@ViewBag.CategoryName Wear</h1>
+
+                <form method="get">
+                    <input type="hidden" name="name" value="@ViewBag.CategoryName" />
+
+                    <select name="Search"
+                            class="tc-sort"
+                            onchange="this.form.submit()">
+                        <option value="">All Products</option>
+
+                        @foreach (var type in ViewBag.ProductTypes as List<string>)
+                        {
+                            <option value="@type"
+                                    selected="@(Model.Search == type)">
+                                @type
+                            </option>
+                        }
+                    </select>
+                </form>
+            </div>
+
+            <!-- CENTER -->
+            <div class="tc-project-name">
+                TrendClothing
+            </div>
+
+            <!-- RIGHT -->
+            <div class="tc-right">
+                <form method="get" class="d-flex gap-2">
+                    <input type="hidden" name="name" value="@ViewBag.CategoryName" />
+
+                    <div class="position-relative">
+                        <input type="text"
+                               id="searchInput"
+                               name="Search"
+                               value="@Model.Search"
+                               placeholder="Search products"
+                               class="form-control ps-5" />
+
+                        <i class="bi bi-search position-absolute"
+                           style="left:15px; top:50%; transform:translateY(-50%); color:#777;">
+                        </i>
+                    </div>
+
+                    <select name="Sort"
+                            class="tc-sort"
+                            onchange="this.form.submit()">
+                        <option value="">What's New</option>
+
+                        <option value="low" selected="@(Model.Sort == "low")">
+                            Price: Low to High
+                        </option>
+
+                        <option value="high" selected="@(Model.Sort == "high")">
+                            Price: High to Low
+                        </option>
+                    </select>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CATEGORY WRAPPER -->
+    <div class="category-wrapper">
+        <div class="row justify-content-start">
+
+            @if (Model.Products != null && Model.Products.Any())
+            {
+                @foreach (var product in Model.Products)
+                {
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                        <div class="product-card">
+
+                            <div class="product-img">
+                                <img src="@product.ImageUrl" alt="@product.Name" />
+                            </div>
+
+                            <div class="product-body">
+                                <div class="brand-name">@product.Brand?.Name</div>
+                                <div class="product-name">@product.Name</div>
+
+                                @if (product.DiscountPrice > 0 &&
+                                                        product.DiscountPrice < product.Price)
+                                {
+                                    <div class="price-row">
+                                        <span class="discount-price">₹ @product.DiscountPrice</span>
+                                        <span class="old-price">₹ @product.Price</span>
+                                        @{
+                                            var percentOff =
+                                            (int)(((product.Price - product.DiscountPrice)
+                                            / product.Price) * 100);
+                                        }
+                                        <span class="off-percent">@percentOff% OFF</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="price-row">
+                                        <span class="discount-price">₹ @product.Price</span>
+                                    </div>
+                                }
+
+                                <a asp-action="Details"
+                                   asp-route-id="@product.Id"
+                                   class="btn btn-outline-dark w-100 mt-3">
+                                    View Details
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center mt-5">
+                    <h5>No products found</h5>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+﻿@model TrendClothing.Models.ViewModels.OrderEmailVM
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            padding: 20px;
+        }
+
+        .email-box {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: #212529;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            border-radius: 6px;
+        }
+
+        .section {
+            margin-top: 20px;
+        }
+
+            .section h4 {
+                margin-bottom: 8px;
+                color: #212529;
+            }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-box">
+        <div class="header">
+            <h2>Order Confirmed 🎉</h2>
+        </div>
+
+        <div class="section">
+            <p>Hi <strong>@Model.Name</strong>,</p>
+            <p><strong>Phone:</strong> @Model.PhoneNumber</p>
+
+            <p>Thank you for shopping with us! Your order has been confirmed.</p>
+        </div>
+
+        <div class="section">
+            <h4>📦 Order ID</h4>
+            <p>#@Model.OrderId</p>
+        </div>
+
+        <div class="section">
+            <h4>🛒 Ordered Products</h4>
+            <ul>
+                @foreach (var p in Model.Products)
+                {
+                    <li>@p.ProductName (Qty: @p.Quantity)</li>
+                }
+            </ul>
+        </div>
+
+        <div class="section">
+            <h4>📍 Delivery Address</h4>
+            <p>
+                @Model.StreetAddress <br />
+                @Model.City, @Model.State <br />
+                @Model.PostalCode
+            </p>
+        </div>
+
+        <div class="section">
+            <h4>🚚 Expected Delivery</h4>
+            <p>
+                @Model.ExpectedFrom.ToString("dd MMM yyyy")
+                -
+                @Model.ExpectedTo.ToString("dd MMM yyyy")
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing us ❤️</p>
+            <p>
+                © TrendClothing
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

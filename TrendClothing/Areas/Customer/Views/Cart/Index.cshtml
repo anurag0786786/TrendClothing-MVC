@@ -1,0 +1,102 @@
+﻿@model TrendClothing.Models.ViewModels.ShoppingCartVM
+
+@{
+    ViewData["Title"] = "My Cart";
+    double bagTotal = 0;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/cart.css" />
+}
+
+<div class="container mt-4">
+    <div class="row">
+
+        <!-- LEFT : CART ITEMS -->
+        <div class="col-md-8">
+            <h3 class="mb-3">
+                My Bag (@(Model.ListCart?.Count() ?? 0) item)
+            </h3>
+
+            @if (Model.ListCart != null && Model.ListCart.Any())
+            {
+                @foreach (var item in Model.ListCart)
+                {
+                    var price = item.ProductVariant.Product.Price;
+                    var subTotal = price * item.Count;
+                    bagTotal += subTotal;
+
+                    <div class="cart-card">
+                        <div class="cart-left">
+                            <img src="@(item.ProductVariant.Product.ImageUrl ?? "/images/no-image.png")"
+                                 alt="product"
+                                 class="cart-img" />
+                        </div>
+
+                        <div class="cart-right">
+                            <h6>@item.ProductVariant.Product.Name</h6>
+
+                            <p class="text-muted mb-1">
+                                Size: @item.ProductVariant.Size.Name |
+                                Color: @item.ProductVariant.Color.Name
+                            </p>
+
+                            <div class="price-row">
+                                <span class="price">₹ @price</span>
+                            </div>
+
+                            <!-- QTY -->
+                            <div class="qty-row">
+                                <a asp-action="Minus" asp-route-id="@item.Id">−</a>
+                                <span>@item.Count</span>
+                                <a asp-action="Plus" asp-route-id="@item.Id">+</a>
+                            </div>
+
+                            <!-- DELETE -->
+                            <a asp-action="Remove"
+                               asp-route-id="@item.Id"
+                               class="delete-btn">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <!-- EMPTY CART MESSAGE -->
+                <div class="alert alert-info mt-4">
+                    Your cart is empty.
+                </div>
+            }
+        </div>
+
+        <!-- RIGHT : ORDER SUMMARY (ONLY WHEN CART HAS ITEMS) -->
+        @if (Model.ListCart != null && Model.ListCart.Any())
+        {
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Order Details</h5>
+
+                    <div class="summary-row">
+                        <span>Bag total</span>
+                        <span>₹ @bagTotal</span>
+                    </div>
+
+                    <hr />
+
+                    <div class="summary-row total">
+                        <span>Order Total</span>
+                        <span>₹ @bagTotal</span>
+                    </div>
+
+                    <a asp-action="Summary"
+                       class="btn proceed-btn w-100 mt-3">
+                        PROCEED TO SHIPPING
+                    </a>
+                </div>
+            </div>
+        }
+
+    </div>
+</div>

@@ -1,0 +1,157 @@
+﻿@model TrendClothing.Models.ViewModels.ProductVM
+
+@{
+    var title = Model.Product.Id != 0 ? "Edit Product" : "New Product";
+    var saveupdate = Model.Product.Id != 0 ? "Update" : "Save";
+}
+
+<form method="post" enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+
+    @if (Model.Product.Id != 0)
+    {
+        <input type="hidden" asp-for="Product.Id" />
+    }
+
+    <div class="col-10">
+        <h2 class="text-primary">@title</h2>
+    </div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-8">
+
+        <!-- Product Name -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.Name"></label>
+            </div>
+            <div class="col-8">
+                <input asp-for="Product.Name" class="form-control" />
+                <span asp-validation-for="Product.Name" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.Description"></label>
+            </div>
+            <div class="col-8">
+                <textarea asp-for="Product.Description" class="form-control"></textarea>
+                <span asp-validation-for="Product.Description" class="text-danger"></span>
+            </div>
+        </div>
+
+
+        <!-- Price -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.Price"></label>
+            </div>
+            <div class="col-8">
+                <input asp-for="Product.Price" class="form-control" />
+                <span asp-validation-for="Product.Price" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Discount Price -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.DiscountPrice"></label>
+            </div>
+            <div class="col-8">
+                <input asp-for="Product.DiscountPrice" class="form-control" />
+            </div>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.CategoryId"></label>
+            </div>
+            <div class="col-8">
+                <select asp-for="Product.CategoryId"
+                        asp-items="Model.CategoryList"
+                        class="form-control"
+                        id="CategoryId">
+                    <option value="">-- Select Category --</option>
+                </select>
+
+                <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Product Type -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.ProductTypeId"></label>
+            </div>
+            <input type="hidden" id="selectedProductTypeId"
+                   value="@Model.Product.ProductTypeId" />
+
+            <div class="col-8">
+                <select asp-for="Product.ProductTypeId"
+                        class="form-control"
+                        id="ProductTypeId">
+                    <option value="">-- Select Product Type --</option>
+                </select>
+
+                <span asp-validation-for="Product.ProductTypeId" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Brand -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.BrandId"></label>
+            </div>
+            <div class="col-8">
+                <select asp-for="Product.BrandId"
+                        asp-items="Model.BrandList"
+                        class="form-control">
+                    <option value="0">-- Select Brand --</option>
+                </select>
+                <span asp-validation-for="Product.BrandId" class="text-danger"></span>
+            </div>
+        </div>
+        <!-- Image Upload -->
+        <div class="form-group row p-2 m-2">
+            <label asp-for="Product.ImageUrl"></label>
+            <input type="file" name="files" id="imageId" multiple class="form-control" />
+        </div>
+
+        <!-- Is Active -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4">
+                <label asp-for="Product.IsActive"></label>
+            </div>
+            <div class="col-8">
+                <input asp-for="Product.IsActive" />
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-group row p-2 m-2">
+            <div class="col-4 offset-4">
+                <button type="submit" class="btn btn-info form-control">
+                    @saveupdate
+                </button>
+            </div>
+            <div class="col-4">
+                <a asp-action="Index" class="btn btn-success form-control">
+                    Back To List
+                </a>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+@section Scripts
+{
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/Product.js"></script>
+}
+

@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Order Success";
+}
+
+<link rel="stylesheet" href="~/css/order-success.css" />
+
+<div class="success-container">
+    <div class="checkmark-circle">
+        <div class="background"></div>
+        <div class="checkmark"></div>
+    </div>
+
+    <h2>Order Placed Successfully</h2>
+    <p>Your order has been confirmed 🎉</p>
+    <p>Redirecting to order details...</p>
+</div>
+
+<script>
+    setTimeout(function () {
+        window.location.href = '/Customer/Order/Details/@ViewBag.OrderId';
+    }, 3000);
+</script>

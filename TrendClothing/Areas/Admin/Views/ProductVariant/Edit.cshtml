@@ -1,0 +1,43 @@
+﻿@model TrendClothing.Models.ProductVariant
+
+<form method="post">
+    <input asp-for="Id" hidden />
+    <input asp-for="ProductId" hidden />
+    <input asp-for="SizeId" hidden />
+    <input asp-for="ColorId" hidden />
+
+    <div class="border p-3 mt-4">
+
+        <h2 class="text-primary">Edit Variant</h2>
+        <hr />
+
+        <div class="mb-3">
+            <label>Product</label>
+            <input value="@Model?.Product?.Name" class="form-control" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label>Size</label>
+            <input value="@Model?.Size?.Name" class="form-control" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label>Color</label>
+            <input value="@Model?.Color?.Name" class="form-control" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label>Price</label>
+            <input asp-for="Price" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Stock</label>
+            <input asp-for="Stock" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+
+    </div>
+</form>

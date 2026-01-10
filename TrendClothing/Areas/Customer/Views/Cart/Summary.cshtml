@@ -1,0 +1,75 @@
+﻿@using TrendClothing.Models.ViewModels
+@model CheckoutVM
+
+<link rel="stylesheet" href="~/css/checkout-address.css" />
+
+<div class="checkout-wrapper">
+
+    <h3 class="checkout-title">Select Delivery Address</h3>
+
+    <form asp-area="Customer"
+          asp-controller="Cart"
+          asp-action="Payment"
+          method="post">
+
+        <div class="address-grid">
+            @foreach (var address in Model.Addresses)
+            {
+                <label class="address-card">
+                    <input type="radio"
+                           name="SelectedAddressId"
+                           value="@address.Id"
+                           required />
+
+                    <div class="address-box">
+                        <strong>@address.Name</strong>
+                        <p>@address.Street</p>
+                        <p>@address.City, @address.State</p>
+                        <p>@address.PostalCode</p>
+                    </div>
+                </label>
+            }
+
+            <!-- ADD NEW ADDRESS -->
+            <div class="address-card add-new"
+                 data-bs-toggle="modal"
+                 data-bs-target="#addAddressModal">
+                <div class="plus-box">
+                    <span>+</span>
+                    <p>Add New Address</p>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary proceed-btn">
+            Proceed to Payment
+        </button>
+    </form>
+</div>
+<!-- ================= ADD ADDRESS MODAL ================= -->
+<div class="modal fade" id="addAddressModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content p-3">
+
+            <h5>Add New Address</h5>
+
+            <form asp-area="Customer"
+                  asp-controller="Address"
+                  asp-action="Create"
+                  method="post">
+
+                <input name="Name" class="form-control mb-2" placeholder="Full Name" required />
+                <input name="PhoneNumber" class="form-control mb-2" placeholder="Phone Number" required />
+                <input name="Street" class="form-control mb-2" placeholder="Street Address" required />
+                <input name="City" class="form-control mb-2" placeholder="City" required />
+                <input name="State" class="form-control mb-2" placeholder="State" required />
+                <input name="PostalCode" class="form-control mb-2" placeholder="Postal Code" required />
+
+                <button class="btn btn-primary w-100 mt-2">
+                    Save Address
+                </button>
+            </form>
+
+        </div>
+    </div>
+</div>

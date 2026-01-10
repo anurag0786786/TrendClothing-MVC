@@ -1,0 +1,103 @@
+﻿@model TrendClothing.Models.ViewModels.ProductVariantVM
+
+<form method="post" asp-action="Upsert">
+    <div class="border p-3 mt-4">
+
+        <div class="row pb-2">
+            <h2 class="text-primary">Add Variants</h2>
+            <hr />
+        </div>
+
+        <div class="mb-3">
+            <label>Product</label>
+            <select asp-for="ProductId"
+                    asp-items="Model.ProductList"
+                    class="form-control"
+                    id="productSelect">
+                <option disabled selected>-- Select Product --</option>
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+            <label>Sizes</label>
+            <select asp-for="SelectedSizeIds"
+                    asp-items="Model.SizeList"
+                    multiple
+                    class="form-control"
+                    id="sizeSelect">
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Colors</label>
+            <select asp-for="SelectedColorIds"
+                    asp-items="Model.ColorList"
+                    multiple
+                    class="form-control"
+                    id="colorSelect">
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Price</label>
+            <input asp-for="Price" class="form-control" id="priceInput" />
+
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label>Stock</label>
+            <input asp-for="Stock" class="form-control" />
+            <span asp-validation-for="Stock" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-md-3">
+                <button type="submit" class="btn btn-primary form-control">
+                    Create Variants
+                </button>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-action="Index" class="btn btn-secondary form-control">
+                    Back
+                </a>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(document).ready(function () {
+
+            $('#sizeSelect').select2({
+                placeholder: "Select Sizes",
+                closeOnSelect: false,
+                width: '100%'
+            });
+
+            $('#colorSelect').select2({
+                placeholder: "Select Colors",
+                closeOnSelect: false,
+                width: '100%'
+            });
+
+            $('#productSelect').change(function () {
+                var productId = $(this).val();
+                if (productId) {
+                    $.get('/Admin/ProductVariant/GetProductPrice',
+                        { productId: productId },
+                        function (price) {
+                            $('#priceInput').val(price);
+                        });
+                }
+            });
+
+        });
+    </script>
+}
+
