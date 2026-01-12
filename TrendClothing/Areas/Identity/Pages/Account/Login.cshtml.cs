@@ -16,6 +16,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using TrendClothing.DataAccess.Repository.IRepository;
 using TrendClothing.Utility;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.IdentityModel.Tokens;
+
 
 
 namespace TrendClothing.Areas.Identity.Pages.Account
@@ -27,15 +30,18 @@ namespace TrendClothing.Areas.Identity.Pages.Account
         private readonly IUnitofWork _unitOfWork;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmailSender _emailSender;
+
 
         public LoginModel(
-     SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IUnitofWork unitOfWork,  ILogger<LoginModel> logger,IHttpContextAccessor httpContextAccessor)
+     SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, IUnitofWork unitOfWork,  ILogger<LoginModel> logger,IHttpContextAccessor httpContextAccessor,IEmailSender emailSender)
          {
             _signInManager = signInManager;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _emailSender = emailSender;
         }
         [TempData]
         public string ToastMessage { get; set; }
@@ -139,8 +145,15 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                     _httpContextAccessor.HttpContext.Session.SetInt32(
                         SD.Ss_cartSessionCount, cartCount
                     );
+
                     ToastMessage = "Login successful 🎉";
                     ToastColor = "#198754";
+                    await _emailSender.SendEmailAsync(
+    Input.Email,
+    "Login Alert 🔐",
+    $"Hi,<br/><br/>You logged in to your Trend Clothing account just now.<br/>If this wasn’t you, please change your password."
+);
+
                     return LocalRedirect(returnUrl);
                 }
 

@@ -42,6 +42,9 @@ builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<EmailTemplateRenderer>();
 builder.Services.AddScoped<CloudinaryService>();
+// ================= EMAIL SETTINGS (🔥 REQUIRED FIX) =================
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
 
 // ✅ REQUIRED FIX (THIS WAS MISSING)
 builder.Services.AddScoped<ISmsSender, SmsSender>();

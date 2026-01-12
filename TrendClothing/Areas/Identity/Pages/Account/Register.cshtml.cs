@@ -106,8 +106,8 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                         Text = r.Name,
                         Value = r.Name
                     })
-            };
 
+            };
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -191,6 +191,8 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                             await _userManager.AddToRoleAsync(user, SD.Role_Idividual);
                         }
                     }
+                    await _emailSender.SendEmailAsync( Input.Email,"Welcome to Trend Clothing 🎉", $"Hi {Input.Email},<br/><br/>Your account has been created successfully.<br/>Happy Shopping! 🛍️"
+   );
 
                     await _signInManager.SignInAsync(user, false);
                     // ✅ TOAST SET YAHIN

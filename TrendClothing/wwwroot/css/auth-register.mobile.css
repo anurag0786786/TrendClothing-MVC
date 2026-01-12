@@ -86,6 +86,7 @@
         display: flex;
         gap: 10px;
         margin-bottom: 16px;
+        width: 100%;
     }
 
         .mobile-phone-row select,
@@ -94,6 +95,9 @@
             border-radius: 12px;
             border: 1px solid #ddd;
             font-size: 14px;
+                width: 75%;
+   
+
         }
 
         .mobile-phone-row select {
