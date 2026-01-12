@@ -140,11 +140,12 @@ namespace TrendClothing.Areas.Customer.Controllers
             OrderHeader orderHeader = new OrderHeader
             {
                 ApplicationuserId = userId,
-                OrderDate = DateTime.Now,
-                ShippingDate = DateTime.Now.AddDays(3),
-                PaymentDate = DateTime.Now,
-                PaymentDueDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(7).ToString("yyyy-MM-dd"),
+                OrderDate = DateTime.UtcNow,
+                ShippingDate = DateTime.UtcNow.AddDays(3),
+                PaymentDate = DateTime.UtcNow,
+                PaymentDueDate = DateTime.UtcNow,
+                DueDate = DateTime.UtcNow.AddDays(7).ToString("yyyy-MM-dd"),
+
                 OrderStatus = SD.OrderStatusApproved,
                 PaymentStatus = SD.PaymentStatusApproved,
                 OrderTotal = cartList.Sum(c => c.ProductVariant.Price * c.Count),
@@ -192,8 +193,9 @@ namespace TrendClothing.Areas.Customer.Controllers
                 City = orderHeader.City,
                 State = orderHeader.State,
                 PostalCode = orderHeader.PostalCode,
-                ExpectedFrom = DateTime.Now.AddDays(7),
-                ExpectedTo = DateTime.Now.AddDays(14),
+                ExpectedFrom = DateTime.UtcNow.AddDays(7),
+                ExpectedTo = DateTime.UtcNow.AddDays(14),
+
                 Products = cartList.Select(c =>
                     (c.ProductVariant.Product.Name, c.Count)
      ).ToList()

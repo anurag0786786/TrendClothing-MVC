@@ -95,6 +95,7 @@ namespace TrendClothing.Areas.Customer.Controllers
         }
         public IActionResult Category(string name, ProductFilterVM vm)
         {
+
             var products = _unitOfWork.product.GetAll(
                 IncludeProperties: "Brand,Category"
             ).Where(p => p.Category.Name == name);

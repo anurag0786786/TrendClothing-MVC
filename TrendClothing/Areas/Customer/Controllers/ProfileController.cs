@@ -29,6 +29,15 @@ namespace TrendClothing.Areas.Customer.Controllers
             var profile = _db.UserProfiles
                 .FirstOrDefault(x => x.UserId == user.Id);
 
+            // ✅ IMPORTANT FIX
+            if (profile == null)
+            {
+                profile = new UserProfile
+                {
+                    UserId = user.Id
+                };
+            }
+
             var vm = new ProfileVM
             {
                 ProfileId = profile.Id,
@@ -43,6 +52,7 @@ namespace TrendClothing.Areas.Customer.Controllers
 
             return View(vm);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Index(ProfileVM model)

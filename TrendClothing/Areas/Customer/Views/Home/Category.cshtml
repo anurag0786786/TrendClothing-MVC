@@ -1,7 +1,7 @@
 ﻿@model TrendClothing.Models.ViewModels.ProductFilterVM
-
 @section Styles {
     <link rel="stylesheet" href="~/css/category.css" />
+    <link rel="stylesheet" href="~/css/category.mobile.css" />
 }
 
 <div class="container mt-5">
@@ -140,4 +140,113 @@
 
         </div>
     </div>
+</div>
+<!-- ================= MOBILE CATEGORY VIEW (ORIGINAL STYLE) ================= -->
+<div class="mobile-only">
+
+    <!-- BREADCRUMB -->
+    <div class="mobile-breadcrumb">
+        Home / <span>@ViewBag.CategoryName</span>
+    </div>
+
+    <!-- TITLE + SEARCH -->
+    <div class="mobile-header-row">
+        <h2 class="mobile-title">@ViewBag.CategoryName Wear</h2>
+
+        <form method="get" class="mobile-search-form">
+            <input type="hidden" name="name" value="@ViewBag.CategoryName" />
+            <input type="text"
+                   name="Search"
+                   value="@Model.Search"
+                   placeholder="Search products"
+                   class="mobile-search-input" />
+        </form>
+    </div>
+
+    <!-- PRODUCTS WRAPPER -->
+    <div class="mobile-category-wrapper">
+
+        <div class="mobile-products-grid">
+            @if (Model.Products != null && Model.Products.Any())
+            {
+                @foreach (var product in Model.Products)
+                {
+                    <div class="mobile-product-card">
+
+                        <div class="mobile-product-img">
+                            <img src="@product.ImageUrl" alt="@product.Name" />
+                        </div>
+
+                        <div class="mobile-product-body">
+                            <div class="mobile-brand">@product.Brand?.Name</div>
+                            <div class="mobile-product-name">@product.Name</div>
+
+                            @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
+                            {
+                                <div class="mobile-price-row">
+                                    <span class="mobile-price">₹ @product.DiscountPrice</span>
+                                    <span class="mobile-old-price">₹ @product.Price</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mobile-price-row">
+                                    <span class="mobile-price">₹ @product.Price</span>
+                                </div>
+                            }
+
+                            <a asp-action="Details"
+                               asp-route-id="@product.Id"
+                               class="mobile-view-btn">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="mobile-no-products">No products found</div>
+            }
+        </div>
+
+    </div>
+
+    <!-- ✅ BOTTOM FIXED FILTER BAR -->
+    <div class="mobile-bottom-filter">
+
+        <!-- ALL PRODUCTS -->
+        <form method="get" class="bottom-filter-item">
+            <input type="hidden" name="name" value="@ViewBag.CategoryName" />
+            <select name="Search"
+                    onchange="this.form.submit()"
+                    class="bottom-filter-select">
+                <option value="">All Products</option>
+                @foreach (var type in ViewBag.ProductTypes as List<string>)
+                {
+                    <option value="@type" selected="@(Model.Search == type)">
+                        @type
+                    </option>
+                }
+            </select>
+        </form>
+
+        <!-- WHAT'S NEW -->
+        <form method="get" class="bottom-filter-item">
+            <input type="hidden" name="name" value="@ViewBag.CategoryName" />
+            <select name="Sort"
+                    onchange="this.form.submit()"
+                    class="bottom-filter-select">
+                <option value="">What's New</option>
+                <option value="low" selected="@(Model.Sort == "low")">
+                    Price ↑
+                </option>
+                <option value="high" selected="@(Model.Sort == "high")">
+                    Price ↓
+                </option>
+            </select>
+        </form>
+
+    </div>
+
 </div>

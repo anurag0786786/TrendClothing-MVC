@@ -227,6 +227,7 @@
 //        }
 //    }
 //}
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -307,30 +308,56 @@ namespace TrendClothing.Areas.Identity.Pages.Account
         {
             returnUrl ??= Url.Content("~/");
 
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
+                return RedirectToPage("./Login");
+            }
+
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
                 return RedirectToPage("./Login");
 
+            // 1️⃣ TRY EXTERNAL LOGIN
             var result = await _signInManager.ExternalLoginSignInAsync(
                 info.LoginProvider,
                 info.ProviderKey,
-                false,
-                true);
+                isPersistent: false,
+                bypassTwoFactor: true);
 
             if (result.Succeeded)
                 return LocalRedirect(returnUrl);
 
+            // 2️⃣ CHECK IF USER EXISTS BY EMAIL
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            if (email != null)
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user != null)
+                {
+                    // 🔑 LINK GOOGLE/FACEBOOK TO EXISTING USER
+                    var linkResult = await _userManager.AddLoginAsync(user, info);
+                    if (linkResult.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
+                }
+            }
+
+            // 3️⃣ NEW USER → SHOW CONFIRMATION PAGE
             ProviderDisplayName = info.ProviderDisplayName;
             ReturnUrl = returnUrl;
 
             Input = new InputModel
             {
-                Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                Email = email,
                 Name = info.Principal.FindFirstValue(ClaimTypes.Name)
             };
 
             return Page();
         }
+
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
@@ -338,47 +365,54 @@ namespace TrendClothing.Areas.Identity.Pages.Account
 
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
+            {
                 return RedirectToPage("./Login");
+            }
 
             if (!ModelState.IsValid)
+            {
                 return Page();
+            }
 
-            var user = new IdentityUser
+            var user = new ApplicationUser
             {
                 UserName = Input.Email,
-                Email = Input.Email
+                Email = Input.Email,
+                Name = Input.Name,
+                Address = Input.Address,
+                City = Input.City,
+                State = Input.State,
+                PostalCode = Input.PostalCode,
+                EmailConfirmed = true
             };
-
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
 
             var result = await _userManager.CreateAsync(user);
 
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                await _userManager.AddLoginAsync(user, info);
-
-                var profile = new UserProfile
+                foreach (var error in result.Errors)
                 {
-                    UserId = user.Id,
-                    FullName = Input.Name,
-                    Address = Input.Address,
-                    City = Input.City,
-                    State = Input.State,
-                    PostalCode = Input.PostalCode
-                };
-
-                _unitOfWork.UserProfile.Add(profile);
-                _unitOfWork.Save();
-
-                await _signInManager.SignInAsync(user, false);
-                return LocalRedirect(returnUrl);
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return Page();
             }
 
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
+            // 🔑 THIS IS VERY IMPORTANT
+            var loginResult = await _userManager.AddLoginAsync(user, info);
+            if (!loginResult.Succeeded)
+            {
+                foreach (var error in loginResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return Page();
+            }
 
-            return Page();
+            // 🔑 SIGN IN USER
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            return LocalRedirect(returnUrl);
         }
 
         private IUserEmailStore<IdentityUser> GetEmailStore()

@@ -5,6 +5,8 @@
 }
 
 <link rel="stylesheet" href="~/css/auth-glass.css" />
+<link rel="stylesheet" href="~/css/auth-login.css" />
+<div class="desktop-only">
 
 <div class="auth-bg"></div>
 
@@ -71,6 +73,7 @@
                 </div>
             </form>
         </div>
+        </div>
 
     </div>
 </div>
@@ -78,3 +81,93 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+<div class="mobile-only">
+
+    <div class="mobile-auth-wrapper">
+
+        <!-- BRAND -->
+        <div class="mobile-auth-brand">
+            TrendClothing
+        </div>
+
+        <!-- CARD -->
+        <div class="mobile-auth-card">
+
+            <h2 class="mobile-auth-title">Welcome Back</h2>
+            <p class="mobile-auth-sub">
+                Login to continue shopping
+            </p>
+
+            <!-- LOGIN FORM -->
+            <form method="post" class="mobile-auth-form">
+
+                <!-- EMAIL -->
+                <div class="mobile-float">
+                    <input asp-for="Input.Email" required />
+                    <label>Email</label>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mobile-float">
+                    <input asp-for="Input.Password" type="password" required />
+                    <label>Password</label>
+                </div>
+                <!-- REMEMBER / FORGOT ROW -->
+                <div class="mobile-login-options">
+
+                    <label class="remember-me">
+                        <input asp-for="Input.RememberMe" type="checkbox" />
+                        <span>Remember me</span>
+                    </label>
+
+                    <a asp-page="./ForgotPassword"
+                       class="forgot-link">
+                        Forgot password?
+                    </a>
+
+                </div>
+
+
+                <!-- LOGIN BUTTON -->
+                <button type="submit" class="mobile-auth-btn">
+                    Login
+                </button>
+            </form>
+
+            <!-- SOCIAL LOGIN -->
+            <form asp-area="Identity"
+                  asp-page="/Account/ExternalLogin"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+
+                <div class="mobile-social-row">
+
+                    <button type="submit"
+                            name="provider"
+                            value="Google"
+                            class="mobile-social-btn google">
+                        <img src="~/Images/google.svg" alt="Google" />
+                        Google
+                    </button>
+
+                    <button type="submit"
+                            name="provider"
+                            value="Facebook"
+                            class="mobile-social-btn facebook">
+                        <img src="~/Images/facebook.svg" alt="Facebook" />
+                        Facebook
+                    </button>
+
+                </div>
+            </form>
+
+            <!-- REGISTER LINK -->
+            <div class="mobile-auth-footer">
+                Don’t have an account?
+                <a asp-page="./Register">Register</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

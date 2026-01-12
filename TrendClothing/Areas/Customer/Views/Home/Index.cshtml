@@ -1,4 +1,6 @@
 ﻿@model IEnumerable<TrendClothing.Models.Product>
+<link rel="stylesheet" href="~/css/index.mobile.css" />
+<div class="desktop-only">
 
 <div class="hero-section">
     <a href="#categories" class="hero-link">
@@ -60,6 +62,96 @@
                 </div>
             </a>
         </div>
+        </div>
 
     </div>
+</div>
+
+<!-- MOBILE HOME -->
+<!-- ================= MOBILE HOME ================= -->
+<div class="mobile-only">
+
+    <!-- TOP CATEGORY TABS -->
+    <div class="m-top-tabs">
+        <a asp-action="Index" asp-route-name="Home" class="active">Home</a>
+        <a asp-action="Category" asp-route-name="Men">MEN</a>
+        <a asp-action="Category" asp-route-name="Women">WOMEN</a>
+        <a asp-action="Category" asp-route-name="Children">CHILDREN</a>
+    </div>
+
+    <!-- HERO IMAGE -->
+    <section class="m-hero-image">
+        <img src="~/Images/hero1.jpg" alt="New Season" />
+        <div class="m-hero-text">
+            New Season Arrivals
+        </div>
+    </section>
+
+    @* <div class="m-section-label">Trending Now</div>
+
+
+        <div class="m-product-grid">
+            @foreach (var product in Model.Take(4))
+            {
+                <a asp-action="Details"
+                   asp-route-id="@product.Id"
+                   class="m-product">
+
+                    <img src="@product.ImageUrl" alt="@product.Name" />
+
+                    <div class="m-product-name">
+                        @product.Name
+                    </div>
+
+                    <div class="m-product-price">
+                        ₹ @product.DiscountPrice
+                    </div>
+                </a>
+            }
+        </div> *@
+    <!-- CHOOSE CATEGORIES WITH IMAGES -->
+    <section class="m-choose-categories">
+
+        <h3 class="m-choose-title">Choose Category</h3>
+
+        <div class="m-choose-grid">
+
+            <!-- MEN -->
+            <a asp-action="Category"
+               asp-route-name="Men"
+               class="m-choose-card active">
+                <img src="~/Images/Categories/Men.jpg" alt="Men" />
+                <span>MEN</span>
+            </a>
+
+            <!-- WOMEN -->
+            <div class="m-choose-card disabled">
+                <img src="~/Images/Categories/Women.jpg" alt="Women" />
+                <span>WOMEN</span>
+                <small>Coming Soon</small>
+            </div>
+
+            <!-- CHILDREN -->
+            <div class="m-choose-card disabled">
+                <img src="~/Images/Categories/Children.jpg" alt="Children" />
+                <span>CHILDREN</span>
+                <small>Coming Soon</small>
+            </div>
+
+            @* <!-- COMING SOON -->
+            <div class="m-choose-card coming">
+                <img src="~/Images/Categories/ComingSoon.jpg" alt="Coming Soon" />
+                <span>COMING SOON</span>
+            </div> *@
+
+        </div>
+
+    </section>
+
+
+    @* <!-- PROMO IMAGE -->
+    <section class="m-promo">
+        <img src="~/Images/Categories/Women.jpg" alt="Offer" />
+    </section> *@
+
 </div>

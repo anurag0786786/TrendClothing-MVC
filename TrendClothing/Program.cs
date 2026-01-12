@@ -6,52 +6,99 @@ using Stripe;
 using TrendClothing.Data;
 using TrendClothing.DataAccess.Repository;
 using TrendClothing.DataAccess.Repository.IRepository;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Facebook;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ ONLY PostgreSQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new Exception("Database connection string not found");
-
+// ================= DB =================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+// ================= IDENTITY (DON'T TOUCH) =================
+builder.Services
+    .AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+    })
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddControllersWithViews();
+// ================= MVC + RAZOR =================
+builder.Services.AddControllersWithViews()
+    .AddRazorRuntimeCompilation();
+
 builder.Services.AddRazorPages();
+builder.Services.Configure<TwilioSettings>(
+    builder.Configuration.GetSection("TwilioSettings")
+);
 
+// ================= CUSTOM SERVICES =================
 builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<EmailTemplateRenderer>();
+
+// ✅ REQUIRED FIX (THIS WAS MISSING)
 builder.Services.AddScoped<ISmsSender, SmsSender>();
 
-builder.Services.AddSession();
+// ================= SESSION =================
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// ================= COOKIE =================
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+
+// ================= STRIPE =================
+StripeConfiguration.ApiKey =
+    builder.Configuration.GetSection("StripeSettings")["SecretKey"];
+builder.Services.AddAuthentication()
+    .AddGoogle(options =>
+    {
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    })
+    .AddFacebook(options =>
+    {
+        options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+    });
+
+
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
+
+
+// ================= PIPELINE =================
+if (app.Environment.IsDevelopment())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
+    app.UseMigrationsEndPoint();
 }
-
-
-if (!app.Environment.IsDevelopment())
+else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
-
+app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseRouting();
 
-StripeConfiguration.ApiKey = builder.Configuration["StripeSettings:SecretKey"];
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseSession();
 
 app.MapControllerRoute(
@@ -59,4 +106,5 @@ app.MapControllerRoute(
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+
 app.Run();

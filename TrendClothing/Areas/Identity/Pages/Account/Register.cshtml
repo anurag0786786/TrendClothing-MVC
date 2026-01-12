@@ -5,6 +5,8 @@
 }
 
 <link rel="stylesheet" href="~/css/auth-register.css" />
+<link rel="stylesheet" href="~/css/auth-register.mobile.css" />
+<div class="desktop-only">
 
 <div class="register-bg"></div>
 
@@ -130,8 +132,133 @@
         </div>
 
     </div>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+<div class="mobile-only">
+
+    <div class="mobile-auth-wrapper">
+
+        <!-- BRAND -->
+        <div class="mobile-auth-brand">
+            TrendClothing
+        </div>
+
+        <!-- CARD -->
+        <div class="mobile-auth-card">
+
+            <h2 class="mobile-auth-title">Create Account</h2>
+            <p class="mobile-auth-sub">
+                Join TrendClothing & start shopping
+            </p>
+
+            <!-- REGISTER FORM -->
+            <form method="post" class="mobile-auth-form">
+
+                <!-- EMAIL -->
+                <div class="mobile-float">
+                    <input asp-for="Input.Email" required />
+                    <label>Email</label>
+                </div>
+
+                <!-- PHONE -->
+                <div class="mobile-phone-row">
+                    <select asp-for="Input.CountryCode">
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                    </select>
+
+                    <input asp-for="Input.PhoneNumber"
+                           placeholder="Phone number" />
+                </div>
+
+                <!-- FULL NAME -->
+                <div class="mobile-float">
+                    <input asp-for="Input.Name" required />
+                    <label>Full Name</label>
+                </div>
+
+                <!-- ADDRESS -->
+                <div class="mobile-float">
+                    <input asp-for="Input.Address" />
+                    <label>Address</label>
+                </div>
+
+                <!-- CITY + STATE -->
+                <div class="mobile-two-col">
+                    <div class="mobile-float">
+                        <input asp-for="Input.City" required />
+                        <label>City</label>
+                    </div>
+
+                    <div class="mobile-float">
+                        <input asp-for="Input.State" required />
+                        <label>State</label>
+                    </div>
+                </div>
+
+                <!-- POSTAL CODE -->
+                <div class="mobile-float">
+                    <input asp-for="Input.PostalCode" />
+                    <label>Postal Code</label>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mobile-float">
+                    <input asp-for="Input.Password" type="password" required />
+                    <label>Password</label>
+                </div>
+
+                <!-- CONFIRM PASSWORD -->
+                <div class="mobile-float">
+                    <input asp-for="Input.ConfirmPassword" type="password" required />
+                    <label>Confirm Password</label>
+                </div>
+
+                <!-- REGISTER BUTTON -->
+                <button type="submit" class="mobile-auth-btn">
+                    Register
+                </button>
+            </form>
+
+            <!-- SOCIAL LOGIN -->
+            <form asp-area="Identity"
+                  asp-page="/Account/ExternalLogin"
+                  asp-route-returnUrl="@Model.ReturnUrl"
+                  method="post">
+
+                <div class="mobile-social-row">
+
+                    <button type="submit"
+                            name="provider"
+                            value="Google"
+                            class="mobile-social-btn google">
+                        <img src="~/Images/google.svg" alt="Google" />
+                        Google
+                    </button>
+
+                    <button type="submit"
+                            name="provider"
+                            value="Facebook"
+                            class="mobile-social-btn facebook">
+                        <img src="~/Images/facebook.svg" alt="Facebook" />
+                        Facebook
+                    </button>
+
+                </div>
+            </form>
+
+            <!-- LOGIN LINK -->
+            <div class="mobile-auth-footer">
+                Already have an account?
+                <a asp-page="./Login">Login</a>
+            </div>
+
+        </div>
+    </div>
+
+</div>

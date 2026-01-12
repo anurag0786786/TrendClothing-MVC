@@ -1,0 +1,223 @@
+﻿/* =========================
+   MOBILE REGISTER – PREMIUM
+========================= */
+@media (max-width: 768px) {
+
+    /* ===== PAGE ===== */
+    .mobile-auth-wrapper {
+        min-height: 100vh;
+        padding: 20px 16px;
+        background: #f5efe6;
+    }
+
+    .mobile-auth-brand {
+        text-align: center;
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: #2b1055;
+        margin-bottom: 18px;
+    }
+
+    /* ===== CARD ===== */
+    .mobile-auth-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 22px 18px;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+
+    .mobile-auth-title {
+        text-align: center;
+        font-size: 22px;
+        color: #2b1055;
+        margin-bottom: 4px;
+    }
+
+    .mobile-auth-sub {
+        text-align: center;
+        font-size: 13px;
+        color: #777;
+        margin-bottom: 18px;
+    }
+
+    /* ===== FLOATING INPUTS ===== */
+    .mobile-float {
+        position: relative;
+        margin-bottom: 16px;
+    }
+
+        .mobile-float input {
+            width: 100%;
+            padding: 14px 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+
+        .mobile-float label {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fff;
+            padding: 0 6px;
+            font-size: 13px;
+            color: #999;
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .mobile-float input:focus {
+            border-color: #2b1055;
+        }
+
+            .mobile-float input:focus + label,
+            .mobile-float input:valid + label {
+                top: -8px;
+                font-size: 12px;
+                color: #2b1055;
+            }
+
+    /* ===== PHONE ROW ===== */
+    .mobile-phone-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+        .mobile-phone-row select,
+        .mobile-phone-row input {
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .mobile-phone-row select {
+            max-width: 110px;
+        }
+
+    /* ===== TWO COLUMN ===== */
+    .mobile-two-col {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+        .mobile-two-col .mobile-float {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+    /* ===== BUTTON ===== */
+    .mobile-auth-btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 30px;
+        background: #2b1055;
+        color: #fff;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    /* ===== SOCIAL LOGIN ===== */
+    .mobile-social-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .mobile-social-btn {
+        flex: 1;
+        height: 44px;
+        border-radius: 30px;
+        border: 1px solid #ddd;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+        .mobile-social-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .mobile-social-btn.facebook {
+            border-color: #1877f2;
+            color: #1877f2;
+        }
+
+    /* ===== FOOTER ===== */
+    .mobile-auth-footer {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #555;
+    }
+
+        .mobile-auth-footer a {
+            color: #2b1055;
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+}
+
+/* =========================
+   VISIBILITY CONTROL
+========================= */
+.desktop-only {
+    display: block;
+}
+
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none;
+    }
+
+    .mobile-only {
+        display: block;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .mobile-social-btn {
+        transition: all 0.3s ease;
+    }
+
+        /* Google Hover */
+        .mobile-social-btn.google:hover {
+            background: #f5f5f5;
+            border-color: #bbb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+        }
+
+        /* Facebook Hover */
+        .mobile-social-btn.facebook:hover {
+            background: #1877f2;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(24,119,242,0.35);
+        }
+
+            .mobile-social-btn.facebook:hover img {
+                filter: brightness(0) invert(1); /* logo white */
+            }
+}

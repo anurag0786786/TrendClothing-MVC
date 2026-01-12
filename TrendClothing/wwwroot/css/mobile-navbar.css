@@ -1,0 +1,440 @@
+﻿/* ================= DESKTOP / MOBILE CONTROL ================= */
+
+/* Desktop default */
+.desktop-navbar {
+    display: flex;
+}
+
+/* Mobile navbar hidden by default */
+.mobile-navbar {
+    display: none;
+}
+
+/* ================= MOBILE ONLY ================= */
+@media (max-width: 991px) {
+
+    .desktop-navbar {
+        display: none !important;
+    }
+
+    .mobile-navbar {
+        display: flex !important;
+        position: sticky;
+        top: 0;
+        z-index: 1050;
+        background: linear-gradient(90deg, #2c0f5f, #5b2b86);
+        color: #fff;
+        padding: 10px 14px;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+/* ================= MOBILE NAVBAR UI ================= */
+
+.mobile-nav-left,
+.mobile-nav-center,
+.mobile-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* 🔥 main spacing fix */
+}
+
+
+/* 🔥 MAIN FIX: cart + profile overlap */
+.mobile-nav-right {
+    gap: 10px;
+}
+
+.mobile-logo {
+    color: #f3c16c;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.mobile-menu-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.mobile-cart {
+    position: relative;
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px; /* 🔥 breathing space */
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    background: red;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+/* Profile circle */
+.mobile-profile {
+    width: 32px;
+    height: 32px;
+    background: #f3c16c;
+    color: #2c0f5f;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.6);
+}
+
+/* ================= DRAWER ================= */
+
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    background: #fafafa;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+    z-index: 1100;
+    transition: 0.3s ease;
+}
+
+    .mobile-drawer.open {
+        left: 0;
+    }
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    font-weight: 600;
+    background: linear-gradient(90deg, #2c0f5f, #5b2b86);
+    color: #fff;
+}
+
+.drawer-links {
+    list-style: none;
+    padding: 12px;
+    margin: 0;
+}
+
+    .drawer-links li a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
+    .drawer-links > li > a {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px; /* gap between cards */
+        padding: 14px 16px;
+        background: #ffffff;
+        border-radius: 14px; /* 🔥 rounded edges */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        font-size: 15px;
+        font-weight: 500;
+        color: #2c0f5f;
+        transition: all 0.25s ease;
+    }
+        .drawer-links > li > a:hover {
+            background: linear-gradient(90deg, #ede7ff, #f7f4ff);
+            transform: translateY(-2px); /* lift effect */
+            box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+        }
+
+
+
+/* Overlay */
+.drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 1000;
+}
+
+/* ================= DRAWER DROPDOWN ================= */
+
+/*.drawer-dropdown > span,
+.drawer-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    font-weight: 600;
+    background: #eee;
+    cursor: pointer;
+}
+
+.drawer-submenu {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .drawer-submenu li a {
+        padding-left: 30px;
+        background: #fff;
+    }
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #2c0f5f, #5b2b86);
+    color: #f3c16c;
+}
+.drawer-links li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s ease;
+}
+
+    .drawer-links li a:hover {
+        background: #f5f2fb;
+    }
+.drawer-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    background: #f0edf8;
+    color: #2c0f5f;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+}
+.drawer-submenu {
+    background: #fafafa;
+}
+
+    .drawer-submenu li a {
+        padding-left: 42px;
+        font-size: 14px;
+        color: #444;
+    }
+.drawer-toggle i {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.drawer-dropdown.open .drawer-toggle i {
+    transform: rotate(180deg);
+}
+.mobile-drawer {
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+}
+
+    .mobile-drawer.open {
+        transform: translateX(0);
+    }
+*/
+/* ================= DRAWER BACKGROUND ================= */
+
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    /* 🔥 NEW BACKGROUND */
+    background: linear-gradient(180deg, #ffffff, #f6f3ff);
+    box-shadow: 4px 0 25px rgba(0,0,0,0.18);
+    z-index: 1100;
+    transition: transform 0.3s ease;
+    transform: translateX(-100%);
+}
+
+    .mobile-drawer.open {
+        transform: translateX(0);
+    }
+
+/* ================= DRAWER HEADER ================= */
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    font-size: 18px;
+    letter-spacing: 0.4px;
+    background: linear-gradient(90deg, #2c0f5f, #5b2b86);
+    color: #f3c16c;
+}
+
+/* ================= DRAWER LINKS ================= */
+
+.drawer-links li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: #2c0f5f;
+    border-bottom: 1px solid #e6e2f2;
+    transition: all 0.25s ease;
+}
+
+    /* 🔥 HOVER EFFECT */
+    .drawer-links li a:hover {
+        background: linear-gradient(90deg, #ede7ff, #f7f4ff);
+        color: #3b1c7a;
+        padding-left: 24px; /* thoda slide feel */
+    }
+
+/* ================= DROPDOWN TOGGLE ================= */
+
+.drawer-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    background: #f0ebff;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    color: #2c0f5f;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 14px 16px;
+    transition: background 0.25s ease;
+}
+
+    /* 🔥 DROPDOWN HOVER */
+    .drawer-toggle:hover {
+        background: #e4dcff;
+    }
+
+    /* Arrow animation */
+    .drawer-toggle i {
+        font-size: 12px;
+        transition: transform 0.3s ease;
+    }
+
+.drawer-dropdown.open .drawer-toggle i {
+    transform: rotate(180deg);
+}
+
+/* ================= SUBMENU ================= */
+
+.drawer-submenu {
+    display: none;
+    background: #faf9ff;
+    margin-top: 6px;
+    margin-bottom: 12px;
+}
+
+    .drawer-submenu li a {
+        padding-left: 42px;
+        font-size: 14px;
+        color: #4a3a70;
+        transition: all 0.25s ease;
+    }
+
+        /* 🔥 SUBMENU HOVER */
+    .drawer-submenu li a {
+        margin: 6px 0 0 12px; /* thoda andar */
+        padding: 12px 16px;
+        background: #faf9ff;
+        border-radius: 12px;
+        font-size: 14px;
+        color: #4a3a70;
+    }
+/* ================= LOGOUT BUTTON ================= */
+
+.drawer-logout {
+    margin-top: 20px;
+    padding: 0 12px;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #d32f2f, #b71c1c);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border-radius: 16px;
+}
+
+    /* 🔥 HOVER EFFECT */
+    .logout-btn:hover {
+        background: linear-gradient(90deg, #b71c1c, #9a0007);
+        transform: scale(0.98);
+    }
+/* ================= AUTH BUTTONS (MOBILE NAVBAR) ================= */
+
+.mobile-auth-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+/* Register (golden) */
+.register-btn {
+    background: #f3c16c;
+    color: #2c0f5f;
+}
+
+/* Login (outline style) */
+.login-btn {
+    border: 1px solid #f3c16c;
+    color: #f3c16c;
+    background: transparent;
+}
+
+/* Hover effect */
+.mobile-auth-btn:hover {
+    opacity: 0.9;
+    transform: scale(0.97);
+}
+
+/* spacing fix */
+.mobile-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

@@ -1,0 +1,213 @@
+﻿/* =========================
+   MOBILE LOGIN – PREMIUM
+========================= */
+@media (max-width: 768px) {
+
+    /* PAGE */
+    .mobile-auth-wrapper {
+        min-height: 100vh;
+        padding: 20px 16px;
+        background: #f5efe6;
+    }
+
+    .mobile-auth-brand {
+        text-align: center;
+        font-family: 'Playfair Display', serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: #2b1055;
+        margin-bottom: 18px;
+    }
+
+    /* CARD */
+    .mobile-auth-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 24px 18px;
+        box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+
+    .mobile-auth-title {
+        text-align: center;
+        font-size: 22px;
+        color: #2b1055;
+        margin-bottom: 4px;
+    }
+
+    .mobile-auth-sub {
+        text-align: center;
+        font-size: 13px;
+        color: #777;
+        margin-bottom: 20px;
+    }
+
+    /* FLOATING INPUT */
+    .mobile-float {
+        position: relative;
+        margin-bottom: 18px;
+    }
+
+        .mobile-float input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+
+        .mobile-float label {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fff;
+            padding: 0 6px;
+            font-size: 13px;
+            color: #999;
+            pointer-events: none;
+            transition: 0.3s ease;
+        }
+
+        .mobile-float input:focus {
+            border-color: #2b1055;
+        }
+
+            .mobile-float input:focus + label,
+            .mobile-float input:valid + label {
+                top: -8px;
+                font-size: 12px;
+                color: #2b1055;
+            }
+
+    /* BUTTON */
+    .mobile-auth-btn {
+        width: 100%;
+        padding: 14px;
+        border-radius: 30px;
+        background: #2b1055;
+        color: #fff;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        margin-top: 8px;
+        cursor: pointer;
+    }
+
+    /* SOCIAL LOGIN */
+    .mobile-social-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .mobile-social-btn {
+        flex: 1;
+        height: 44px;
+        border-radius: 30px;
+        border: 1px solid #ddd;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .mobile-social-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Google hover */
+        .mobile-social-btn.google:hover {
+            background: #f5f5f5;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+        }
+
+        /* Facebook hover */
+        .mobile-social-btn.facebook {
+            border-color: #1877f2;
+            color: #1877f2;
+        }
+
+            .mobile-social-btn.facebook:hover {
+                background: #1877f2;
+                color: #fff;
+                transform: translateY(-2px);
+                box-shadow: 0 10px 24px rgba(24,119,242,0.35);
+            }
+
+                .mobile-social-btn.facebook:hover img {
+                    filter: brightness(0) invert(1);
+                }
+
+    /* FOOTER */
+    .mobile-auth-footer {
+        text-align: center;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #555;
+    }
+
+        .mobile-auth-footer a {
+            color: #2b1055;
+            font-weight: 600;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+}
+
+/* VISIBILITY CONTROL */
+.desktop-only {
+    display: block;
+}
+
+.mobile-only {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none;
+    }
+
+    .mobile-only {
+        display: block;
+    }
+}
+/* REMEMBER + FORGOT */
+.mobile-login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 2px 16px;
+    font-size: 13px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+    .remember-me input {
+        accent-color: #2b1055;
+        cursor: pointer;
+    }
+
+.forgot-link {
+    color: #2b1055;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .forgot-link:hover {
+        text-decoration: underline;
+    }
