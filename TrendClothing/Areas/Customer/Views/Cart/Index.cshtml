@@ -90,13 +90,40 @@
                         <span>₹ @bagTotal</span>
                     </div>
 
-                    <a asp-action="Summary"
-                       class="btn proceed-btn w-100 mt-3">
-                        PROCEED TO SHIPPING
-                    </a>
+                    @if (ViewBag.IsEmailConfirmed == true)
+                    {
+                        <a asp-action="Summary"
+                           class="btn btn-dark w-100">
+                            PROCEED TO SHIPPING
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center mb-3">
+                            ⚠ Please verify your email to continue checkout
+                        </div>
+
+                        <button type="button"
+                                class="btn btn-warning w-100"
+                                onclick="sendVerificationEmail()">
+                            VERIFY EMAIL FIRST
+                        </button>
+                    }
+
                 </div>
             </div>
         }
 
     </div>
 </div>
+<form id="verifyEmailForm"
+      asp-action="SendVerificationEmail"
+      asp-controller="Profile"
+      method="post">
+</form>
+
+<script>
+    function sendVerificationEmail() {
+        document.getElementById("verifyEmailForm").submit();
+    }
+</script>

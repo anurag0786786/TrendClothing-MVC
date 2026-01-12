@@ -6,6 +6,8 @@ using TrendClothing.DataAccess.Repository.IRepository;
 using TrendClothing.Models;
 using TrendClothing.Models.ViewModels;
 using TrendClothing.Utility;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace TrendClothing.Areas.Customer.Controllers
 {
@@ -13,14 +15,18 @@ namespace TrendClothing.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IUnitofWork _unitOfWork;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public CartController(IUnitofWork unitOfWork)
+
+
+        public CartController(IUnitofWork unitOfWork, UserManager<IdentityUser> userManager)
         {
             _unitOfWork = unitOfWork;
+            _userManager = userManager;
         }
 
         // ================= CART INDEX =================
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -28,6 +34,7 @@ namespace TrendClothing.Areas.Customer.Controllers
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId);
 
             var cartList = _unitOfWork.ShoppingCart.GetAll(
                 c => c.ApplicationUserId == userId,
@@ -41,6 +48,9 @@ namespace TrendClothing.Areas.Customer.Controllers
 
             HttpContext.Session.SetInt32(SD.Ss_cartSessionCount, cartList.Count);
 
+            // 🔥 IMPORTANT
+            ViewBag.IsEmailConfirmed = user.EmailConfirmed;
+
             return View(new ShoppingCartVM
             {
                 ListCart = cartList
@@ -48,8 +58,8 @@ namespace TrendClothing.Areas.Customer.Controllers
         }
 
         // ================= ADD TO CART =================
-       
-        
+
+
         public IActionResult AddToCart(int variantId, int count = 1, string returnUrl = null)
         {
             if (!User.Identity.IsAuthenticated)
