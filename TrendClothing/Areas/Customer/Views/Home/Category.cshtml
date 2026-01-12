@@ -177,27 +177,34 @@
                             <img src="@product.ImageUrl" alt="@product.Name" />
                         </div>
 
-                        <div class="mobile-product-body">
-                            <div class="mobile-brand">@product.Brand?.Name</div>
-                            <div class="mobile-product-name">@product.Name</div>
+                        <div class="product-body">
+                            <div class="brand-name">@product.Brand?.Name</div>
+                            <div class="product-name">@product.Name</div>
 
-                            @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
+                            @if (product.DiscountPrice > 0 &&
+                                                product.DiscountPrice < product.Price)
                             {
-                                <div class="mobile-price-row">
-                                    <span class="mobile-price">₹ @product.DiscountPrice</span>
-                                    <span class="mobile-old-price">₹ @product.Price</span>
+                                <div class="price-row">
+                                    <span class="discount-price">₹ @product.DiscountPrice</span>
+                                    <span class="old-price">₹ @product.Price</span>
+                                    @{
+                                        var percentOff =
+                                        (int)(((product.Price - product.DiscountPrice)
+                                        / product.Price) * 100);
+                                    }
+                                    <span class="off-percent">@percentOff% OFF</span>
                                 </div>
                             }
                             else
                             {
-                                <div class="mobile-price-row">
-                                    <span class="mobile-price">₹ @product.Price</span>
+                                <div class="price-row">
+                                    <span class="discount-price">₹ @product.Price</span>
                                 </div>
                             }
 
                             <a asp-action="Details"
                                asp-route-id="@product.Id"
-                               class="mobile-view-btn">
+                               class="btn btn-outline-dark w-100 mt-3">
                                 View Details
                             </a>
                         </div>

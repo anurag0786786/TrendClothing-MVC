@@ -41,6 +41,7 @@ builder.Services.Configure<TwilioSettings>(
 builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<EmailTemplateRenderer>();
+builder.Services.AddScoped<CloudinaryService>();
 
 // ✅ REQUIRED FIX (THIS WAS MISSING)
 builder.Services.AddScoped<ISmsSender, SmsSender>();

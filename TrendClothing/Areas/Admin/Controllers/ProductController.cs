@@ -16,11 +16,12 @@ namespace TrendClothing.Areas.Admin.Controllers
     {
         private readonly IUnitofWork _unitofWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductController(IUnitofWork unitofWork,IWebHostEnvironment webHostEnvironment)
+        private readonly CloudinaryService _cloudinary;
+        public ProductController(IUnitofWork unitofWork,IWebHostEnvironment webHostEnvironment, CloudinaryService cloudinary)
         {
             _unitofWork = unitofWork;
             _webHostEnvironment = webHostEnvironment;
-
+            _cloudinary = cloudinary;
         }
         public IActionResult Index()
         {
@@ -45,25 +46,41 @@ namespace TrendClothing.Areas.Admin.Controllers
 
             return Json(productTypes);
         }
+        //[HttpDelete]
+        //public IActionResult Delete(int id)
+        //{
+        //    var ProductInDb = _unitofWork.product.Get(id);
+        //    if (ProductInDb == null)
+        //    {
+        //        return Json(new { success = false, Message = "Unable To Delete Data !!!" });
+        //    }
+
+        //    var WebRootPath = _webHostEnvironment.ContentRootPath;
+        //    var ImagePath = Path.Combine(WebRootPath, ProductInDb.ImageUrl.Trim('\\'));
+        //    if (System.IO.File.Exists(ImagePath))
+        //    {
+        //        System.IO.File.Delete(ImagePath);
+        //    }
+        //    _unitofWork.product.Remove(ProductInDb);
+        //    _unitofWork.Save();
+        //    return Json(new { success = true, Message = "Data Deleted Succesfully" });
+        //}
         [HttpDelete]
         public IActionResult Delete(int id)
         {
-            var ProductInDb = _unitofWork.product.Get(id);
-            if (ProductInDb == null)
+            var productInDb = _unitofWork.product.Get(id);
+            if (productInDb == null)
             {
-                return Json(new { success = false, Message = "Unable To Delete Data !!!" });
+                return Json(new { success = false, message = "Unable to delete" });
             }
 
-            var WebRootPath = _webHostEnvironment.ContentRootPath;
-            var ImagePath = Path.Combine(WebRootPath, ProductInDb.ImageUrl.Trim('\\'));
-            if (System.IO.File.Exists(ImagePath))
-            {
-                System.IO.File.Delete(ImagePath);
-            }
-            _unitofWork.product.Remove(ProductInDb);
+            // ❌ NO LOCAL FILE DELETE
+            _unitofWork.product.Remove(productInDb);
             _unitofWork.Save();
-            return Json(new { success = true, Message = "Data Deleted Succesfully" });
+
+            return Json(new { success = true, message = "Deleted successfully" });
         }
+
 
 
         #endregion
@@ -97,78 +114,124 @@ namespace TrendClothing.Areas.Admin.Controllers
             });
             return View(productVM);
         }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Upsert(ProductVM productVM)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var webRootPath = _webHostEnvironment.WebRootPath;
+        //        var files = HttpContext.Request.Form.Files;
+
+        //        if (files.Count > 0)
+        //        {
+        //            var fileName = Guid.NewGuid().ToString();
+        //            var extension = Path.GetExtension(files[0].FileName);
+        //            var uploads = Path.Combine(webRootPath, @"Images\Product");
+
+        //            if (productVM.Product.Id != 0)
+        //            {
+        //                var oldImage = _unitofWork.product.Get(productVM.Product.Id).ImageUrl;
+        //                productVM.Product.ImageUrl = oldImage;
+        //            }
+
+        //            if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
+        //            {
+        //                var oldImagePath = Path.Combine(webRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
+        //                if (System.IO.File.Exists(oldImagePath))
+        //                {
+        //                    System.IO.File.Delete(oldImagePath);
+        //                }
+        //            }
+
+        //            using (var fileStream = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
+        //            {
+        //                files[0].CopyTo(fileStream);
+        //            }
+
+        //            productVM.Product.ImageUrl = @"\Images\Product\" + fileName + extension;
+        //        }
+        //        else
+        //        {
+        //            if (productVM.Product.Id != 0)
+        //            {
+        //                productVM.Product.ImageUrl = _unitofWork.product.Get(productVM.Product.Id).ImageUrl;
+        //            }
+        //        }
+
+        //        if (productVM.Product.Id == 0)
+        //        {
+        //            _unitofWork.product.Add(productVM.Product);
+        //        }
+        //        else
+        //        {
+        //            _unitofWork.product.Update(productVM.Product);
+        //        }
+
+        //        _unitofWork.Save();
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    productVM.CategoryList = _unitofWork.category.GetAll().Select(c => new SelectListItem
+        //    {
+        //        Text = c.Name,
+        //        Value = c.Id.ToString()
+        //    });
+
+        //    productVM.ProductTypeList = _unitofWork.productType.GetAll().Select(p => new SelectListItem
+        //    {
+        //        Text = p.Name,
+        //        Value = p.Id.ToString()
+        //    });
+
+        //    return View(productVM);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Upsert(ProductVM productVM)
+        public async Task<IActionResult> Upsert(ProductVM productVM, IFormFile file)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var webRootPath = _webHostEnvironment.WebRootPath;
-                var files = HttpContext.Request.Form.Files;
+                productVM.CategoryList = _unitofWork.category.GetAll().Select(c =>
+                    new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
 
-                if (files.Count > 0)
-                {
-                    var fileName = Guid.NewGuid().ToString();
-                    var extension = Path.GetExtension(files[0].FileName);
-                    var uploads = Path.Combine(webRootPath, @"Images\Product");
+                productVM.ProductTypeList = _unitofWork.productType.GetAll().Select(p =>
+                    new SelectListItem { Text = p.Name, Value = p.Id.ToString() });
 
-                    if (productVM.Product.Id != 0)
-                    {
-                        var oldImage = _unitofWork.product.Get(productVM.Product.Id).ImageUrl;
-                        productVM.Product.ImageUrl = oldImage;
-                    }
+                productVM.BrandList = _unitofWork.brand.GetAll().Select(b =>
+                    new SelectListItem { Text = b.Name, Value = b.Id.ToString() });
 
-                    if (!string.IsNullOrEmpty(productVM.Product.ImageUrl))
-                    {
-                        var oldImagePath = Path.Combine(webRootPath, productVM.Product.ImageUrl.TrimStart('\\'));
-                        if (System.IO.File.Exists(oldImagePath))
-                        {
-                            System.IO.File.Delete(oldImagePath);
-                        }
-                    }
-
-                    using (var fileStream = new FileStream(Path.Combine(uploads, fileName + extension), FileMode.Create))
-                    {
-                        files[0].CopyTo(fileStream);
-                    }
-
-                    productVM.Product.ImageUrl = @"\Images\Product\" + fileName + extension;
-                }
-                else
-                {
-                    if (productVM.Product.Id != 0)
-                    {
-                        productVM.Product.ImageUrl = _unitofWork.product.Get(productVM.Product.Id).ImageUrl;
-                    }
-                }
-
-                if (productVM.Product.Id == 0)
-                {
-                    _unitofWork.product.Add(productVM.Product);
-                }
-                else
-                {
-                    _unitofWork.product.Update(productVM.Product);
-                }
-
-                _unitofWork.Save();
-                return RedirectToAction(nameof(Index));
+                return View(productVM);
             }
 
-            productVM.CategoryList = _unitofWork.category.GetAll().Select(c => new SelectListItem
+            // 🔥 CLOUDINARY IMAGE
+            if (file != null)
             {
-                Text = c.Name,
-                Value = c.Id.ToString()
-            });
+                var imageUrl = await _cloudinary.UploadImageAsync(file);
 
-            productVM.ProductTypeList = _unitofWork.productType.GetAll().Select(p => new SelectListItem
+                if (string.IsNullOrEmpty(imageUrl))
+                {
+                    ModelState.AddModelError("", "Image upload failed");
+                    return View(productVM);
+                }
+
+                productVM.Product.ImageUrl = imageUrl;
+            }
+            else if (productVM.Product.Id != 0)
             {
-                Text = p.Name,
-                Value = p.Id.ToString()
-            });
+                productVM.Product.ImageUrl =
+                    _unitofWork.product.Get(productVM.Product.Id).ImageUrl;
+            }
 
-            return View(productVM);
+            if (productVM.Product.Id == 0)
+                _unitofWork.product.Add(productVM.Product);
+            else
+                _unitofWork.product.Update(productVM.Product);
+
+            _unitofWork.Save();
+            return RedirectToAction(nameof(Index));
         }
+
 
     }
 }

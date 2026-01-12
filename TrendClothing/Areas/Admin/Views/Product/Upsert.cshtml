@@ -119,7 +119,9 @@
         <!-- Image Upload -->
         <div class="form-group row p-2 m-2">
             <label asp-for="Product.ImageUrl"></label>
-            <input type="file" name="files" id="imageId" multiple class="form-control" />
+            @* <input type="file" name="files" id="imageId" multiple class="form-control" /> *@
+            <input type="file" name="file" class="form-control" />
+
         </div>
 
         <!-- Is Active -->
@@ -148,6 +150,14 @@
 
     </div>
 </form>
+@if (!string.IsNullOrEmpty(Model.Product.ImageUrl))
+{
+    <div class="mt-2">
+        <img src="@Model.Product.ImageUrl"
+             width="120"
+             style="border-radius:8px;border:1px solid #ddd" />
+    </div>
+}
 
 @section Scripts
 {

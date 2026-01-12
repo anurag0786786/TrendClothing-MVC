@@ -324,3 +324,148 @@
 .mobile-category-wrapper {
     padding-bottom: 90px;
 }
+
+
+
+
+body {
+    background: #ffffff;
+}
+
+/* =========================
+   CATEGORY WRAPPER
+========================= */
+.category-wrapper {
+    background: #f5efe6;
+    border-radius: 24px;
+    padding: 40px 35px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+    margin-bottom: 60px;
+}
+
+/* GRID */
+.row {
+    row-gap: 36px;
+}
+
+/* PRODUCT CARD */
+.product-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+    border: 1px solid #eee;
+}
+
+    .product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+    }
+
+/* IMAGE */
+.product-img {
+    height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+}
+
+    .product-img img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+/* BODY */
+.product-body {
+    padding: 14px 16px 18px;
+}
+
+.brand-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6a4c93;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+
+.product-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 10px;
+}
+
+/* PRICE */
+.price-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.discount-price {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.old-price {
+    font-size: 0.8rem;
+    color: #999;
+    text-decoration: line-through;
+}
+
+.off-percent {
+    font-size: 0.75rem;
+    color: #ff5722;
+    font-weight: 600;
+}
+
+/* BUTTON */
+.product-body .btn {
+    border-radius: 22px;
+    font-size: 0.82rem;
+    padding: 8px 0;
+    margin-top: 12px;
+}
+
+/* HEADER */
+.tc-header {
+    margin-bottom: 30px;
+}
+
+.tc-breadcrumb {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.tc-header-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+}
+
+.tc-project-name {
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2b1055;
+}
+
+.tc-sort {
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    background: #fff;
+}
+
+/* VISIBILITY (DESKTOP DEFAULT) */
+.desktop-only {
+    display: block;
+}
+
+.mobile-only {
+    display: none;
+}
