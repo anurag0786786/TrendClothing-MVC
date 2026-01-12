@@ -71,14 +71,29 @@ namespace TrendClothing.Areas.Customer.Controllers
             }
 
             // 🔹 Stripe session create
+            //var options = new SessionCreateOptions
+            //{
+            //    PaymentMethodTypes = new List<string> { "card" },
+            //    Mode = "payment",
+            //    SuccessUrl = "https://localhost:7154/Customer/Stripe/Success",
+            //    CancelUrl = "https://localhost:7154/Customer/Cart/Summary",
+            //    LineItems = new List<SessionLineItemOptions>()
+            //};
+            // 🔥 IMPORTANT: dynamic domain
+            var domain = Request.Scheme + "://" + Request.Host.Value;
+
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
                 Mode = "payment",
-                SuccessUrl = "https://localhost:7154/Customer/Stripe/Success",
-                CancelUrl = "https://localhost:7154/Customer/Cart/Summary",
+
+                // ✅ FIXED URLs (local + live dono ke liye)
+                SuccessUrl = domain + "/Customer/Stripe/Success",
+                CancelUrl = domain + "/Customer/Cart/Summary",
+
                 LineItems = new List<SessionLineItemOptions>()
             };
+
 
             foreach (var item in cartList)
             {

@@ -84,7 +84,7 @@ namespace TrendClothing.Areas.Admin.Controllers
 
 
         #endregion
-        public IActionResult Upsert(int?id)
+        public IActionResult Upsert(int? id)
         {
             ProductVM productVM = new ProductVM()
             {
@@ -94,7 +94,7 @@ namespace TrendClothing.Areas.Admin.Controllers
                     Text = cl.Name,
                     Value = cl.Id.ToString()
                 }),
-                ProductTypeList = new List<SelectListItem>(),               
+                ProductTypeList = new List<SelectListItem>(),
 
                 BrandList = _unitofWork.brand.GetAll().Select(bl => new SelectListItem
                 {
@@ -103,9 +103,9 @@ namespace TrendClothing.Areas.Admin.Controllers
                 })
 
             };
-            if(id==null) return View(productVM);
-            productVM.Product=_unitofWork.product.Get(id.GetValueOrDefault());
-            if(productVM.Product==null) return NotFound();
+            if (id == null) return View(productVM);
+            productVM.Product = _unitofWork.product.Get(id.GetValueOrDefault());
+            if (productVM.Product == null) return NotFound();
             productVM.ProductTypeList = _unitofWork.productType.GetAll(pt => pt.CategoryId == productVM.Product.CategoryId)
             .Select(pt => new SelectListItem
             {
@@ -114,6 +114,50 @@ namespace TrendClothing.Areas.Admin.Controllers
             });
             return View(productVM);
         }
+        //public IActionResult Upsert(int? id)
+        //{
+        //    ProductVM productVM = new ProductVM()
+        //    {
+        //        Product = new Product(),
+        //        CategoryList = _unitofWork.category.GetAll().Select(cl => new SelectListItem
+        //        {
+        //            Text = cl.Name,
+        //            Value = cl.Id.ToString()
+        //        }),
+
+        //        // ✅ FIX: EMPTY NAHI
+        //        ProductTypeList = _unitofWork.productType.GetAll()
+        //            .Select(pt => new SelectListItem
+        //            {
+        //                Text = pt.Name,
+        //                Value = pt.Id.ToString()
+        //            }),
+
+        //        BrandList = _unitofWork.brand.GetAll().Select(bl => new SelectListItem
+        //        {
+        //            Text = bl.Name,
+        //            Value = bl.Id.ToString()
+        //        })
+        //    };
+
+        //    if (id == null)
+        //        return View(productVM);
+
+        //    productVM.Product = _unitofWork.product.Get(id.GetValueOrDefault());
+        //    if (productVM.Product == null) return NotFound();
+
+        //    // Edit case → category wise filter
+        //    productVM.ProductTypeList = _unitofWork.productType
+        //        .GetAll(pt => pt.CategoryId == productVM.Product.CategoryId)
+        //        .Select(pt => new SelectListItem
+        //        {
+        //            Text = pt.Name,
+        //            Value = pt.Id.ToString()
+        //        });
+
+        //    return View(productVM);
+        //}
+
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public IActionResult Upsert(ProductVM productVM)
