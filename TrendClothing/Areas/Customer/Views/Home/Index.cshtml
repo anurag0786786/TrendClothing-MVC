@@ -81,38 +81,28 @@
 
     <!-- HERO IMAGE -->
     <section class="m-hero-image">
-        <img src="~/Images/hero1.jpg" alt="New Season" />
-        <div class="m-hero-text">
-            New Season Arrivals
-        </div>
+        <a href="#choose-category" class="hero-click">
+            <section class="m-hero-image">
+                <img src="~/Images/hero1.jpg" alt="New Season" />
+
+                <div class="hero-overlay"></div>
+
+                <div class="hero-text">
+                
+                    <p>Explore Fresh Arrivals</p>
+                </div>
+            </section>
+        </a>
+
     </section>
-
-    @* <div class="m-section-label">Trending Now</div>
-
-
-        <div class="m-product-grid">
-            @foreach (var product in Model.Take(4))
-            {
-                <a asp-action="Details"
-                   asp-route-id="@product.Id"
-                   class="m-product">
-
-                    <img src="@product.ImageUrl" alt="@product.Name" />
-
-                    <div class="m-product-name">
-                        @product.Name
-                    </div>
-
-                    <div class="m-product-price">
-                        ₹ @product.DiscountPrice
-                    </div>
-                </a>
-            }
-        </div> *@
-    <!-- CHOOSE CATEGORIES WITH IMAGES -->
-    <section class="m-choose-categories">
-
+    <div>
         <h3 class="m-choose-title">Choose Category</h3>
+    </div>
+  
+    <!-- CHOOSE CATEGORIES WITH IMAGES -->
+    <section id="choose-category" class="m-choose-categories">
+
+        @* <h3 class="m-choose-title">Choose Category</h3> *@
 
         <div class="m-choose-grid">
 

@@ -27,6 +27,8 @@ namespace TrendClothing.Data
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Address> Addresses { get; set; }
         public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<HeroImage> HeroImages { get; set; }
+
 
 
 

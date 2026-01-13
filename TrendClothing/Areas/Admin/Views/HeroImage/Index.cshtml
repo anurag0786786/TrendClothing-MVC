@@ -1,0 +1,15 @@
+﻿@model TrendClothing.Models.HeroImage
+
+<h2>Hero Image Upload</h2>
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" class="form-control mb-2" />
+    <button class="btn btn-primary">Upload</button>
+</form>
+
+@if (Model != null)
+{
+    <hr />
+    <h5>Current Hero Image:</h5>
+    <img src="@Model.ImageUrl" style="max-width:100%; height:300px; object-fit:cover;" />
+}
