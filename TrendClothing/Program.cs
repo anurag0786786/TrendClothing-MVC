@@ -9,7 +9,16 @@ using TrendClothing.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Facebook;
 
+// ✅ REQUIRED (NEW)
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// ================= 🔴 DATA PROTECTION (REQUIRED FIX) =================
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/var/data/keys"))
+    .SetApplicationName("TrendClothing");
 
 // ================= DB =================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -33,6 +42,7 @@ builder.Services.AddControllersWithViews()
     .AddRazorRuntimeCompilation();
 
 builder.Services.AddRazorPages();
+
 builder.Services.Configure<TwilioSettings>(
     builder.Configuration.GetSection("TwilioSettings")
 );
@@ -42,11 +52,12 @@ builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<EmailTemplateRenderer>();
 builder.Services.AddScoped<CloudinaryService>();
-// ================= EMAIL SETTINGS (🔥 REQUIRED FIX) =================
+
+// ================= EMAIL SETTINGS =================
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 
-// ✅ REQUIRED FIX (THIS WAS MISSING)
+// ================= SMS =================
 builder.Services.AddScoped<ISmsSender, SmsSender>();
 
 // ================= SESSION =================
@@ -63,11 +74,16 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/Identity/Account/Login";
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.LogoutPath = "/Identity/Account/Logout";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.SlidingExpiration = true;
 });
 
 // ================= STRIPE =================
 StripeConfiguration.ApiKey =
     builder.Configuration.GetSection("StripeSettings")["SecretKey"];
+
+// ================= AUTH PROVIDERS =================
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
@@ -80,10 +96,7 @@ builder.Services.AddAuthentication()
         options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
     });
 
-
-
 var app = builder.Build();
-
 
 // ================= PIPELINE =================
 if (app.Environment.IsDevelopment())
@@ -101,10 +114,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// 🔴 ORDER FIX (IMPORTANT)
+app.UseSession();          // ⬅️ auth se pehle
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
