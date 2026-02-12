@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.Facebook;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.UseUrls($"http://0.0.0.0:{Environment.GetEnvironmentVariable("PORT") ?? "8080"}");
+
 // ================= DB =================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
