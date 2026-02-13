@@ -11,14 +11,6 @@ using Microsoft.AspNetCore.Authentication.Facebook;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-    serverOptions.ListenAnyIP(int.Parse(port));
-});
-
-
 // ================= DB =================
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
@@ -110,11 +102,7 @@ else
     app.UseHsts();
 }
 
-if (!app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
-
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
