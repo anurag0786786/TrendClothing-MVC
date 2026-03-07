@@ -1,4 +1,6 @@
-﻿using TrendClothing.Utility;
+﻿using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +8,8 @@ using Stripe;
 using TrendClothing.Data;
 using TrendClothing.DataAccess.Repository;
 using TrendClothing.DataAccess.Repository.IRepository;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.Facebook;
-
+using TrendClothing.Utility;
+using Resend;
 var builder = WebApplication.CreateBuilder(args);
 
 // ================= DB =================
@@ -71,6 +72,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
+
+
 // ================= STRIPE =================
 StripeConfiguration.ApiKey =
     builder.Configuration.GetSection("StripeSettings")["SecretKey"];
@@ -85,6 +88,20 @@ builder.Services.AddAuthentication()
         options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
         options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
     });
+
+// ✅ YEH LAGAO
+builder.Services.AddOptions();
+builder.Services.AddHttpClient<ResendClient>();
+builder.Services.Configure<ResendClientOptions>(o =>
+{
+    o.ApiToken = builder.Configuration["ResendApiKey"]!;
+});
+builder.Services.AddTransient<IResend, ResendClient>();
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(
+        new DirectoryInfo("/tmp/dataprotection-keys")
+    );
 
 
 

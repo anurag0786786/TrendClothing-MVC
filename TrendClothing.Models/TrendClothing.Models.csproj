@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.21" />
     <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.21" />
+    <PackageReference Include="Resend" Version="0.2.1" />
   </ItemGroup>
 
 </Project>
