@@ -16,38 +16,50 @@ namespace TrendClothing.Utility
             _configuration = configuration;
             _emailSettings = emailSettings.Value;
         }
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            Execute(email, subject, htmlMessage).Wait();
-            return Task.FromResult(0);
+            await Execute(email, subject, htmlMessage); // ✅ async/await properly
         }
+
         public async Task Execute(string email, string subject, string message)
         {
             try
             {
-                string toEmail = string.IsNullOrEmpty(email) ? _emailSettings.ToEmail : email;
+                string toEmail = string.IsNullOrEmpty(email)
+                    ? _emailSettings.ToEmail
+                    : email;
+
                 MailMessage mailMessage = new MailMessage()
                 {
                     From = new MailAddress(_emailSettings.UsernameEmail, "Trend Clothing")
                 };
+
                 mailMessage.To.Add(toEmail);
-                mailMessage.CC.Add(_emailSettings.CcEmail);
-                mailMessage.Subject = "Shopping App : " + subject;
+                mailMessage.Subject = "Trend Clothing : " + subject;
                 mailMessage.Body = message;
                 mailMessage.IsBodyHtml = true;
                 mailMessage.Priority = MailPriority.High;
-                using (SmtpClient smtpClient = new SmtpClient(_emailSettings.PrimaryDomain, _emailSettings.PrimaryPort))
+
+                using (SmtpClient smtpClient = new SmtpClient(
+                    _emailSettings.PrimaryDomain,
+                    _emailSettings.PrimaryPort))
                 {
-                    smtpClient.Credentials = new NetworkCredential(_emailSettings.UsernameEmail, _emailSettings.UsernamePassword);
+                    smtpClient.Credentials = new NetworkCredential(
+                        _emailSettings.UsernameEmail,
+                        _emailSettings.UsernamePassword
+                    );
                     smtpClient.EnableSsl = true;
-                    smtpClient.Send(mailMessage);
+                    await smtpClient.SendMailAsync(mailMessage); // ✅ async version
                 }
             }
             catch (Exception ex)
             {
-                string str = ex.Message;
-
+                // ✅ Ab error log hoga — silent nahi rahega
+                Console.WriteLine($"EMAIL ERROR: {ex.Message}");
+                Console.WriteLine($"INNER: {ex.InnerException?.Message}");
+                throw; // ✅ Error propagate hoga
             }
         }
+
     }
 }
