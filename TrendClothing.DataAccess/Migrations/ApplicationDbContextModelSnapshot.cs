@@ -276,7 +276,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.Brand", b =>
@@ -293,7 +293,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("brands");
+                    b.ToTable("brands", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.Category", b =>
@@ -310,7 +310,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.Color", b =>
@@ -327,7 +327,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("colors");
+                    b.ToTable("colors", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.HeroImage", b =>
@@ -344,7 +344,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HeroImages");
+                    b.ToTable("HeroImages", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.OrderDetails", b =>
@@ -373,7 +373,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.OrderHeader", b =>
@@ -454,7 +454,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("ApplicationuserId");
 
-                    b.ToTable("OrderHeaders");
+                    b.ToTable("OrderHeaders", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.Product", b =>
@@ -502,7 +502,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("ProductTypeId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.ProductType", b =>
@@ -524,7 +524,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("ProductTypes");
+                    b.ToTable("ProductTypes", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.ProductVariant", b =>
@@ -558,7 +558,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("SizeId");
 
-                    b.ToTable("ProductVariants");
+                    b.ToTable("ProductVariants", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.ShoppingCart", b =>
@@ -585,7 +585,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("ShoppingCarts");
+                    b.ToTable("ShoppingCarts", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.SiteImage", b =>
@@ -606,7 +606,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SiteImages");
+                    b.ToTable("SiteImages", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.Size", b =>
@@ -623,7 +623,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sizes");
+                    b.ToTable("Sizes", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.UserProfile", b =>
@@ -655,7 +655,7 @@ namespace TrendClothing.DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserProfiles");
+                    b.ToTable("UserProfiles", (string)null);
                 });
 
             modelBuilder.Entity("TrendClothing.Models.ApplicationUser", b =>
