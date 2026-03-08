@@ -1,43 +1,49 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<!--<Nullable>enable</Nullable>-->
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-TrendClothing-8a845cfb-c52d-4680-9fb3-6158ea26653f</UserSecretsId>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <!--<Nullable>enable</Nullable>-->
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-TrendClothing-8a845cfb-c52d-4680-9fb3-6158ea26653f</UserSecretsId>
-  </PropertyGroup>
+	<!-- Static files publish fix -->
+	<ItemGroup>
+		<Content Update="wwwroot\**\*">
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CloudinaryDotNet" Version="1.27.9" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.22" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.22" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.21" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.22" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.22" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.21" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.22" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.22" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.22" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.22">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.21" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.0" />
-    <PackageReference Include="Resend" Version="0.2.1" />
-    <PackageReference Include="Stripe.net" Version="49.0.0" />
-    <PackageReference Include="Twilio" Version="7.14.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CloudinaryDotNet" Version="1.27.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.22" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.22" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.21" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.22" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.22" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.21" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.ViewFeatures" Version="2.3.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.22" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.22" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.22" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.22">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.21" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.0" />
+		<PackageReference Include="Resend" Version="0.2.1" />
+		<PackageReference Include="Stripe.net" Version="49.0.0" />
+		<PackageReference Include="Twilio" Version="7.14.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TrendClothing.DataAccess\TrendClothing.DataAccess.csproj" />
-    <ProjectReference Include="..\TrendClothing.Models\TrendClothing.Models.csproj" />
-    <ProjectReference Include="..\TrendClothing.Utility\TrendClothing.Utility.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TrendClothing.DataAccess\TrendClothing.DataAccess.csproj" />
+		<ProjectReference Include="..\TrendClothing.Models\TrendClothing.Models.csproj" />
+		<ProjectReference Include="..\TrendClothing.Utility\TrendClothing.Utility.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\Images\Product\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\Images\Product\" />
+	</ItemGroup>
 
 </Project>
