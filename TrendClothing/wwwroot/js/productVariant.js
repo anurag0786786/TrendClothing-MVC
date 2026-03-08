@@ -1,62 +1,48 @@
 ﻿var dataTable;
-
-$(document).ready(function () {
-    loadDataTable();
-});
+$(document).ready(function () { loadDataTable(); });
 
 function loadDataTable() {
     dataTable = $('#tblData').DataTable({
-        "ajax": {
-            "url": "/Admin/ProductVariant/GetAll"
-        },
+        "ajax": { "url": "/Admin/ProductVariant/GetAll" },
         "columns": [
-            { "data": "product" },
+            { "data": "product", "render": data => `<span style="font-weight:600;">${data}</span>` },
             { "data": "size" },
             { "data": "color" },
-            { "data": "price" },
-            { "data": "stock" },
+            { "data": "price", "render": data => `<span style="font-weight:700;">&#8377; ${data}</span>` },
+            {
+                "data": "stock",
+                "render": data => data > 0
+                    ? `<span class="tc-status-active">${data} in stock</span>`
+                    : `<span class="tc-status-inactive">Out of stock</span>`
+            },
             {
                 "data": "id",
-                "render": function (data) {
-                    return `
-                        <div class="text-center">
-                            <a href="/Admin/ProductVariant/Edit/${data}"
-                               class="btn btn-success mx-1">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a onclick=Delete('/Admin/ProductVariant/Delete/${data}')
-                               class="btn btn-danger mx-1">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </div>`;
-                }
+                "render": data =>
+                    `<div style="display:flex;gap:8px;">
+                        <a href="/Admin/ProductVariant/Edit/${data}" class="tc-admin-btn-edit">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            Edit
+                        </a>
+                        <button class="tc-admin-btn-delete" onclick="Delete('/Admin/ProductVariant/Delete/${data}')">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            Delete
+                        </button>
+                    </div>`
             }
         ]
     });
 }
 
 function Delete(url) {
-    swal({
-        title: "Are you sure?",
-        text: "Once deleted, you cannot recover!",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true
-    }).then((willDelete) => {
-        if (willDelete) {
-            $.ajax({
-                type: "DELETE",
-                url: url,
-                success: function (data) {
-                    if (data.success) {
-                        toastr.success(data.message);
+    swal({ title: "Delete variant?", icon: "warning", buttons: ["Cancel", "Delete"], dangerMode: true })
+        .then(ok => {
+            if (ok) {
+                $.ajax({
+                    url: url, type: "DELETE", success: data => {
+                        data.success ? toastr.success(data.message) : toastr.error(data.message);
                         dataTable.ajax.reload();
                     }
-                    else {
-                        toastr.error(data.message);
-                    }
-                }
-            });
-        }
-    });
+                });
+            }
+        });
 }

@@ -1,103 +1,102 @@
 ﻿@model TrendClothing.Models.ViewModels.ProductVariantVM
+@{
+    ViewData["Title"] = "Add Variants";
+}
 
-<form method="post" asp-action="Upsert">
-    <div class="border p-3 mt-4">
+<div class="tc-admin-form-wrap">
+    <nav class="tc-breadcrumb">
+        <a asp-action="Index">Variants</a>
+        <span class="tc-breadcrumb__sep">/</span>
+        <span class="tc-breadcrumb__current">Add Variants</span>
+    </nav>
 
-        <div class="row pb-2">
-            <h2 class="text-primary">Add Variants</h2>
-            <hr />
-        </div>
+    <h1 class="tc-admin-title" style="margin-bottom:28px;">Add Variants</h1>
 
-        <div class="mb-3">
-            <label>Product</label>
-            <select asp-for="ProductId"
-                    asp-items="Model.ProductList"
-                    class="form-control"
-                    id="productSelect">
-                <option disabled selected>-- Select Product --</option>
-            </select>
+    <div class="tc-admin-card" style="max-width:640px;">
+        <form method="post" asp-action="Upsert">
 
-        </div>
-
-        <div class="mb-3">
-            <label>Sizes</label>
-            <select asp-for="SelectedSizeIds"
-                    asp-items="Model.SizeList"
-                    multiple
-                    class="form-control"
-                    id="sizeSelect">
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label>Colors</label>
-            <select asp-for="SelectedColorIds"
-                    asp-items="Model.ColorList"
-                    multiple
-                    class="form-control"
-                    id="colorSelect">
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label>Price</label>
-            <input asp-for="Price" class="form-control" id="priceInput" />
-
-            <span asp-validation-for="Price" class="text-danger"></span>
-        </div>
-
-        <div class="mb-3">
-            <label>Stock</label>
-            <input asp-for="Stock" class="form-control" />
-            <span asp-validation-for="Stock" class="text-danger"></span>
-        </div>
-
-        <div class="row">
-            <div class="col-6 col-md-3">
-                <button type="submit" class="btn btn-primary form-control">
-                    Create Variants
-                </button>
+            <div class="tc-form-group">
+                <label>Product</label>
+                <select asp-for="ProductId" asp-items="Model.ProductList" class="form-control" id="productSelect">
+                    <option disabled selected value="">-- Select Product --</option>
+                </select>
             </div>
-            <div class="col-6 col-md-3">
-                <a asp-action="Index" class="btn btn-secondary form-control">
-                    Back
-                </a>
-            </div>
-        </div>
 
+            <div class="tc-admin-two-col" style="margin-bottom:20px;">
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Sizes <span style="color:var(--tc-gray-3);font-weight:400;">(multi)</span></label>
+                    <select asp-for="SelectedSizeIds" asp-items="Model.SizeList" multiple class="form-control" id="sizeSelect"></select>
+                </div>
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Colors <span style="color:var(--tc-gray-3);font-weight:400;">(multi)</span></label>
+                    <select asp-for="SelectedColorIds" asp-items="Model.ColorList" multiple class="form-control" id="colorSelect"></select>
+                </div>
+            </div>
+
+            <div class="tc-admin-two-col" style="margin-bottom:20px;">
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Price (&#8377;)</label>
+                    <input asp-for="Price" class="form-control" id="priceInput" placeholder="0" />
+                    <span asp-validation-for="Price" class="tc-admin-field-error"></span>
+                </div>
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Stock</label>
+                    <input asp-for="Stock" class="form-control" placeholder="0" />
+                    <span asp-validation-for="Stock" class="tc-admin-field-error"></span>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="tc-btn tc-btn--primary">Create Variants</button>
+                <a asp-action="Index" class="tc-btn tc-btn--outline">← Back</a>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        .select2-container .select2-selection--multiple {
+            border: 1.5px solid var(--tc-border-dark) !important;
+            border-radius: var(--tc-radius-sm) !important;
+            min-height: 42px !important;
+            background: var(--tc-surface) !important;
+        }
 
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background: var(--tc-black) !important;
+            border: none !important;
+            color: #fff !important;
+            border-radius: 20px !important;
+            padding: 2px 10px !important;
+            font-size: 12px !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: rgba(255,255,255,0.6) !important;
+            margin-right: 4px !important;
+        }
+
+        .select2-dropdown {
+            border: 1.5px solid var(--tc-border-dark) !important;
+            border-radius: var(--tc-radius-sm) !important;
+        }
+    </style>
     <script>
         $(document).ready(function () {
-
-            $('#sizeSelect').select2({
-                placeholder: "Select Sizes",
-                closeOnSelect: false,
-                width: '100%'
-            });
-
-            $('#colorSelect').select2({
-                placeholder: "Select Colors",
-                closeOnSelect: false,
-                width: '100%'
-            });
-
+            $('#sizeSelect').select2({ placeholder: "Select Sizes", closeOnSelect: false, width: '100%' });
+            $('#colorSelect').select2({ placeholder: "Select Colors", closeOnSelect: false, width: '100%' });
             $('#productSelect').change(function () {
                 var productId = $(this).val();
                 if (productId) {
-                    $.get('/Admin/ProductVariant/GetProductPrice',
-                        { productId: productId },
-                        function (price) {
-                            $('#priceInput').val(price);
-                        });
+                    $.get('/Admin/ProductVariant/GetProductPrice', { productId: productId }, function (price) {
+                        $('#priceInput').val(price);
+                    });
                 }
             });
-
         });
     </script>
 }
-

@@ -1,6 +1,9 @@
-﻿﻿<link rel="stylesheet" href="~/css/details.css" asp-append-version="true" />
-
 @model TrendClothing.Models.ViewModels.ProductDetailsVM
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/details.css" asp-append-version="true" />
+}
 
 @{
     bool hasVariants = Model.Variants != null && Model.Variants.Any();
@@ -9,116 +12,164 @@
 <form asp-area="Customer"
       asp-controller="Cart"
       asp-action="AddToCart"
-      method="post">
+      method="post"
+      id="addToCartForm">
 
-<input type="hidden" name="variantId" id="SelectedVariantId" />
- <input type="hidden" name="returnUrl"
+    <input type="hidden" name="variantId" id="SelectedVariantId" />
+    <input type="hidden" name="returnUrl"
            value="@Context.Request.Path@Context.Request.QueryString" />
 
-    <div class="container mt-5">
-        <div class="row">
+    <div class="pd-page">
 
-            <!-- LEFT IMAGE -->
-            <div class="col-md-6 text-center position-relative">
+        @* BREADCRUMB *@
+        <div class="pd-breadcrumb container">
+            <a href="/">Home</a>
+            <span>/</span>
+            <a asp-action="Category" asp-route-name="@Model.Product.Category?.Name">@Model.Product.Category?.Name</a>
+            <span>/</span>
+            <span>@Model.Product.Name</span>
+        </div>
+
+        <div class="pd-layout container">
+
+            @* LEFT: PRODUCT NAME *@
+            <div class="pd-left">
+                <div class="pd-brand">@Model.Product.Brand?.Name</div>
+                <h1 class="pd-title">@Model.Product.Name</h1>
+
                 @if (Model.DiscountPercent > 0)
                 {
-                    <span class="badge bg-danger position-absolute"
-                          style="top:15px; left:15px;">
-                        @Model.DiscountPercent% OFF
-                    </span>
+                    <div class="pd-badge">@Model.DiscountPercent% OFF</div>
                 }
 
-                <img src="@Model.Product.ImageUrl"
-                     class="img-fluid rounded shadow"
-                     style="max-height:520px; object-fit:cover;" />
-            </div>
-
-            <!-- RIGHT DETAILS -->
-            <div class="col-md-6 p-4 border rounded shadow-sm">
-
-                <h2 class="fw-bold">@Model.Product.Name</h2>
-                <p class="text-muted">
-                    @Model.Product.Brand?.Name | @Model.Product.Category?.Name
-                </p>
-
-                <div class="mt-2">
-                    <span class="fs-4 fw-bold text-success">
-                        ₹ @Model.SellingPrice
-                    </span>
-
+                <div class="pd-price-block">
+                    <span class="pd-price">&#8377; @Model.SellingPrice</span>
                     @if (Model.DiscountPercent > 0)
                     {
-                        <span class="text-muted ms-2 text-decoration-line-through">
-                            ₹ @Model.OriginalPrice
-                        </span>
-                        <span class="text-danger fw-semibold ms-2">
-                            (@Model.DiscountPercent% OFF)
-                        </span>
+                        <span class="pd-price-old">&#8377; @Model.OriginalPrice</span>
                     }
                 </div>
+                <p class="pd-tax-note">Inclusive of all taxes</p>
 
-                <p class="text-muted small mb-3">
-                    inclusive of all taxes
-                </p>
+                @if (!string.IsNullOrEmpty(Model.Product.Description))
+                {
+                    <p class="pd-desc">@Model.Product.Description</p>
+                }
+
+                <button type="button" class="pd-back" onclick="history.back()">
+                    &#8592; Back
+                </button>
+            </div>
+
+            @* CENTER: PRODUCT IMAGE *@
+            <div class="pd-center">
+                <div class="pd-img-wrap">
+                    @if (Model.DiscountPercent > 0)
+                    {
+                        <div class="pd-discount-ribbon">@Model.DiscountPercent% OFF</div>
+                    }
+                    <img src="@Model.Product.ImageUrl"
+                         alt="@Model.Product.Name"
+                         class="pd-img" />
+                </div>
+            </div>
+
+            @* RIGHT: OPTIONS + ADD TO CART *@
+            <div class="pd-right">
 
                 @if (hasVariants)
                 {
-                    <p class="text-secondary">
-                        @Model.Product.Description
-                    </p>
-                }
-
-                <hr />
-
-                @* ================= VARIANTS ================= *@
-                @if (hasVariants)
-                {
-                    <!-- SIZE -->
-                    <div class="mb-3">
-                        <p class="fw-semibold">Select Size</p>
-
-                        @foreach (var size in Model.Variants
-                            .Select(v => v.Size)
-                            .DistinctBy(s => s.Id))
-                        {
-                            <button type="button"
-                                    class="btn btn-outline-dark me-2 mb-2 size-btn"
-                                    data-sizeid="@size.Id">
-                                @size.Name
-                            </button>
-                        }
+                    @* SIZE *@
+                    <div class="pd-section">
+                        <div class="pd-section-label">Select Size</div>
+                        <div class="pd-sizes" id="sizeContainer">
+                            @foreach (var sizeItem in Model.Variants
+                                .Select(v => v.Size)
+                                .DistinctBy(s => s.Id))
+                            {
+                                <button type="button"
+                                        class="pd-size-btn"
+                                        data-sizeid="@sizeItem.Id">
+                                    @sizeItem.Name
+                                </button>
+                            }
+                        </div>
                     </div>
-                    <div class="text-danger fw-semibold mt-2 d-none" id="variantError">
-        Please choose a size and color first
-    </div>
 
-                    <!-- COLOR -->
-                    <div class="mb-3 d-none" id="colorSection">
-                        <p class="fw-semibold">Select Color</p>
-                        <div id="colorContainer"></div>
+                    @* COLOR (shown after size selected via JS) *@
+                    <div class="pd-section d-none" id="colorSection">
+                        <div class="pd-section-label">Select Color</div>
+                        <div class="pd-colors" id="colorContainer"></div>
+                    </div>
+
+                    <div class="pd-error d-none" id="variantError">
+                        &#9888; Please select size and color
                     </div>
                 }
 
-                <!-- Quantity -->
-                <div class="mb-3">
-                    <label class="fw-semibold">Quantity</label>
-                    <input asp-for="Count"
-                           class="form-control w-25"
-                           min="1"
-                           value="1" />
+                @* QUANTITY *@
+                <div class="pd-section">
+                    <div class="pd-section-label">Quantity</div>
+                    <div class="pd-qty-row">
+                        <button type="button" class="pd-qty-btn" id="qtyMinus">&#8722;</button>
+                        <input asp-for="Count"
+                               id="qtyInput"
+                               class="pd-qty-input"
+                               min="1"
+                               value="1"
+                               readonly />
+                        <button type="button" class="pd-qty-btn" id="qtyPlus">&#43;</button>
+                    </div>
                 </div>
 
+                @* ADD TO CART *@
                 <button type="submit"
-                        class="btn btn-primary px-4 py-2"
+                        class="pd-add-btn"
                         onclick="return validateVariant();">
-                    Add To Cart
+                    + Add to Cart
                 </button>
 
-                <button type="button"
-                        class="btn btn-outline-secondary px-4 py-2"
-                        onclick="history.back()">
-                    Back
-                </button>
+                @* ACCORDION *@
+                <div class="pd-accordion">
+
+                    <div class="pd-acc-item">
+                        <button type="button" class="pd-acc-head" data-target="acc-product">
+                            Product Info
+                            <span class="pd-acc-icon">+</span>
+                        </button>
+                        <div class="pd-acc-body" id="acc-product">
+                            <p>Brand: <strong>@Model.Product.Brand?.Name</strong></p>
+                            <p>Category: <strong>@Model.Product.Category?.Name</strong></p>
+                            @if (!string.IsNullOrEmpty(Model.Product.Description))
+                            {
+                                <p>@Model.Product.Description</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="pd-acc-item">
+                        <button type="button" class="pd-acc-head" data-target="acc-delivery">
+                            Delivery Info
+                            <span class="pd-acc-icon">+</span>
+                        </button>
+                        <div class="pd-acc-body" id="acc-delivery">
+                            <p>Free delivery on orders above &#8377;999.</p>
+                            <p>Estimated delivery: 3&#8211;5 business days.</p>
+                        </div>
+                    </div>
+
+                    <div class="pd-acc-item">
+                        <button type="button" class="pd-acc-head" data-target="acc-returns">
+                            Returns Info
+                            <span class="pd-acc-icon">+</span>
+                        </button>
+                        <div class="pd-acc-body" id="acc-returns">
+                            <p>Easy 7&#8211;day returns. Item must be unused and in original packaging.</p>
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </div>
@@ -126,42 +177,48 @@
 
 @section Scripts {
 <script>
+    // Variants data from server — no HexCode used
     var variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-        Model.Variants.Select(v => new {
-            id = v.Id,
-            sizeId = v.SizeId,
-            colorName = v.Color.Name
-        })
+        Model.Variants != null
+            ? Model.Variants.Select(v => new {
+                id      = v.Id,
+                sizeId  = v.SizeId,
+                colorName = v.Color.Name
+              })
+            : Enumerable.Empty<object>()
     ));
 
-    var sizeButtons = document.querySelectorAll(".size-btn");
-
-    sizeButtons.forEach(btn => {
+    // Size button click
+    document.querySelectorAll(".pd-size-btn").forEach(function(btn) {
         btn.addEventListener("click", function () {
-
-            sizeButtons.forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".pd-size-btn").forEach(function(b) {
+                b.classList.remove("active");
+            });
             this.classList.add("active");
 
             var sizeId = this.getAttribute("data-sizeid");
-
-            document.getElementById("colorSection").classList.remove("d-none");
+            var colorSection = document.getElementById("colorSection");
             var container = document.getElementById("colorContainer");
-            container.innerHTML = "";
 
-            variants.filter(v => v.sizeId == sizeId)
-                .forEach(v => {
+            colorSection.classList.remove("d-none");
+            container.innerHTML = "";
+            document.getElementById("SelectedVariantId").value = "";
+
+            variants.filter(function(v) { return v.sizeId == sizeId; })
+                .forEach(function(v) {
                     var colorBtn = document.createElement("button");
                     colorBtn.type = "button";
-                    colorBtn.className = "btn btn-outline-secondary me-2 mb-2 color-btn";
+                    colorBtn.className = "pd-color-btn";
                     colorBtn.innerText = v.colorName;
                     colorBtn.dataset.variantid = v.id;
 
                     colorBtn.onclick = function () {
-                        document.querySelectorAll(".color-btn")
-                            .forEach(cb => cb.classList.remove("active"));
+                        document.querySelectorAll(".pd-color-btn").forEach(function(cb) {
+                            cb.classList.remove("active");
+                        });
                         this.classList.add("active");
-                        document.getElementById("SelectedVariantId").value =
-                            this.dataset.variantid;
+                        document.getElementById("SelectedVariantId").value = this.dataset.variantid;
+                        document.getElementById("variantError").classList.add("d-none");
                     };
 
                     container.appendChild(colorBtn);
@@ -169,37 +226,58 @@
         });
     });
 
-   function validateVariant() {
+    // Quantity controls
+    document.getElementById("qtyMinus").addEventListener("click", function () {
+        var inp = document.getElementById("qtyInput");
+        if (parseInt(inp.value) > 1) inp.value = parseInt(inp.value) - 1;
+    });
+    document.getElementById("qtyPlus").addEventListener("click", function () {
+        var inp = document.getElementById("qtyInput");
+        inp.value = parseInt(inp.value) + 1;
+    });
 
+    // Validate before submit
+    function validateVariant() {
         var hasVariants = @hasVariants.ToString().ToLower();
         var errorDiv = document.getElementById("variantError");
 
-        // Agar product ke variants hi nahi hain
         if (!hasVariants) {
-            if (errorDiv) {
-                errorDiv.innerText = "This product has no selectable variants";
-                errorDiv.classList.remove("d-none");
-            }
+            errorDiv.innerText = "This product has no selectable variants.";
+            errorDiv.classList.remove("d-none");
             return false;
         }
 
         var variantId = document.getElementById("SelectedVariantId").value;
-
-        if (!variantId || variantId == "0") {
-            if (errorDiv) {
-                errorDiv.innerText = "Please choose a size and color first";
-                errorDiv.classList.remove("d-none");
-            }
+        if (!variantId || variantId === "0") {
+            errorDiv.innerText = "Please select size and color first";
+            errorDiv.classList.remove("d-none");
             return false;
         }
 
-        // sab theek hai
-        if (errorDiv) {
-            errorDiv.classList.add("d-none");
-        }
-
+        errorDiv.classList.add("d-none");
         return true;
     }
+
+    // Accordion
+    document.querySelectorAll(".pd-acc-head").forEach(function(btn) {
+        btn.addEventListener("click", function () {
+            var targetId = this.getAttribute("data-target");
+            var body = document.getElementById(targetId);
+            var icon = this.querySelector(".pd-acc-icon");
+            var isOpen = body.classList.contains("open");
+
+            document.querySelectorAll(".pd-acc-body").forEach(function(b) {
+                b.classList.remove("open");
+            });
+            document.querySelectorAll(".pd-acc-icon").forEach(function(i) {
+                i.textContent = "+";
+            });
+
+            if (!isOpen) {
+                body.classList.add("open");
+                icon.textContent = "−";
+            }
+        });
+    });
 </script>
 }
-

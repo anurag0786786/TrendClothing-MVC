@@ -10,6 +10,7 @@ using TrendClothing.DataAccess.Repository;
 using TrendClothing.DataAccess.Repository.IRepository;
 using TrendClothing.Utility;
 using Resend;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ================= DB =================
@@ -20,7 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// ================= IDENTITY (DON'T TOUCH) =================
+// ================= IDENTITY =================
 builder.Services
     .AddDefaultIdentity<IdentityUser>(options =>
     {
@@ -43,11 +44,10 @@ builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<EmailTemplateRenderer>();
 builder.Services.AddScoped<CloudinaryService>();
-// ================= EMAIL SETTINGS (🔥 REQUIRED FIX) =================
+
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 
-// ✅ REQUIRED FIX (THIS WAS MISSING)
 builder.Services.AddScoped<ISmsSender, SmsSender>();
 
 // ================= SESSION =================
@@ -67,16 +67,15 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
-
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
     options.SlidingExpiration = true;
 });
 
-
-
 // ================= STRIPE =================
 StripeConfiguration.ApiKey =
     builder.Configuration.GetSection("StripeSettings")["SecretKey"];
+
+// ================= GOOGLE / FACEBOOK =================
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
@@ -89,24 +88,23 @@ builder.Services.AddAuthentication()
         options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
     });
 
-// ✅ YEH LAGAO
+// ================= RESEND EMAIL — FIXED PATH =================
 builder.Services.AddOptions();
 builder.Services.AddHttpClient<ResendClient>();
 builder.Services.Configure<ResendClientOptions>(o =>
 {
-    o.ApiToken = builder.Configuration["ResendApiKey"]!;
+    // ✅ FIXED: appsettings.json mein "Authentication:ResendApiKey" hai
+    o.ApiToken = builder.Configuration["Authentication:ResendApiKey"]!;
 });
 builder.Services.AddTransient<IResend, ResendClient>();
 
+// ================= DATA PROTECTION =================
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(
         new DirectoryInfo("/tmp/dataprotection-keys")
     );
 
-
-
 var app = builder.Build();
-
 
 // ================= PIPELINE =================
 if (app.Environment.IsDevelopment())
@@ -121,13 +119,10 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 app.UseSession();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 
 app.MapControllerRoute(
     name: "default",

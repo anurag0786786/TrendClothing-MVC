@@ -21,34 +21,38 @@ namespace TrendClothing.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            var hero = _db.HeroImages.FirstOrDefault();
-            return View(hero);
+            // Load all 4 site images keyed by name
+            var images = _db.SiteImages.ToList();
+            ViewBag.Hero = images.FirstOrDefault(x => x.Key == "Hero")?.ImageUrl;
+            ViewBag.Men = images.FirstOrDefault(x => x.Key == "Men")?.ImageUrl;
+            ViewBag.Women = images.FirstOrDefault(x => x.Key == "Women")?.ImageUrl;
+            ViewBag.Children = images.FirstOrDefault(x => x.Key == "Children")?.ImageUrl;
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public async Task<IActionResult> Upload(IFormFile file, string key)
         {
-            if (file == null)
+            if (file == null || string.IsNullOrEmpty(key))
             {
-                TempData["error"] = "Please select an image";
+                TempData["ToastMessage"] = "Please select an image ❌";
                 return RedirectToAction("Index");
             }
 
             var imageUrl = await _cloudinary.UploadImageAsync(file);
 
-            var hero = _db.HeroImages.FirstOrDefault();
-            if (hero == null)
+            var existing = _db.SiteImages.FirstOrDefault(x => x.Key == key);
+            if (existing == null)
             {
-                hero = new HeroImage { ImageUrl = imageUrl };
-                _db.HeroImages.Add(hero);
+                _db.SiteImages.Add(new SiteImage { Key = key, ImageUrl = imageUrl });
             }
             else
             {
-                hero.ImageUrl = imageUrl;
+                existing.ImageUrl = imageUrl;
             }
 
             _db.SaveChanges();
-            TempData["success"] = "Hero image updated";
+            TempData["ToastMessage"] = $"{key} image updated ✅";
             return RedirectToAction("Index");
         }
     }

@@ -1,75 +1,111 @@
 ﻿@using TrendClothing.Models.ViewModels
 @model CheckoutVM
 
-<link rel="stylesheet" href="~/css/checkout-address.css" />
+@{
+    ViewData["Title"] = "Select Address";
+}
 
-<div class="checkout-wrapper">
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+}
 
-    <h3 class="checkout-title">Select Delivery Address</h3>
+<div class="tc-container">
+    <div class="tc-checkout">
 
-    <form asp-area="Customer"
-          asp-controller="Cart"
-          asp-action="Payment"
-          method="post">
+        <nav class="tc-breadcrumb">
+            <a href="/">Home</a>
+            <span class="tc-breadcrumb__sep">/</span>
+            <a asp-area="Customer" asp-controller="Cart" asp-action="Index">My Bag</a>
+            <span class="tc-breadcrumb__sep">/</span>
+            <span class="tc-breadcrumb__current">Select Address</span>
+        </nav>
 
-        <div class="address-grid">
-            @foreach (var address in Model.Addresses)
-            {
-                <label class="address-card">
-                    <input type="radio"
-                           name="SelectedAddressId"
-                           value="@address.Id"
-                           required />
+        <h1 class="tc-checkout__title">Select Delivery Address</h1>
 
-                    <div class="address-box">
-                        <strong>@address.Name</strong>
-                        <p>@address.Street</p>
-                        <p>@address.City, @address.State</p>
-                        <p>@address.PostalCode</p>
-                    </div>
-                </label>
-            }
+        <form asp-area="Customer"
+              asp-controller="Cart"
+              asp-action="Payment"
+              method="post">
 
-            <!-- ADD NEW ADDRESS -->
-            <div class="address-card add-new"
-                 data-bs-toggle="modal"
-                 data-bs-target="#addAddressModal">
-                <div class="plus-box">
-                    <span>+</span>
-                    <p>Add New Address</p>
+            <div class="tc-address-grid">
+                @foreach (var address in Model.Addresses)
+                {
+                    <label class="tc-address-card">
+                        <input type="radio"
+                               name="SelectedAddressId"
+                               value="@address.Id"
+                               required />
+                        <div class="tc-address-box">
+                            <strong>@address.Name</strong>
+                            <p>@address.Street</p>
+                            <p>@address.City, @address.State</p>
+                            <p>@address.PostalCode</p>
+                        </div>
+                    </label>
+                }
+
+                <!-- ADD NEW ADDRESS -->
+                <div class="tc-address-add"
+                     data-bs-toggle="modal"
+                     data-bs-target="#addAddressModal">
+                    <span class="tc-address-add__icon">+</span>
+                    <span>Add New Address</span>
                 </div>
             </div>
-        </div>
 
-        <button class="btn btn-primary proceed-btn">
-            Proceed to Payment
-        </button>
-    </form>
+            <button type="submit" class="tc-btn tc-btn--primary tc-btn--lg">
+                Proceed to Payment
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+            </button>
+        </form>
+    </div>
 </div>
-<!-- ================= ADD ADDRESS MODAL ================= -->
+
+<!-- ===================== ADD ADDRESS MODAL ===================== -->
 <div class="modal fade" id="addAddressModal" tabindex="-1">
     <div class="modal-dialog">
-        <div class="modal-content p-3">
-
-            <h5>Add New Address</h5>
-
-            <form asp-area="Customer"
-                  asp-controller="Address"
-                  asp-action="Create"
-                  method="post">
-
-                <input name="Name" class="form-control mb-2" placeholder="Full Name" required />
-                <input name="PhoneNumber" class="form-control mb-2" placeholder="Phone Number" required />
-                <input name="Street" class="form-control mb-2" placeholder="Street Address" required />
-                <input name="City" class="form-control mb-2" placeholder="City" required />
-                <input name="State" class="form-control mb-2" placeholder="State" required />
-                <input name="PostalCode" class="form-control mb-2" placeholder="Postal Code" required />
-
-                <button class="btn btn-primary w-100 mt-2">
-                    Save Address
-                </button>
-            </form>
-
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="font-family:var(--tc-font-display); font-weight:400;">Add New Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-area="Customer"
+                      asp-controller="Address"
+                      asp-action="Create"
+                      method="post">
+                    <div class="tc-form-group">
+                        <label>Full Name</label>
+                        <input name="Name" class="form-control" placeholder="Enter full name" required />
+                    </div>
+                    <div class="tc-form-group">
+                        <label>Phone Number</label>
+                        <input name="PhoneNumber" class="form-control" placeholder="Enter phone number" required />
+                    </div>
+                    <div class="tc-form-group">
+                        <label>Street Address</label>
+                        <input name="Street" class="form-control" placeholder="Street, Area" required />
+                    </div>
+                    <div class="tc-two-col">
+                        <div class="tc-form-group">
+                            <label>City</label>
+                            <input name="City" class="form-control" placeholder="City" required />
+                        </div>
+                        <div class="tc-form-group">
+                            <label>State</label>
+                            <input name="State" class="form-control" placeholder="State" required />
+                        </div>
+                    </div>
+                    <div class="tc-form-group">
+                        <label>Postal Code</label>
+                        <input name="PostalCode" class="form-control" placeholder="PIN Code" required />
+                    </div>
+                    <button type="submit" class="tc-btn tc-btn--primary tc-btn--full">
+                        Save Address
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

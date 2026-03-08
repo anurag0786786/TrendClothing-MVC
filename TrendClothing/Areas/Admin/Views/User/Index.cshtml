@@ -2,48 +2,26 @@
     ViewData["Title"] = "User Management";
 }
 
-<!-- HEADER -->
-<div class="row align-items-center mb-3">
-    <div class="col-12 col-md-6">
-        <h2 class="text-primary mb-2 mb-md-0">User List</h2>
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+}
 
-    <div class="col-12 col-md-6 text-md-end">
-        <a asp-area="Admin"
-           asp-controller="User"
-           asp-action="Create"
-           class="btn btn-info w-100 w-md-auto">
-            <i class="fas fa-plus"></i>&nbsp; New User
+<div class="tc-container tc-admin-page">
+    <div class="tc-admin-header">
+        <div>
+            <p class="tc-section-head__sub">Admin Panel</p>
+            <h1 class="tc-admin-title">User Management</h1>
+        </div>
+        <a asp-area="Admin" asp-controller="User" asp-action="Create" class="tc-btn tc-btn--primary">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14" /></svg>
+            New User
         </a>
     </div>
-</div>
 
-<!-- TABLE (DESKTOP & MOBILE SAFE) -->
-<div class="container-fluid rounded border p-2 mt-3">
-
-    <!-- Desktop Table -->
-    <div class="table-responsive d-none d-md-block">
-        <table id="tblData" class="table table-bordered table-striped table-hover">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th style="width:120px;">Action</th>
-                </tr>
-            </thead>
-        </table>
-    </div>
-
-    <!-- Mobile Hint -->
-    <div class="d-block d-md-none text-muted small text-center py-2">
-        Swipe table left/right to see more →
-    </div>
-
-    <!-- Mobile Table (scrollable) -->
-    <div class="table-responsive d-md-none">
-        <table id="tblData" class="table table-bordered table-striped table-hover">
-            <thead class="table-light">
+    <div class="tc-admin-card">
+        <table id="tblData" class="tc-admin-table display" style="width:100%">
+            <thead>
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
@@ -53,7 +31,6 @@
             </thead>
         </table>
     </div>
-
 </div>
 
 @section Scripts {

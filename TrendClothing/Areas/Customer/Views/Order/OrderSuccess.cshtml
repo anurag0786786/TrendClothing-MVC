@@ -2,21 +2,322 @@
     ViewData["Title"] = "Order Success";
 }
 
-<link rel="stylesheet" href="~/css/order-success.css" />
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+}
 
-<div class="success-container">
-    <div class="checkmark-circle">
-        <div class="background"></div>
-        <div class="checkmark"></div>
+<style>
+    /* ── PAGE ── */
+    .tc-success-bg {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--tc-bg);
+        padding: 32px 16px;
+    }
+
+    .tc-success-card {
+        background: var(--tc-surface);
+        border: 1px solid var(--tc-border);
+        border-radius: var(--tc-radius-xl);
+        padding: 64px 56px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+        box-shadow: var(--tc-shadow-lg);
+        animation: tc-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        opacity: 0;
+        transform: translateY(24px);
+    }
+
+    @@keyframes tc-card-in {
+        to
+
+    {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* ── CIRCLE ── */
+    .tc-success-circle {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: var(--tc-black);
+        margin: 0 auto 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        animation: tc-pop 0.45s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @@keyframes tc-pop {
+        from
+
+    {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    }
+
+    /* ── CHECKMARK SVG ── */
+    .tc-success-check {
+        width: 42px;
+        height: 42px;
+    }
+
+        .tc-success-check path {
+            stroke: #fff;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 60;
+            stroke-dashoffset: 60;
+            animation: tc-draw 0.5s 0.75s ease forwards;
+        }
+
+    @@keyframes tc-draw {
+        to
+
+    {
+        stroke-dashoffset: 0;
+    }
+
+    }
+
+    /* ── CONFETTI DOTS ── */
+    .tc-confetti {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: tc-burst 0.6s 0.8s ease-out both;
+        opacity: 0;
+    }
+
+        .tc-confetti:nth-child(1) {
+            background: #f0c040;
+            top: -4px;
+            left: 50%;
+            animation-delay: 0.8s;
+            --tx: -30px;
+            --ty: -36px;
+        }
+
+        .tc-confetti:nth-child(2) {
+            background: #c1440e;
+            top: 20%;
+            right: -4px;
+            animation-delay: 0.85s;
+            --tx: 32px;
+            --ty: -20px;
+        }
+
+        .tc-confetti:nth-child(3) {
+            background: #2d6a4f;
+            bottom: 10%;
+            right: 5%;
+            animation-delay: 0.9s;
+            --tx: 24px;
+            --ty: 28px;
+        }
+
+        .tc-confetti:nth-child(4) {
+            background: #6b4fbb;
+            bottom: -4px;
+            left: 30%;
+            animation-delay: 0.88s;
+            --tx: -10px;
+            --ty: 34px;
+        }
+
+        .tc-confetti:nth-child(5) {
+            background: #f0c040;
+            top: 30%;
+            left: -4px;
+            animation-delay: 0.83s;
+            --tx: -28px;
+            --ty: -10px;
+        }
+
+        .tc-confetti:nth-child(6) {
+            background: #c1440e;
+            top: -4px;
+            right: 30%;
+            animation-delay: 0.92s;
+            --tx: 16px;
+            --ty: -32px;
+            border-radius: 2px;
+        }
+
+    @@keyframes tc-burst {
+        0%
+
+    {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0.4);
+    }
+
+    }
+
+    /* ── TEXT ── */
+    .tc-success-title {
+        font-family: var(--tc-font-display);
+        font-size: 2rem;
+        font-weight: 400;
+        color: var(--tc-black);
+        margin-bottom: 10px;
+        animation: tc-fade-up 0.4s 0.5s ease both;
+    }
+
+    .tc-success-sub {
+        font-size: 14px;
+        color: var(--tc-gray-2);
+        line-height: 1.6;
+        animation: tc-fade-up 0.4s 0.6s ease both;
+    }
+
+    @@keyframes tc-fade-up {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* ── PROGRESS BAR ── */
+    .tc-success-progress-wrap {
+        margin: 28px 0 8px;
+        background: var(--tc-border);
+        border-radius: 20px;
+        height: 4px;
+        overflow: hidden;
+        animation: tc-fade-up 0.4s 0.7s ease both;
+    }
+
+    .tc-success-progress-bar {
+        height: 100%;
+        width: 0%;
+        background: var(--tc-black);
+        border-radius: 20px;
+        animation: tc-progress 3s 1s linear forwards;
+    }
+
+    @@keyframes tc-progress {
+        to
+
+    {
+        width: 100%;
+    }
+
+    }
+
+    .tc-success-redirect-txt {
+        font-size: 12px;
+        color: var(--tc-gray-3);
+        animation: tc-fade-up 0.4s 0.7s ease both;
+    }
+
+    /* ── BUTTON ── */
+    .tc-success-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 28px;
+        padding: 12px 28px;
+        background: var(--tc-black);
+        color: #fff;
+        border-radius: 24px;
+        font-size: 13px;
+        font-weight: 600;
+        font-family: var(--tc-font-body);
+        text-decoration: none;
+        transition: background 0.2s, transform 0.15s;
+        animation: tc-fade-up 0.4s 0.8s ease both;
+    }
+
+        .tc-success-btn:hover {
+            background: var(--tc-gray-1);
+            transform: translateY(-1px);
+            opacity: 1;
+            color: #fff;
+        }
+
+    @@media (max-width: 480px) {
+        .tc-success-card {
+            padding: 48px 28px;
+        }
+
+        .tc-success-title {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+
+<div class="tc-success-bg">
+    <div class="tc-success-card">
+
+        <!-- ANIMATED CIRCLE + CHECK -->
+        <div class="tc-success-circle">
+            <!-- Confetti dots -->
+            <div class="tc-confetti"></div>
+            <div class="tc-confetti"></div>
+            <div class="tc-confetti"></div>
+            <div class="tc-confetti"></div>
+            <div class="tc-confetti"></div>
+            <div class="tc-confetti"></div>
+
+            <!-- SVG Checkmark -->
+            <svg class="tc-success-check" viewBox="0 0 42 42">
+                <path d="M9 21 L18 30 L33 13" />
+            </svg>
+        </div>
+
+        <h1 class="tc-success-title">Order Placed!</h1>
+        <p class="tc-success-sub">
+            Your order has been confirmed 🎉<br />
+            You'll receive a confirmation email shortly.
+        </p>
+
+        <!-- REDIRECT PROGRESS -->
+        <div class="tc-success-progress-wrap">
+            <div class="tc-success-progress-bar"></div>
+        </div>
+        <p class="tc-success-redirect-txt">Redirecting to your order details...</p>
+
+        <!-- MANUAL LINK -->
+        <a href="/Customer/Order/Details/@ViewBag.OrderId" class="tc-success-btn">
+            View Order →
+        </a>
+
     </div>
-
-    <h2>Order Placed Successfully</h2>
-    <p>Your order has been confirmed 🎉</p>
-    <p>Redirecting to order details...</p>
 </div>
 
 <script>
     setTimeout(function () {
         window.location.href = '/Customer/Order/Details/@ViewBag.OrderId';
-    }, 3000);
+    }, 4000);
 </script>

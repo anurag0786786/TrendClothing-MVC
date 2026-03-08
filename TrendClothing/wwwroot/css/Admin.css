@@ -1,0 +1,331 @@
+/* ================================================================
+   ADMIN.CSS — TrendClothing Admin Panel
+   Uses tc-theme.css variables
+================================================================ */
+
+.tc-admin-page {
+    padding: 36px 0 80px;
+}
+
+/* ── HEADER ── */
+.tc-admin-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.tc-admin-title {
+    font-family: var(--tc-font-display);
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 400;
+    color: var(--tc-black);
+    line-height: 1.1;
+}
+
+/* ── ALERT ── */
+.tc-admin-alert {
+    padding: 12px 18px;
+    border-radius: var(--tc-radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.tc-admin-alert--success {
+    background: #e0f2e9;
+    color: var(--tc-success);
+    border: 1px solid #b7dfc9;
+}
+
+.tc-admin-alert--error {
+    background: #fde8e0;
+    color: var(--tc-danger);
+    border: 1px solid #fcc7b0;
+}
+
+/* ── CARD WRAPPER ── */
+.tc-admin-card {
+    background: var(--tc-surface);
+    border: 1px solid var(--tc-border);
+    border-radius: var(--tc-radius-lg);
+    padding: 24px;
+    overflow-x: auto;
+}
+
+/* ── DATATABLE OVERRIDE ── */
+.tc-admin-table.dataTable {
+    width: 100% !important;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: var(--tc-font-body);
+    color: var(--tc-black);
+}
+
+.tc-admin-table thead tr {
+    background: var(--tc-surface-alt);
+    border-bottom: 2px solid var(--tc-border-dark);
+}
+
+.tc-admin-table thead th {
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--tc-gray-2);
+    border: none !important;
+    white-space: nowrap;
+}
+
+    /* DataTables sort arrows */
+    .tc-admin-table thead th.sorting::after,
+    .tc-admin-table thead th.sorting_asc::after,
+    .tc-admin-table thead th.sorting_desc::after {
+        color: var(--tc-gray-4);
+    }
+
+.tc-admin-table tbody tr {
+    border-bottom: 1px solid var(--tc-border);
+    transition: background 0.15s;
+}
+
+    .tc-admin-table tbody tr:hover {
+        background: var(--tc-bg);
+    }
+
+    .tc-admin-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+.tc-admin-table tbody td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    border: none !important;
+    color: var(--tc-black);
+}
+
+/* Status badges inside table */
+.tc-admin-table .tc-status-active {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #e0f2e9;
+    color: var(--tc-success);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.tc-admin-table .tc-status-inactive {
+    display: inline-block;
+    padding: 3px 10px;
+    background: #fde8e0;
+    color: var(--tc-danger);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ── ACTION BUTTONS ── */
+.tc-admin-btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    background: var(--tc-black);
+    color: #fff;
+    border-radius: var(--tc-radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--tc-font-body);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+    .tc-admin-btn-edit:hover {
+        background: var(--tc-gray-1);
+        color: #fff;
+        opacity: 1;
+    }
+
+.tc-admin-btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    background: #fde8e0;
+    color: var(--tc-danger);
+    border-radius: var(--tc-radius-sm);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--tc-font-body);
+    border: 1px solid #fcc7b0;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+    .tc-admin-btn-delete:hover {
+        background: var(--tc-danger);
+        color: #fff;
+        border-color: var(--tc-danger);
+    }
+
+/* ── DATATABLE CONTROLS ── */
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    font-family: var(--tc-font-body) !important;
+    font-size: 13px !important;
+    color: var(--tc-gray-2) !important;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    border: 1.5px solid var(--tc-border-dark) !important;
+    border-radius: var(--tc-radius-sm) !important;
+    padding: 6px 10px !important;
+    font-family: var(--tc-font-body) !important;
+    font-size: 13px !important;
+    outline: none !important;
+    background: var(--tc-surface) !important;
+    color: var(--tc-black) !important;
+}
+
+    .dataTables_wrapper .dataTables_filter input:focus,
+    .dataTables_wrapper .dataTables_length select:focus {
+        border-color: var(--tc-black) !important;
+    }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: var(--tc-radius-sm) !important;
+    font-family: var(--tc-font-body) !important;
+    font-size: 12px !important;
+    padding: 5px 10px !important;
+    color: var(--tc-gray-2) !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+}
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        background: var(--tc-bg) !important;
+        border-color: var(--tc-border-dark) !important;
+        color: var(--tc-black) !important;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        background: var(--tc-black) !important;
+        border-color: var(--tc-black) !important;
+        color: #fff !important;
+    }
+
+/* ── HERO IMAGE UPLOAD ── */
+.tc-hero-upload {
+    max-width: 560px;
+    padding: 36px 0 80px;
+}
+
+.tc-hero-upload__dropzone {
+    border: 2px dashed var(--tc-border-dark);
+    border-radius: var(--tc-radius-lg);
+    padding: 40px 24px;
+    text-align: center;
+    background: var(--tc-surface);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 20px;
+}
+
+    .tc-hero-upload__dropzone:hover {
+        border-color: var(--tc-black);
+        background: var(--tc-bg);
+    }
+
+    .tc-hero-upload__dropzone input[type=file] {
+        display: none;
+    }
+
+.tc-hero-upload__icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.tc-hero-upload__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tc-black);
+    margin-bottom: 4px;
+}
+
+.tc-hero-upload__sub {
+    font-size: 12px;
+    color: var(--tc-gray-3);
+}
+
+.tc-hero-preview {
+    border-radius: var(--tc-radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--tc-border);
+    margin-top: 24px;
+}
+
+    .tc-hero-preview img {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        display: block;
+    }
+
+.tc-hero-preview__label {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--tc-gray-3);
+    background: var(--tc-surface);
+    border-top: 1px solid var(--tc-border);
+}
+
+/* ── FORM PAGES ── */
+.tc-admin-form-wrap {
+    max-width: 1000px;
+}
+
+.tc-admin-field-error {
+    font-size: 12px;
+    color: var(--tc-danger);
+    margin-top: 4px;
+    display: block;
+}
+
+.tc-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 640px) {
+    .tc-two-col {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .tc-admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tc-admin-card {
+        padding: 16px;
+    }
+}

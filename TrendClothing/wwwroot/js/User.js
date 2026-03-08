@@ -1,43 +1,31 @@
 ﻿var dataTable;
-
-$(document).ready(function () {
-    loadDataTable();
-});
+$(document).ready(function () { loadDataTable(); });
 
 function loadDataTable() {
     dataTable = $('#tblData').DataTable({
-        "ajax": {
-            "url": "/Admin/User/GetAll"
-        },
+        "ajax": { "url": "/Admin/User/GetAll" },
         "columns": [
-            { "data": "name", "width": "20%" },
-            { "data": "email", "width": "25%" },
-            { "data": "roles", "width": "20%" },
-
+            { "data": "name", "render": data => `<span style="font-weight:600;">${data}</span>` },
+            { "data": "email" },
             {
-                "data": {
-                    id: "id",
-                    lockoutEnd: "lockoutEnd"
-                },
+                "data": "roles",
+                "render": data => `<span style="display:inline-block;padding:3px 10px;background:var(--tc-surface-alt);border:1px solid var(--tc-border);border-radius:20px;font-size:11px;font-weight:700;">${data}</span>`
+            },
+            {
+                "data": { id: "id", lockoutEnd: "lockoutEnd" },
                 "render": function (data) {
                     var today = new Date().getTime();
                     var lockout = new Date(data.lockoutEnd).getTime();
-
                     if (lockout > today) {
-                        return `
-                            <div class="text-center">
-                                <a class="btn btn-danger" onclick="LockUnlock('${data.id}')">
-                                    Unlock
-                                </a>
-                            </div>`;
-                    }
-                    else {
-                        return `
-                            <div class="text-center">
-                                <a class="btn btn-success" onclick="LockUnlock('${data.id}')">
-                                    Lock
-                                </a>
-                            </div>`;
+                        return `<button class="tc-admin-btn-edit" style="background:#e0f2e9;color:var(--tc-success);border:1px solid #b7dfc9;" onclick="LockUnlock('${data.id}')">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                            Unlock
+                        </button>`;
+                    } else {
+                        return `<button class="tc-admin-btn-delete" onclick="LockUnlock('${data.id}')">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0"/></svg>
+                            Lock
+                        </button>`;
                     }
                 }
             }
@@ -52,13 +40,8 @@ function LockUnlock(id) {
         data: JSON.stringify(id),
         contentType: "application/json",
         success: function (data) {
-            if (data.success) {
-                toastr.success(data.message);
-                dataTable.ajax.reload();
-            }
-            else {
-                toastr.error(data.message);
-            }
+            data.success ? toastr.success(data.message) : toastr.error(data.message);
+            dataTable.ajax.reload();
         }
     });
 }

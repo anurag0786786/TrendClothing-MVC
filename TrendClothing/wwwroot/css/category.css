@@ -1,141 +1,115 @@
-﻿body {
-    background: #ffffff;
+/* ================================================================
+   CATEGORY.CSS — Product Listing Page
+================================================================ */
+
+.tc-cat-page {
+    padding-bottom: 80px;
 }
 
-/* =========================
-   CATEGORY WRAPPER
-========================= */
-.category-wrapper {
-    background: #f5efe6;
-    border-radius: 24px;
-    padding: 40px 35px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.06);
-    margin-bottom: 60px;
+.tc-cat-page__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 8px 0 20px;
 }
 
-/* GRID */
-.row {
-    row-gap: 36px;
+.tc-cat-page__title {
+    font-family: var(--tc-font-display);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 400;
+    color: var(--tc-black);
+    line-height: 1.1;
 }
 
-/* PRODUCT CARD */
-.product-card {
-    background: #fff;
-    border-radius: 16px;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    height: 100%;
-    border: 1px solid #eee;
+.tc-cat-page__count {
+    font-size: 13px;
+    color: var(--tc-gray-3);
+    margin-top: 6px;
 }
 
-    .product-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 18px 40px rgba(0,0,0,0.12);
-    }
+.tc-cat-page__filters {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
 
-/* IMAGE */
-.product-img {
-    height: 240px;
+.tc-filter-form {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: #fafafa;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
-    .product-img img {
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain;
-    }
-
-/* BODY */
-.product-body {
-    padding: 14px 16px 18px;
-}
-
-.brand-name {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #6a4c93;
-    text-transform: uppercase;
-    margin-bottom: 3px;
-}
-
-.product-name {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #222;
-    margin-bottom: 10px;
-}
-
-/* PRICE */
-.price-row {
+.tc-cat-tabs {
     display: flex;
-    align-items: center;
     gap: 6px;
 }
 
-.discount-price {
-    font-size: 1rem;
-    font-weight: 700;
+.tc-cat-page__grid {
+    padding-bottom: 40px;
 }
 
-.old-price {
-    font-size: 0.8rem;
-    color: #999;
-    text-decoration: line-through;
-}
-
-.off-percent {
-    font-size: 0.75rem;
-    color: #ff5722;
-    font-weight: 600;
-}
-
-/* BUTTON */
-.product-body .btn {
-    border-radius: 22px;
-    font-size: 0.82rem;
-    padding: 8px 0;
-    margin-top: 12px;
-}
-
-/* HEADER */
-.tc-header {
-    margin-bottom: 30px;
-}
-
-.tc-breadcrumb {
-    font-size: 13px;
-    color: #777;
-    margin-bottom: 8px;
-}
-
-.tc-header-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-}
-
-.tc-project-name {
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: #2b1055;
-}
-
-.tc-sort {
-    border: 1px solid #ddd;
-    padding: 6px 12px;
-    background: #fff;
-}
-
-/* VISIBILITY (DESKTOP DEFAULT) */
-.desktop-only {
-    display: block;
-}
-
-.mobile-only {
+/* Mobile bottom filter bar */
+.tc-mobile-filter-bar {
     display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--tc-surface);
+    border-top: 1px solid var(--tc-border);
+    padding: 10px 16px;
+    z-index: 100;
+    gap: 10px;
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+}
+
+.tc-mobile-filter-form {
+    flex: 1;
+}
+
+.tc-mobile-filter-select {
+    width: 100%;
+    appearance: none;
+    background: var(--tc-bg);
+    border: 1.5px solid var(--tc-border-dark);
+    border-radius: 20px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-family: var(--tc-font-body);
+    font-weight: 600;
+    color: var(--tc-black);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .tc-cat-page__header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .tc-cat-page__filters {
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .tc-filter-form {
+        display: none; /* replaced by bottom bar */
+    }
+
+    .tc-cat-tabs {
+        display: none; /* on mobile tabs not shown in header */
+    }
+
+    .tc-mobile-filter-bar {
+        display: flex;
+    }
+
+    .tc-cat-page {
+        padding-bottom: 100px; /* space for bottom bar */
+    }
 }

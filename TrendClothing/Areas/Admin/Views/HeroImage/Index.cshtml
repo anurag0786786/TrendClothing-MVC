@@ -1,15 +1,174 @@
-﻿@model TrendClothing.Models.HeroImage
+﻿@{
+    ViewData["Title"] = "Site Images";
+}
 
-<h2>Hero Image Upload</h2>
+@section Styles {
+    <style>
+        .tc-img-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+        }
 
-<form asp-action="Upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" class="form-control mb-2" />
-    <button class="btn btn-primary">Upload</button>
-</form>
+        .tc-img-card {
+            background: var(--tc-surface);
+            border: 1.5px solid var(--tc-border);
+            border-radius: var(--tc-radius-lg);
+            overflow: hidden;
+        }
 
-@if (Model != null)
-{
-    <hr />
-    <h5>Current Hero Image:</h5>
-    <img src="@Model.ImageUrl" style="max-width:100%; height:300px; object-fit:cover;" />
+        .tc-img-card__preview {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+            background: var(--tc-bg);
+        }
+
+        .tc-img-card__placeholder {
+            width: 100%;
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--tc-bg);
+            color: var(--tc-gray-3);
+            font-size: 13px;
+            gap: 8px;
+        }
+
+        .tc-img-card__body {
+            padding: 20px;
+        }
+
+        .tc-img-card__title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--tc-black);
+            margin: 0 0 4px;
+        }
+
+        .tc-img-card__hint {
+            font-size: 11px;
+            color: var(--tc-gray-3);
+            margin: 0 0 16px;
+        }
+
+        .tc-img-card__dropzone {
+            display: block;
+            border: 1.5px dashed var(--tc-border);
+            border-radius: var(--tc-radius-md);
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--tc-gray-2);
+            font-weight: 600;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+            .tc-img-card__dropzone:hover {
+                border-color: var(--tc-black);
+                color: var(--tc-black);
+                background: var(--tc-bg);
+            }
+
+        .tc-img-card__new-preview {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--tc-radius-sm);
+            border: 1px solid var(--tc-border);
+            margin-bottom: 12px;
+            display: none;
+        }
+    </style>
+}
+
+<div class="tc-admin-header">
+    <div>
+        <p style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tc-gray-3);margin:0 0 6px;">Settings</p>
+        <h1 class="tc-admin-title">Site Images</h1>
+    </div>
+</div>
+
+<p style="font-size:13px;color:var(--tc-gray-2);margin:0 0 28px;">
+    Manage the hero banner and category images shown on the homepage.
+</p>
+
+<div class="tc-img-grid">
+
+    @foreach (var item in new[] {
+        new { Key = "Hero",     Label = "Hero Banner",       Hint = "Recommended: 900 × 600px",  Url = ViewBag.Hero     as string },
+        new { Key = "Men",      Label = "Men Category",      Hint = "Recommended: 600 × 800px",  Url = ViewBag.Men      as string },
+        new { Key = "Women",    Label = "Women Category",    Hint = "Recommended: 600 × 800px",  Url = ViewBag.Women    as string },
+        new { Key = "Children", Label = "Children Category", Hint = "Recommended: 600 × 800px",  Url = ViewBag.Children as string },
+        })
+    {
+        <div class="tc-img-card">
+
+            @if (!string.IsNullOrEmpty(item.Url))
+            {
+                <img src="@item.Url" alt="@item.Label" class="tc-img-card__preview" id="current_@item.Key" />
+            }
+            else
+            {
+                <div class="tc-img-card__placeholder" id="current_@item.Key">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    No image set
+                </div>
+            }
+
+            <div class="tc-img-card__body">
+                <p class="tc-img-card__title">@item.Label</p>
+                <p class="tc-img-card__hint">@item.Hint · JPG, PNG, WEBP</p>
+
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="key" value="@item.Key" />
+
+                    <label for="file_@item.Key" class="tc-img-card__dropzone">
+                        <input type="file" name="file" id="file_@item.Key"
+                               style="display:none;" accept="image/*"
+                               onchange="previewImage(this, '@item.Key')" />
+                        📁 Choose image
+                    </label>
+
+                    <img id="preview_@item.Key" class="tc-img-card__new-preview" src="" alt="preview" />
+
+                    <button type="submit" class="tc-btn tc-btn--primary" style="width:100%;font-size:13px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input, key) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var prev = document.getElementById('preview_' + key);
+                    prev.src = e.target.result;
+                    prev.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 }

@@ -1,43 +1,58 @@
 ﻿@model TrendClothing.Models.ProductVariant
+@{
+    ViewData["Title"] = "Edit Variant";
+}
 
-<form method="post">
-    <input asp-for="Id" hidden />
-    <input asp-for="ProductId" hidden />
-    <input asp-for="SizeId" hidden />
-    <input asp-for="ColorId" hidden />
+<div class="tc-admin-form-wrap">
+    <nav class="tc-breadcrumb">
+        <a asp-action="Index">Variants</a>
+        <span class="tc-breadcrumb__sep">/</span>
+        <span class="tc-breadcrumb__current">Edit Variant</span>
+    </nav>
 
-    <div class="border p-3 mt-4">
+    <h1 class="tc-admin-title" style="margin-bottom:28px;">Edit Variant</h1>
 
-        <h2 class="text-primary">Edit Variant</h2>
-        <hr />
+    <div class="tc-admin-card" style="max-width:560px;">
+        <form method="post">
+            <input asp-for="Id" hidden />
+            <input asp-for="ProductId" hidden />
+            <input asp-for="SizeId" hidden />
+            <input asp-for="ColorId" hidden />
 
-        <div class="mb-3">
-            <label>Product</label>
-            <input value="@Model?.Product?.Name" class="form-control" disabled />
-        </div>
+            <div class="tc-form-group">
+                <label>Product</label>
+                <input value="@Model?.Product?.Name" class="form-control"
+                       disabled style="background:var(--tc-surface-alt);color:var(--tc-gray-2);" />
+            </div>
 
-        <div class="mb-3">
-            <label>Size</label>
-            <input value="@Model?.Size?.Name" class="form-control" disabled />
-        </div>
+            <div class="tc-admin-two-col" style="margin-bottom:20px;">
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Size</label>
+                    <input value="@Model?.Size?.Name" class="form-control"
+                           disabled style="background:var(--tc-surface-alt);color:var(--tc-gray-2);" />
+                </div>
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Color</label>
+                    <input value="@Model?.Color?.Name" class="form-control"
+                           disabled style="background:var(--tc-surface-alt);color:var(--tc-gray-2);" />
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label>Color</label>
-            <input value="@Model?.Color?.Name" class="form-control" disabled />
-        </div>
+            <div class="tc-admin-two-col" style="margin-bottom:20px;">
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Price (&#8377;)</label>
+                    <input asp-for="Price" class="form-control" />
+                </div>
+                <div class="tc-form-group" style="margin-bottom:0;">
+                    <label>Stock</label>
+                    <input asp-for="Stock" class="form-control" />
+                </div>
+            </div>
 
-        <div class="mb-3">
-            <label>Price</label>
-            <input asp-for="Price" class="form-control" />
-        </div>
-
-        <div class="mb-3">
-            <label>Stock</label>
-            <input asp-for="Stock" class="form-control" />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Update</button>
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
-
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="tc-btn tc-btn--primary">Update</button>
+                <a asp-action="Index" class="tc-btn tc-btn--outline">← Back</a>
+            </div>
+        </form>
     </div>
-</form>
+</div>

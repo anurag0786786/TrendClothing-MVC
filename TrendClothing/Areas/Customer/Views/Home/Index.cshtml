@@ -1,147 +1,197 @@
-﻿@model IEnumerable<TrendClothing.Models.Product>
-<link rel="stylesheet" href="~/css/index.mobile.css" />
-<div class="desktop-only">
+@model IEnumerable<TrendClothing.Models.Product>
 
-<div class="hero-section">
-    <a href="#categories" class="hero-link">
-        <div class="hero-wrapper">
-            <img src="~/Images/hero/hero.jpg" class="hero-img" />
-        </div>
-    </a>
-</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+}
 
-<!-- CHOOSE CATEGORY HEADING -->
-<div class="choose-category-wrap">
-    <span class="line"></span>
-    <h2>Choose Category</h2>
-    <span class="line"></span>
-</div>
+@* ── HERO ── *@
+<section class="tc-hero">
+    <div class="tc-hero__inner tc-container">
+        <div class="tc-hero__text">
+            <p class="tc-hero__eyebrow">New Season Drop</p>
+            <h1 class="tc-hero__title">We are digital<br />meets fashion.</h1>
+            <p class="tc-hero__sub">Explore high-quality pieces crafted for every style.</p>
+            <div class="tc-hero__actions">
+                <a href="#categories" class="tc-btn tc-btn--primary tc-btn--lg">
+                    Start shopping
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+                </a>
+                <a href="#new-arrivals" class="tc-hero__scroll">
+                    Top collections
+                </a>
+            </div>
 
-<!-- CATEGORIES -->
-<div class="container" id="categories">
-    <div class="row text-center">
-
-        <!-- MEN -->
-        <div class="col-md-4 mb-4">
-            <a asp-action="Category" asp-route-name="Men" class="text-decoration-none text-dark">
-                <div class="category-card">
-                    <div class="category-img">
-                        <img src="~/Images/Categories/Men.jpg" alt="Men" />
-                    </div>
-                    <div class="category-body">
-                        <h4 class="gold-text">Men</h4>
-                    </div>
+            <div class="tc-hero__stats">
+                <div>
+                    <div class="tc-hero__stat-num">500+</div>
+                    <div class="tc-hero__stat-label">Products</div>
                 </div>
-            </a>
-        </div>
-
-        <!-- WOMEN -->
-        <div class="col-md-4 mb-4">
-            <a asp-action="Category" asp-route-name="Women" class="text-decoration-none text-dark">
-                <div class="category-card">
-                    <div class="category-img">
-                        <img src="~/Images/Categories/Women.jpg" alt="Women" />
-                    </div>
-                    <div class="category-body">
-                        <h4 class="gold-text">Women</h4>
-                    </div>
+                <div>
+                    <div class="tc-hero__stat-num">10K+</div>
+                    <div class="tc-hero__stat-label">Customers</div>
                 </div>
-            </a>
-        </div>
-
-        <!-- CHILDREN -->
-        <div class="col-md-4 mb-4">
-            <a asp-action="Category" asp-route-name="Children" class="text-decoration-none text-dark">
-                <div class="category-card">
-                    <div class="category-img">
-                        <img src="~/Images/Categories/Children.jpg" alt="Children" />
-                    </div>
-                    <div class="category-body">
-                        <h4 class="gold-text">Children</h4>
-                    </div>
+                <div>
+                    <div class="tc-hero__stat-num">50+</div>
+                    <div class="tc-hero__stat-label">Brands</div>
                 </div>
-            </a>
+            </div>
         </div>
-        </div>
+        <div class="tc-hero__img-wrap">
 
+            <!-- Floating Badge 1 — New Season -->
+            <div class="tc-hero__badge tc-hero__badge--1">
+                <div class="tc-hero__badge-icon">✦</div>
+                <div>
+                    <div class="tc-hero__badge-text-main">New Season</div>
+                    <div class="tc-hero__badge-text-sub">2025 Collection</div>
+                </div>
+            </div>
+
+            <!-- Discount Circle -->
+            <div class="tc-hero__discount">
+                <strong>50%</strong>
+                OFF
+            </div>
+
+            <!-- Floating Badge 2 — Free Delivery -->
+            <div class="tc-hero__badge tc-hero__badge--2">
+                <div class="tc-hero__badge-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </div>
+                <div>
+                    <div class="tc-hero__badge-text-main">Free Delivery</div>
+                    <div class="tc-hero__badge-text-sub">On all orders</div>
+                </div>
+            </div>
+
+            <!-- Floating Badge 3 — Rating -->
+            <div class="tc-hero__badge tc-hero__badge--3">
+                <div class="tc-hero__badge-icon tc-hero__badge-icon--gold">★</div>
+                <div>
+                    <div class="tc-hero__badge-text-main">4.9 Rating</div>
+                    <div class="tc-hero__badge-text-sub">500+ Reviews</div>
+                </div>
+            </div>
+
+            <img src="@ViewBag.HeroImg" alt="New Season" class="tc-hero__img" />
+            <div class="tc-hero__watermark">LUXIOUS</div>
+        </div>
     </div>
-</div>
+</section>
 
-<!-- MOBILE HOME -->
-<!-- ================= MOBILE HOME ================= -->
-<div class="mobile-only">
-
-    <!-- TOP CATEGORY TABS -->
-    <div class="m-top-tabs">
-        <a asp-action="Index" asp-route-name="Home" class="active">Home</a>
-        <a asp-action="Category" asp-route-name="Men">MEN</a>
-        <a asp-action="Category" asp-route-name="Women">WOMEN</a>
-        <a asp-action="Category" asp-route-name="Children">CHILDREN</a>
+@* ── CATEGORY TABS ── *@
+<section class="tc-section-gap tc-container" id="categories">
+    <div class="tc-section-head">
+        <div>
+            <p class="tc-section-head__sub">Browse</p>
+            <h2 class="tc-section-head__title">Shop by Category</h2>
+        </div>
+        <a asp-action="Category" asp-route-name="Men" class="tc-section-head__link">
+            View all →
+        </a>
     </div>
 
-    <!-- HERO IMAGE -->
-    <section class="m-hero-image">
-        <a href="#choose-category" class="hero-click">
-            <section class="m-hero-image">
-                <img src="~/Images/hero1.jpg" alt="New Season" />
+    <div class="tc-cat-grid">
 
-                <div class="hero-overlay"></div>
-
-                <div class="hero-text">
-                
-                    <p>Explore Fresh Arrivals</p>
-                </div>
-            </section>
+        <a asp-action="Category" asp-route-name="Men" class="tc-cat-card">
+            <div class="tc-cat-card__img-wrap">
+                <img src="@ViewBag.MenImg" alt="Men" class="tc-cat-card__img" />
+            </div>
+            <div class="tc-cat-card__label">
+                <span>Men</span>
+                <span class="tc-cat-card__arrow">↗</span>
+            </div>
         </a>
 
-    </section>
-    <div>
-        <h3 class="m-choose-title">Choose Category</h3>
+        <a asp-action="Category" asp-route-name="Women" class="tc-cat-card">
+            <div class="tc-cat-card__img-wrap">
+                <img src="@ViewBag.WomenImg" alt="Women" class="tc-cat-card__img" />
+            </div>
+            <div class="tc-cat-card__label">
+                <span>Women</span>
+                <span class="tc-cat-card__arrow">↗</span>
+            </div>
+        </a>
+
+        <a asp-action="Category" asp-route-name="Children" class="tc-cat-card">
+            <div class="tc-cat-card__img-wrap">
+                <img src="@ViewBag.ChildrenImg" alt="Children" class="tc-cat-card__img" />
+            </div>
+            <div class="tc-cat-card__label">
+                <span>Children</span>
+                <span class="tc-cat-card__arrow">↗</span>
+            </div>
+        </a>
+
     </div>
-  
-    <!-- CHOOSE CATEGORIES WITH IMAGES -->
-    <section id="choose-category" class="m-choose-categories">
+</section>
 
-        @* <h3 class="m-choose-title">Choose Category</h3> *@
-
-        <div class="m-choose-grid">
-
-            <!-- MEN -->
-            <a asp-action="Category"
-               asp-route-name="Men"
-               class="m-choose-card active">
-                <img src="~/Images/Categories/Men.jpg" alt="Men" />
-                <span>MEN</span>
+@* ── NEW ARRIVALS ── *@
+@if (Model != null && Model.Any())
+{
+    <section class="tc-section-gap tc-container" id="new-arrivals">
+        <div class="tc-section-head">
+            <div>
+                <p class="tc-section-head__sub">Catalogs</p>
+                <h2 class="tc-section-head__title">Fresh arrivals and<br />new selections.</h2>
+            </div>
+            <a asp-action="Category" asp-route-name="Men" class="tc-section-head__link">
+                View all →
             </a>
-
-            <!-- WOMEN -->
-            <div class="m-choose-card disabled">
-                <img src="~/Images/Categories/Women.jpg" alt="Women" />
-                <span>WOMEN</span>
-                <small>Coming Soon</small>
-            </div>
-
-            <!-- CHILDREN -->
-            <div class="m-choose-card disabled">
-                <img src="~/Images/Categories/Children.jpg" alt="Children" />
-                <span>CHILDREN</span>
-                <small>Coming Soon</small>
-            </div>
-
-            @* <!-- COMING SOON -->
-            <div class="m-choose-card coming">
-                <img src="~/Images/Categories/ComingSoon.jpg" alt="Coming Soon" />
-                <span>COMING SOON</span>
-            </div> *@
-
         </div>
 
+        <div class="tc-grid-4">
+            @foreach (var product in Model.Take(8))
+            {
+                <div class="tc-product-card">
+                    <div class="tc-product-card__img-wrap">
+                        <img src="@product.ImageUrl" alt="@product.Name" class="tc-product-card__img" />
+                        @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
+                        {
+                            var pct = (int)(((product.Price - product.DiscountPrice) / product.Price) * 100);
+                            <span class="tc-product-card__badge">@pct% OFF</span>
+                        }
+                        <span class="tc-product-card__action">+</span>
+                    </div>
+                    <div class="tc-product-card__body">
+                        <div class="tc-product-card__brand">@product.Brand?.Name</div>
+                        <div class="tc-product-card__name">@product.Name</div>
+                        <div class="tc-product-card__price-row">
+                            @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
+                            {
+                                <span class="tc-product-card__price">&#8377; @product.DiscountPrice</span>
+                                <span class="tc-product-card__price-old">&#8377; @product.Price</span>
+                            }
+                            else
+                            {
+                                <span class="tc-product-card__price">&#8377; @product.Price</span>
+                            }
+                        </div>
+                        <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta">
+                            Add collections +
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
     </section>
+}
 
-
-    @* <!-- PROMO IMAGE -->
-    <section class="m-promo">
-        <img src="~/Images/Categories/Women.jpg" alt="Offer" />
-    </section> *@
-
-</div>
+@* ── OFFERS BANNER ── *@
+<section class="tc-offers tc-container tc-section-gap">
+    <div class="tc-offers__grid">
+        <div class="tc-offers__img-col">
+            <img src="@ViewBag.HeroImg" alt="Offers" class="tc-offers__img" />
+        </div>
+        <div class="tc-offers__text-col">
+            <p class="tc-offers__eyebrow">Offers</p>
+            <h2 class="tc-offers__title">Exclusive fashion<br />offers await</h2>
+            <p class="tc-offers__desc">Unlock fashion favorites transformed into affordable luxuries. Every selection within our Offer Section belongs to you to embrace.</p>
+            <a asp-action="Category" asp-route-name="Men" class="tc-btn tc-btn--primary">
+                Try now
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+            </a>
+        </div>
+    </div>
+</section>

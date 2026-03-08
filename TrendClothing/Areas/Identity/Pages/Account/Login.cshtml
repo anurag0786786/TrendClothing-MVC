@@ -4,170 +4,102 @@
     ViewData["Title"] = "Login";
 }
 
-<link rel="stylesheet" href="~/css/auth-glass.css" />
-<link rel="stylesheet" href="~/css/auth-login.css" />
-<div class="desktop-only">
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
 
-<div class="auth-bg"></div>
+<div class="tc-auth-page">
 
-<div class="auth-wrapper">
-    <div class="auth-card">
+    <!-- LEFT BRAND PANEL -->
+    <div class="tc-auth-left">
+        <a href="/" class="tc-auth-left__brand">TrendClothing</a>
 
-        <!-- LEFT PANEL -->
-        <div class="auth-left">
-            <h1>Welcome Back</h1>
-            <p>Login & explore the latest fashion trends</p>
+        <div class="tc-auth-left__body">
+            <p class="tc-auth-left__eyebrow">New Season Drop</p>
+            <h1 class="tc-auth-left__title">Welcome<br />Back.</h1>
+            <p class="tc-auth-left__sub">Login and explore the latest fashion trends crafted for every style.</p>
 
             <a asp-page="./Register"
                asp-route-returnUrl="@Model.ReturnUrl"
-               class="btn-outline">
-                Create Account
+               class="tc-auth-left__action">
+                Create Account →
             </a>
+
+            <div class="tc-auth-left__social">
+                <p class="tc-auth-left__social-label">Or sign in with</p>
+                <form asp-area="Identity"
+                      asp-page="/Account/ExternalLogin"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+                    <button type="submit" name="provider" value="Google" class="tc-auth-social-btn">
+                        <img src="~/Images/google.svg" alt="Google" />
+                        Continue with Google
+                    </button>
+                </form>
+                <form asp-area="Identity"
+                      asp-page="/Account/ExternalLogin"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+                    <button type="submit" name="provider" value="Facebook" class="tc-auth-social-btn">
+                        <img src="~/Images/facebook.svg" alt="Facebook" />
+                        Continue with Facebook
+                    </button>
+                </form>
+            </div>
         </div>
 
-        <!-- RIGHT PANEL -->
-        <div class="auth-right">
+        <div style="font-size:12px; color:rgba(255,255,255,0.25);">© TrendClothing</div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="tc-auth-right">
+        <div class="tc-auth-form-wrap">
+
             <h2>Sign In</h2>
+            <p class="tc-auth-sub">Enter your credentials to continue</p>
 
             <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:16px; font-size:13px;"></div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Email"
                            placeholder=" "
                            autocomplete="username"
                            required />
-                    <label>Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    <label>Email address</label>
+                    <span asp-validation-for="Input.Email" class="tc-auth-error"></span>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Password"
                            type="password"
                            placeholder=" "
                            autocomplete="current-password"
                            required />
                     <label>Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    <span asp-validation-for="Input.Password" class="tc-auth-error"></span>
                 </div>
 
-                <div class="extra-row">
-                    <label class="remember">
+                <div class="tc-auth-extra">
+                    <label>
                         <input asp-for="Input.RememberMe" />
                         Remember me
                     </label>
-
-                    <a asp-page="./ForgotPassword" class="link">
-                        Forgot password?
-                    </a>
+                    <a asp-page="./ForgotPassword">Forgot password?</a>
                 </div>
 
-                <button type="submit" class="btn-main">
-                    LOGIN
-                </button>
+                <button type="submit" class="tc-auth-submit">Login</button>
 
-                <div class="bottom-links">
-                    <a asp-page="./ResendEmailConfirmation">
-                        Resend confirmation email
-                    </a>
+                <div class="tc-auth-footer-link">
+                    <a asp-page="./ResendEmailConfirmation">Resend confirmation email</a>
                 </div>
             </form>
-        </div>
-        </div>
 
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-<div class="mobile-only">
-
-    <div class="mobile-auth-wrapper">
-
-        <!-- BRAND -->
-        <div class="mobile-auth-brand">
-            TrendClothing
-        </div>
-
-        <!-- CARD -->
-        <div class="mobile-auth-card">
-
-            <h2 class="mobile-auth-title">Welcome Back</h2>
-            <p class="mobile-auth-sub">
-                Login to continue shopping
-            </p>
-
-            <!-- LOGIN FORM -->
-            <form method="post" class="mobile-auth-form">
-
-                <!-- EMAIL -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Email" required />
-                    <label>Email</label>
-                </div>
-
-                <!-- PASSWORD -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Password" type="password" required />
-                    <label>Password</label>
-                </div>
-                <!-- REMEMBER / FORGOT ROW -->
-                <div class="mobile-login-options">
-
-                    <label class="remember-me">
-                        <input asp-for="Input.RememberMe" type="checkbox" />
-                        <span>Remember me</span>
-                    </label>
-
-                    <a asp-page="./ForgotPassword"
-                       class="forgot-link">
-                        Forgot password?
-                    </a>
-
-                </div>
-
-
-                <!-- LOGIN BUTTON -->
-                <button type="submit" class="mobile-auth-btn">
-                    Login
-                </button>
-            </form>
-
-            <!-- SOCIAL LOGIN -->
-            <form asp-area="Identity"
-                  asp-page="/Account/ExternalLogin"
-                  asp-route-returnUrl="@Model.ReturnUrl"
-                  method="post">
-
-                <div class="mobile-social-row">
-
-                    <button type="submit"
-                            name="provider"
-                            value="Google"
-                            class="mobile-social-btn google">
-                        <img src="~/Images/google.svg" alt="Google" />
-                        Google
-                    </button>
-
-                    <button type="submit"
-                            name="provider"
-                            value="Facebook"
-                            class="mobile-social-btn facebook">
-                        <img src="~/Images/facebook.svg" alt="Facebook" />
-                        Facebook
-                    </button>
-
-                </div>
-            </form>
-
-            <!-- REGISTER LINK -->
-            <div class="mobile-auth-footer">
-                Don’t have an account?
-                <a asp-page="./Register">Register</a>
-            </div>
-
-        </div>
-    </div>
-
-</div>

@@ -2,39 +2,40 @@
 @{
     var title = Model.Id != 0 ? "Edit Brand" : "New Brand";
     var saveupdate = Model.Id != 0 ? "Update" : "Save";
+    ViewData["Title"] = title;
 }
-<form method="post">
-    @if (Model.Id != 0)
-    {
-        <input type="hidden" asp-for="@Model.Id" />
-    }
-    <div class="col-10">
-        <h2 class0="text-primary">@title</h2>
+
+<div class="tc-admin-form-wrap">
+    <nav class="tc-breadcrumb">
+        <a asp-action="Index">Brands</a>
+        <span class="tc-breadcrumb__sep">/</span>
+        <span class="tc-breadcrumb__current">@title</span>
+    </nav>
+
+    <h1 class="tc-admin-title" style="margin-bottom:28px;">@title</h1>
+
+    <div class="tc-admin-card" style="max-width:560px;">
+        <form method="post">
+            @if (Model.Id != 0)
+            {
+                <input type="hidden" asp-for="@Model.Id" />
+            }
+            <div asp-validation-summary="ModelOnly" class="tc-admin-alert tc-admin-alert--error" style="margin-bottom:16px;"></div>
+
+            <div class="tc-form-group">
+                <label>Brand Name</label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Zara, H&M, Nike..." />
+                <span asp-validation-for="Name" class="tc-admin-field-error"></span>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="tc-btn tc-btn--primary">@saveupdate</button>
+                <a asp-action="Index" class="tc-btn tc-btn--outline">← Back</a>
+            </div>
+        </form>
     </div>
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="col-8">
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Name"></label>
-            </div>
-            <div class="col-8">
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row p-2 m-2">
-            <div class="col-4 offset-4">
-                <button type="submit" class="btn btn-info form-control">
-                    @saveupdate
-                </button>
-            </div>
-            <div class="col-4 ">
-                <a asp-action="Index" class="btn btn-success form-control">Back To List</a>
-            </div>
-        </div>
-    </div>
-</form>
-@section Scripts
-{
+</div>
+
+@section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -1,38 +1,71 @@
 ﻿@using Microsoft.AspNetCore.Http
-<link rel="stylesheet" href="~/css/payment.css" />
 
-<div class="payment-wrapper">
-    <h3>Select Payment Method</h3>
-    <p class="text-muted">More payment options coming soon 🚀</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+}
 
-    <div class="payment-options">
+<div class="tc-container">
+    <div class="tc-payment">
 
-        <!-- ✅ STRIPE -->
-        <form asp-area="Customer"
-              asp-controller="Stripe"
-              asp-action="Pay"
-              method="post">
+        <nav class="tc-breadcrumb">
+            <a href="/">Home</a>
+            <span class="tc-breadcrumb__sep">/</span>
+            <a asp-area="Customer" asp-controller="Cart" asp-action="Index">My Bag</a>
+            <span class="tc-breadcrumb__sep">/</span>
+            <a asp-area="Customer" asp-controller="Cart" asp-action="Summary">Address</a>
+            <span class="tc-breadcrumb__sep">/</span>
+            <span class="tc-breadcrumb__current">Payment</span>
+        </nav>
 
-            <input type="hidden"
-                   name="SelectedAddressId"
-                   value="@Context.Session.GetInt32("SelectedAddressId")" />
+        <h1 class="tc-payment__title">Payment</h1>
+        <p class="tc-payment__sub">Select your preferred payment method</p>
 
-            <button type="submit" class="payment-card active">
-                💳 Credit / Debit Card
-                <span class="badge bg-success ms-2">Available</span>
+        <div class="tc-payment-options">
+
+            <!-- STRIPE -->
+            <form asp-area="Customer"
+                  asp-controller="Stripe"
+                  asp-action="Pay"
+                  method="post">
+                <input type="hidden"
+                       name="SelectedAddressId"
+                       value="@Context.Session.GetInt32("SelectedAddressId")" />
+                <button type="submit" class="tc-payment-card">
+                    <span class="tc-payment-card__icon">💳</span>
+                    <span class="tc-payment-card__label">
+                        Credit / Debit Card
+                        <span style="display:block; font-size:11px; font-weight:400; color:var(--tc-gray-3); margin-top:2px;">Visa, Mastercard, RuPay & more</span>
+                    </span>
+                    <span class="tc-badge tc-badge--green" style="margin-left:auto;">Available</span>
+                </button>
+            </form>
+
+            <!-- UPI -->
+            <button class="tc-payment-card disabled" disabled>
+                <span class="tc-payment-card__icon">📱</span>
+                <span class="tc-payment-card__label">
+                    UPI
+                    <span class="tc-payment-card__coming">GPay, PhonePe, Paytm</span>
+                </span>
+                <span class="tc-badge tc-badge--cream" style="margin-left:auto;">Coming Soon</span>
             </button>
-        </form>
 
-        <!-- 🚧 COMING SOON -->
-        <button class="payment-card disabled" disabled>
-            📱 UPI
-            <span class="coming-soon">Coming Soon</span>
-        </button>
+            <!-- COD -->
+            <button class="tc-payment-card disabled" disabled>
+                <span class="tc-payment-card__icon">🚚</span>
+                <span class="tc-payment-card__label">
+                    Cash on Delivery
+                    <span class="tc-payment-card__coming">Pay when you receive</span>
+                </span>
+                <span class="tc-badge tc-badge--cream" style="margin-left:auto;">Coming Soon</span>
+            </button>
 
-        <button class="payment-card disabled" disabled>
-            🚚 Cash on Delivery
-            <span class="coming-soon">Coming Soon</span>
-        </button>
+        </div>
+
+        <p style="margin-top:24px; font-size:12px; color:var(--tc-gray-3); text-align:center;">
+            🔒 All transactions are secure and encrypted
+        </p>
 
     </div>
 </div>

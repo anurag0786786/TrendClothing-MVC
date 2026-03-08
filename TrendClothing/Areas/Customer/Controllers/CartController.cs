@@ -25,6 +25,20 @@ namespace TrendClothing.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
+        // ================= GET CART COUNT (for navbar) =================
+        [HttpGet]
+        public IActionResult GetCartCount()
+        {
+            if (!User.Identity.IsAuthenticated)
+                return Json(new { count = 0 });
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var count = _unitOfWork.ShoppingCart
+                .GetAll(c => c.ApplicationUserId == userId)
+                .Count();
+            return Json(new { count });
+        }
+
         // ================= CART INDEX =================
         public async Task<IActionResult> Index()
         {
@@ -107,7 +121,7 @@ namespace TrendClothing.Areas.Customer.Controllers
 
             return Redirect(returnUrl ?? Url.Action("Index", "Cart"));
 
-            
+
         }
 
         // ================= PLUS =================

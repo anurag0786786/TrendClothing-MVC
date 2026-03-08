@@ -1,0 +1,394 @@
+/* ================================================================
+   AUTH.CSS — TrendClothing Login & Register
+   Uses tc-theme.css variables
+================================================================ */
+
+/* ── FULL-PAGE LAYOUT ── */
+.tc-auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: stretch;
+    background: var(--tc-bg);
+}
+
+/* ── LEFT BRAND PANEL ── */
+.tc-auth-left {
+    width: 420px;
+    flex-shrink: 0;
+    background: var(--tc-black);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px 48px 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+    .tc-auth-left::before {
+        content: 'TRENDCLOTHING';
+        position: absolute;
+        bottom: -20px;
+        left: -10px;
+        font-family: var(--tc-font-display);
+        font-size: 6rem;
+        font-weight: 400;
+        color: rgba(255,255,255,0.05);
+        letter-spacing: 4px;
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+    }
+
+.tc-auth-left__brand {
+    font-family: var(--tc-font-display);
+    font-size: 1.6rem;
+    font-weight: 400;
+    color: #fff;
+    text-decoration: none;
+    letter-spacing: -0.3px;
+}
+
+.tc-auth-left__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tc-auth-left__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+}
+
+.tc-auth-left__title {
+    font-family: var(--tc-font-display);
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: #fff;
+}
+
+.tc-auth-left__sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+    max-width: 300px;
+}
+
+.tc-auth-left__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    color: #fff;
+    background: transparent;
+    text-decoration: none;
+    transition: all 0.2s;
+    width: fit-content;
+    margin-top: 8px;
+}
+
+    .tc-auth-left__action:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.5);
+        opacity: 1;
+        color: #fff;
+    }
+
+.tc-auth-left__social {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.tc-auth-left__social-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+}
+
+.tc-auth-social-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--tc-font-body);
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: #fff;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    justify-content: center;
+}
+
+    .tc-auth-social-btn:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.45);
+    }
+
+    .tc-auth-social-btn img {
+        width: 18px;
+        height: 18px;
+        filter: brightness(0) invert(1);
+    }
+
+/* ── RIGHT FORM PANEL ── */
+.tc-auth-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    overflow-y: auto;
+}
+
+.tc-auth-form-wrap {
+    width: 100%;
+    max-width: 480px;
+}
+
+    .tc-auth-form-wrap h2 {
+        font-family: var(--tc-font-display);
+        font-size: 2rem;
+        font-weight: 400;
+        color: var(--tc-black);
+        margin-bottom: 8px;
+    }
+
+    .tc-auth-form-wrap .tc-auth-sub {
+        font-size: 14px;
+        color: var(--tc-gray-2);
+        margin-bottom: 32px;
+    }
+
+/* Float-label inputs */
+.tc-auth-field {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+    .tc-auth-field input,
+    .tc-auth-field select {
+        width: 100%;
+        padding: 16px 14px 8px;
+        background: var(--tc-surface);
+        border: 1.5px solid var(--tc-border-dark);
+        border-radius: var(--tc-radius-sm);
+        font-size: 14px;
+        font-family: var(--tc-font-body);
+        color: var(--tc-black);
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+        .tc-auth-field input:focus,
+        .tc-auth-field select:focus {
+            border-color: var(--tc-black);
+        }
+
+    .tc-auth-field label {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        transform: translateY(-50%);
+        font-size: 14px;
+        color: var(--tc-gray-3);
+        pointer-events: none;
+        transition: all 0.2s;
+        background: var(--tc-surface);
+        padding: 0 3px;
+    }
+
+    .tc-auth-field input:focus ~ label,
+    .tc-auth-field input:not(:placeholder-shown) ~ label {
+        top: 0;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: var(--tc-black);
+    }
+
+    .tc-auth-field select {
+        padding: 10px 14px;
+    }
+
+        .tc-auth-field select + label {
+            display: none;
+        }
+
+/* Phone row */
+.tc-auth-phone-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+    .tc-auth-phone-row select {
+        width: 130px;
+        flex-shrink: 0;
+        padding: 12px 14px;
+        background: var(--tc-surface);
+        border: 1.5px solid var(--tc-border-dark);
+        border-radius: var(--tc-radius-sm);
+        font-size: 14px;
+        font-family: var(--tc-font-body);
+        color: var(--tc-black);
+        outline: none;
+        appearance: none;
+    }
+
+    .tc-auth-phone-row .tc-auth-field {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+/* Two-column */
+.tc-auth-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+    .tc-auth-two-col .tc-auth-field {
+        margin-bottom: 0;
+    }
+
+/* Extra row (remember + forgot) */
+.tc-auth-extra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+    .tc-auth-extra label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--tc-gray-2);
+        cursor: pointer;
+        font-weight: 500;
+    }
+
+    .tc-auth-extra a {
+        color: var(--tc-gray-2);
+        font-weight: 600;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+        .tc-auth-extra a:hover {
+            color: var(--tc-black);
+            opacity: 1;
+        }
+
+/* Submit button */
+.tc-auth-submit {
+    width: 100%;
+    padding: 15px;
+    background: var(--tc-black);
+    color: #fff;
+    border: none;
+    border-radius: var(--tc-radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: var(--tc-font-body);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 4px;
+}
+
+    .tc-auth-submit:hover {
+        background: var(--tc-gray-1);
+        transform: translateY(-1px);
+    }
+
+/* Footer link */
+.tc-auth-footer-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--tc-gray-2);
+}
+
+    .tc-auth-footer-link a {
+        color: var(--tc-black);
+        font-weight: 700;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+/* Validation */
+.tc-auth-error {
+    font-size: 12px;
+    color: var(--tc-danger);
+    margin-top: -14px;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .tc-auth-left {
+        width: 300px;
+        padding: 36px 32px;
+    }
+}
+
+@media (max-width: 680px) {
+    .tc-auth-page {
+        flex-direction: column;
+    }
+
+    .tc-auth-left {
+        width: 100%;
+        min-height: auto;
+        padding: 32px 24px;
+    }
+
+        .tc-auth-left::before {
+            display: none;
+        }
+
+    .tc-auth-left__body {
+        gap: 12px;
+    }
+
+    .tc-auth-left__title {
+        font-size: 1.8rem;
+    }
+
+    .tc-auth-left__social {
+        display: none;
+    }
+
+    .tc-auth-right {
+        padding: 32px 20px;
+    }
+
+    .tc-auth-two-col {
+        grid-template-columns: 1fr;
+    }
+
+        .tc-auth-two-col .tc-auth-field {
+            margin-bottom: 20px;
+        }
+}

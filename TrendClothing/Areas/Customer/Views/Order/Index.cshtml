@@ -1,59 +1,56 @@
-﻿@model IEnumerable<TrendClothing.Models.OrderHeader>
+@model IEnumerable<TrendClothing.Models.OrderHeader>
 
-<link rel="stylesheet" href="~/css/order.css" />
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+}
 
-<div class="container my-5">
+<div class="tc-container tc-orders-page">
 
-    <h3 class="mb-4">📦 My Orders</h3>
+    <h1 class="tc-orders-page__title">My Orders</h1>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            You have not placed any orders yet.
+        <div class="tc-empty">
+            <div class="tc-empty__icon">📦</div>
+            <div class="tc-empty__title">No orders yet</div>
+            <div class="tc-empty__sub">Start shopping to see your orders here</div>
+            <a asp-action="Index" asp-controller="Home" class="tc-btn tc-btn--primary tc-mt-md">
+                Start Shopping
+            </a>
         </div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover align-middle order-table">
-                <thead class="table-light">
-                    <tr>
-                        <th>Order #</th>
-                        <th>Date</th>
-                        <th>Total</th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var order in Model)
-                    {
-                        <tr>
-                            <td class="fw-semibold">#@order.Id</td>
-                            <td>@order.OrderDate.ToString("dd MMM yyyy")</td>
-                            <td class="fw-bold text-success">₹ @order.OrderTotal</td>
-                            <td>
-                                <span class="badge bg-primary">
-                                    @order.PaymentStatus
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-success">
-                                    @order.OrderStatus
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <a asp-action="Details"
-                                   asp-route-id="@order.Id"
-                                   class="btn btn-sm btn-outline-dark">
-                                    View
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        @* Header Row *@
+        <div style="display:grid; grid-template-columns:1fr auto auto auto auto auto; gap:16px; padding:0 24px 12px; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--tc-gray-3);">
+            <span>Order</span>
+            <span>Date</span>
+            <span>Total</span>
+            <span>Payment</span>
+            <span>Status</span>
+            <span></span>
         </div>
+
+        @foreach (var order in Model)
+        {
+            <div class="tc-order-row">
+                <div class="tc-order-row__id">#@order.Id</div>
+                <div class="tc-order-row__date">@order.OrderDate.ToString("dd MMM yyyy")</div>
+                <div class="tc-order-row__total">&#8377; @order.OrderTotal</div>
+                <div>
+                    <span class="tc-badge tc-badge--cream">@order.PaymentStatus</span>
+                </div>
+                <div>
+                    <span class="tc-badge tc-badge--dark">@order.OrderStatus</span>
+                </div>
+                <div>
+                    <a asp-action="Details" asp-route-id="@order.Id"
+                       class="tc-btn tc-btn--outline tc-btn--sm">
+                        View →
+                    </a>
+                </div>
+            </div>
+        }
     }
 </div>

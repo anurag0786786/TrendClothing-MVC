@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Security.Claims;
+using TrendClothing.Data;
 using TrendClothing.DataAccess.Repository.IRepository;
 using TrendClothing.Models;
 using TrendClothing.Models.ViewModels;
@@ -9,26 +10,24 @@ using TrendClothing.Models.ViewModels;
 namespace TrendClothing.Areas.Customer.Controllers
 {
     [Area("Customer")]
-  
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IUnitofWork _unitOfWork;
+        private readonly ApplicationDbContext _db;
 
-
-        public HomeController(ILogger<HomeController> logger,IUnitofWork unitofWork)
+        public HomeController(ILogger<HomeController> logger, IUnitofWork unitofWork, ApplicationDbContext db)
         {
             _logger = logger;
             _unitOfWork = unitofWork;
+            _db = db;
         }
 
         public IActionResult Index()
         {
-            // 🔹 Cart count for navbar
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
                 ViewBag.CartCount = _unitOfWork.ShoppingCart.GetAll(
                     c => c.ApplicationUserId == userId
                 ).Count();
@@ -38,13 +37,20 @@ namespace TrendClothing.Areas.Customer.Controllers
                 ViewBag.CartCount = 0;
             }
 
-            // 🔹 Product list
+            // Load site images from DB (fallback to static files if not set)
+            var siteImages = _db.SiteImages.ToList();
+            ViewBag.HeroImg = siteImages.FirstOrDefault(x => x.Key == "Hero")?.ImageUrl ?? "/Images/hero/hero.jpg";
+            ViewBag.MenImg = siteImages.FirstOrDefault(x => x.Key == "Men")?.ImageUrl ?? "/Images/Categories/Men.jpg";
+            ViewBag.WomenImg = siteImages.FirstOrDefault(x => x.Key == "Women")?.ImageUrl ?? "/Images/Categories/Women.jpg";
+            ViewBag.ChildrenImg = siteImages.FirstOrDefault(x => x.Key == "Children")?.ImageUrl ?? "/Images/Categories/Children.jpg";
+
             var ProductList = _unitOfWork.product.GetAll(
-                IncludeProperties: "Category,ProductType"
+                IncludeProperties: "Category,Brand,ProductType"
             );
 
             return View(ProductList);
         }
+
         public IActionResult Details(int id)
         {
             var product = _unitOfWork.product.FirstOrDefault(
@@ -76,7 +82,6 @@ namespace TrendClothing.Areas.Customer.Controllers
                 Product = product,
                 Variants = variants,
                 Count = 1,
-
                 OriginalPrice = originalPrice,
                 SellingPrice = sellingPrice,
                 DiscountPercent = discountPercent
@@ -85,72 +90,86 @@ namespace TrendClothing.Areas.Customer.Controllers
             return View(vm);
         }
 
-
-
-
-
         public IActionResult Privacy()
         {
             return View();
         }
-        public IActionResult Category(string name, ProductFilterVM vm)
+
+        public IActionResult Category(string name, string Search, string Sort)
         {
+            // ── If user came from navbar search (no category name), redirect to search results ──
+            if (string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(Search))
+            {
+                // Search across ALL categories
+                var allProducts = _unitOfWork.product.GetAll(
+                    IncludeProperties: "Brand,Category"
+                );
 
+                var search = Search.Trim().ToLower();
+                var results = allProducts.Where(p =>
+                    p.Name.ToLower().Contains(search) ||
+                    (p.Brand != null && p.Brand.Name.ToLower().Contains(search)) ||
+                    (p.Category != null && p.Category.Name.ToLower().Contains(search))
+                ).ToList();
+
+                ViewBag.CategoryName = $"Search: \"{Search}\"";
+                ViewBag.ProductTypes = results.Select(p => p.ProductType?.Name)
+                    .Where(t => t != null).Distinct().ToList();
+
+                var vm2 = new ProductFilterVM
+                {
+                    Products = results,
+                    Search = Search,
+                    Sort = Sort
+                };
+                return View(vm2);
+            }
+
+            // ── Normal category browse ──
             var products = _unitOfWork.product.GetAll(
-                IncludeProperties: "Brand,Category"
-            ).Where(p => p.Category.Name == name);
+                IncludeProperties: "Brand,Category,ProductType"
+            ).Where(p => p.Category != null && p.Category.Name == name);
 
-            var productTypes = products.Select(p => p.Name).Distinct().ToList();
+            // ✅ ProductTypes = actual product TYPE names (not product names)
+            var productTypes = products
+                .Where(p => p.ProductType != null)
+                .Select(p => p.ProductType.Name)
+                .Distinct()
+                .OrderBy(t => t)
+                .ToList();
 
             ViewBag.ProductTypes = productTypes;
+            ViewBag.CategoryName = name;
 
-            // 🔍 SEARCH
-            if (!string.IsNullOrEmpty(vm.Search))
+            // 🔍 SEARCH — case-insensitive, searches name AND brand
+            if (!string.IsNullOrEmpty(Search))
             {
-                var search = vm.Search.ToLower();
-
+                var search = Search.Trim().ToLower();
                 products = products.Where(p =>
                     p.Name.ToLower().Contains(search) ||
-                    p.Brand.Name.ToLower().Contains(search));
-
-            }
-
-            // 🎯 BRAND FILTER
-            if (vm.BrandIds.Any())
-            {
-                products = products.Where(p => vm.BrandIds.Contains(p.BrandId));
-            }
-
-            // 💰 PRICE FILTER
-            if (vm.MinPrice.HasValue)
-                products = products.Where(p => p.Price >= vm.MinPrice);
-
-            if (vm.MaxPrice.HasValue)
-                products = products.Where(p => p.Price <= vm.MaxPrice);
-
-            // 🔥 DISCOUNT
-            if (vm.MinDiscount.HasValue)
-            {
-                products = products.Where(p =>
-                    ((p.Price - p.DiscountPrice) * 100 / p.Price) >= vm.MinDiscount);
+                    (p.Brand != null && p.Brand.Name.ToLower().Contains(search)) ||
+                    (p.ProductType != null && p.ProductType.Name.ToLower().Contains(search))
+                );
             }
 
             // ↕ SORTING
-            products = vm.Sort switch
+            products = Sort switch
             {
                 "low" => products.OrderBy(p => p.DiscountPrice > 0 ? p.DiscountPrice : p.Price),
                 "high" => products.OrderByDescending(p => p.DiscountPrice > 0 ? p.DiscountPrice : p.Price),
                 _ => products.OrderByDescending(p => p.Id)
             };
 
-            vm.Products = products.ToList();
-            vm.Brands = _unitOfWork.brand.GetAll();
+            var vm = new ProductFilterVM
+            {
+                Products = products.ToList(),
+                Search = Search,
+                Sort = Sort,
+                Brands = _unitOfWork.brand.GetAll()
+            };
 
-            ViewBag.CategoryName = name;
             return View(vm);
         }
-
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

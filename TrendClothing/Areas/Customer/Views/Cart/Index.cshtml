@@ -1,4 +1,4 @@
-﻿@model TrendClothing.Models.ViewModels.ShoppingCartVM
+@model TrendClothing.Models.ViewModels.ShoppingCartVM
 
 @{
     ViewData["Title"] = "My Cart";
@@ -6,121 +6,118 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/cart.css" />
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
 }
 
-<div class="container mt-4">
-    <div class="row">
+<div class="tc-container tc-cart-page">
 
-        <!-- LEFT : CART ITEMS -->
-        <div class="col-md-8">
-            <h3 class="mb-3">
-                My Bag (@(Model.ListCart?.Count() ?? 0) item)
-            </h3>
+    <h1 class="tc-cart-page__title">
+        My Bag
+        <span style="font-size:1rem; font-weight:500; color:var(--tc-gray-3); font-family:var(--tc-font-body);">
+            (@(Model.ListCart?.Count() ?? 0) items)
+        </span>
+    </h1>
 
-            @if (Model.ListCart != null && Model.ListCart.Any())
-            {
+    @if (Model.ListCart != null && Model.ListCart.Any())
+    {
+        <div class="row g-4">
+            @* LEFT — ITEMS *@
+            <div class="col-md-8">
                 @foreach (var item in Model.ListCart)
                 {
-                    var price = item.ProductVariant.Product.Price;
+                    var price = (item.ProductVariant.Product.DiscountPrice > 0
+                    ? item.ProductVariant.Product.DiscountPrice
+                    : item.ProductVariant.Product.Price) ?? 0;
                     var subTotal = price * item.Count;
                     bagTotal += subTotal;
 
-                    <div class="cart-card">
-                        <div class="cart-left">
-                            <img src="@(item.ProductVariant.Product.ImageUrl ?? "/images/no-image.png")"
-                                 alt="product"
-                                 class="cart-img" />
-                        </div>
+                    <div class="tc-cart-item">
+                        <img src="@(item.ProductVariant.Product.ImageUrl ?? "/images/no-image.png")"
+                             alt="product"
+                             class="tc-cart-item__img" />
 
-                        <div class="cart-right">
-                            <h6>@item.ProductVariant.Product.Name</h6>
-
-                            <p class="text-muted mb-1">
-                                Size: @item.ProductVariant.Size.Name |
+                        <div class="tc-cart-item__body">
+                            <div class="tc-cart-item__name">@item.ProductVariant.Product.Name</div>
+                            <div class="tc-cart-item__meta">
+                                Size: @item.ProductVariant.Size.Name &nbsp;·&nbsp;
                                 Color: @item.ProductVariant.Color.Name
-                            </p>
-
-                            <div class="price-row">
-                                <span class="price">₹ @price</span>
                             </div>
+                            <div class="tc-cart-item__price">&#8377; @price</div>
 
-                            <!-- QTY -->
-                            <div class="qty-row">
+                            <div class="tc-qty-row">
                                 <a asp-action="Minus" asp-route-id="@item.Id">−</a>
-                                <span>@item.Count</span>
+                                <span class="tc-qty-row__count">@item.Count</span>
                                 <a asp-action="Plus" asp-route-id="@item.Id">+</a>
                             </div>
-
-                            <!-- DELETE -->
-                            <a asp-action="Remove"
-                               asp-route-id="@item.Id"
-                               class="delete-btn">
-                                Delete
-                            </a>
                         </div>
+
+                        <a asp-action="Remove" asp-route-id="@item.Id" class="tc-cart-item__delete">
+                            Remove
+                        </a>
                     </div>
                 }
-            }
-            else
-            {
-                <!-- EMPTY CART MESSAGE -->
-                <div class="alert alert-info mt-4">
-                    Your cart is empty.
-                </div>
-            }
-        </div>
+            </div>
 
-        <!-- RIGHT : ORDER SUMMARY (ONLY WHEN CART HAS ITEMS) -->
-        @if (Model.ListCart != null && Model.ListCart.Any())
-        {
+            @* RIGHT — SUMMARY *@
             <div class="col-md-4">
-                <div class="summary-card">
-                    <h5>Order Details</h5>
+                <div class="tc-order-summary">
+                    <div class="tc-order-summary__title">Order Summary</div>
 
-                    <div class="summary-row">
-                        <span>Bag total</span>
-                        <span>₹ @bagTotal</span>
+                    <div class="tc-order-summary__row">
+                        <span>Subtotal</span>
+                        <span>&#8377; @bagTotal</span>
+                    </div>
+                    <div class="tc-order-summary__row">
+                        <span>Delivery</span>
+                        <span style="color:var(--tc-success); font-weight:600;">Free</span>
                     </div>
 
-                    <hr />
-
-                    <div class="summary-row total">
-                        <span>Order Total</span>
-                        <span>₹ @bagTotal</span>
+                    <div class="tc-order-summary__row tc-order-summary__row--total">
+                        <span>Total</span>
+                        <span>&#8377; @bagTotal</span>
                     </div>
 
-                    @if (ViewBag.IsEmailConfirmed == true)
-                    {
-                        <a asp-action="Summary"
-                           class="btn btn-dark w-100">
-                            PROCEED TO SHIPPING
-                        </a>
-                    }
-                    else
-                    {
-                        <div class="alert alert-warning text-center mb-3">
-                            ⚠ Please verify your email to continue checkout
-                        </div>
-
-                        <button type="button"
-                                class="btn btn-warning w-100"
-                                onclick="sendVerificationEmail()">
-                            VERIFY EMAIL FIRST
-                        </button>
-                    }
-
+                    <div class="tc-order-summary__cta">
+                        @if (ViewBag.IsEmailConfirmed == true)
+                        {
+                            <a asp-action="Summary" class="tc-btn tc-btn--primary tc-btn--full">
+                                Proceed to Shipping →
+                            </a>
+                        }
+                        else
+                        {
+                            <div style="font-size:13px; color:var(--tc-warn); background:#fef9e7; border:1px solid #fde68a; border-radius:var(--tc-radius-md); padding:12px; margin-bottom:8px;">
+                                ⚠ Please verify your email to continue checkout
+                            </div>
+                            <button type="button"
+                                    class="tc-btn tc-btn--outline tc-btn--full"
+                                    onclick="sendVerificationEmail()">
+                                Verify Email
+                            </button>
+                        }
+                    </div>
                 </div>
             </div>
-        }
-
-    </div>
+        </div>
+    }
+    else
+    {
+        <div class="tc-empty">
+            <div class="tc-empty__icon">🛍</div>
+            <div class="tc-empty__title">Your bag is empty</div>
+            <div class="tc-empty__sub">Add some items to get started</div>
+            <a asp-action="Index" asp-controller="Home" class="tc-btn tc-btn--primary tc-mt-md">
+                Continue Shopping
+            </a>
+        </div>
+    }
 </div>
+
 <form id="verifyEmailForm"
       asp-action="SendVerificationEmail"
       asp-controller="Profile"
-      method="post">
-</form>
+      method="post"></form>
 
 <script>
     function sendVerificationEmail() {

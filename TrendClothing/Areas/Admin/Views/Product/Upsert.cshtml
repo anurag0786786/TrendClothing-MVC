@@ -1,167 +1,136 @@
 ﻿@model TrendClothing.Models.ViewModels.ProductVM
-
 @{
     var title = Model.Product.Id != 0 ? "Edit Product" : "New Product";
     var saveupdate = Model.Product.Id != 0 ? "Update" : "Save";
+    ViewData["Title"] = title;
 }
 
-<form method="post" enctype="multipart/form-data">
+<div class="tc-admin-form-wrap">
+    <nav class="tc-breadcrumb">
+        <a asp-action="Index">Products</a>
+        <span class="tc-breadcrumb__sep">/</span>
+        <span class="tc-breadcrumb__current">@title</span>
+    </nav>
 
-    @Html.AntiForgeryToken()
+    <h1 class="tc-admin-title" style="margin-bottom:28px;">@title</h1>
 
-    @if (Model.Product.Id != 0)
-    {
-        <input type="hidden" asp-for="Product.Id" />
-    }
+    <form method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        @if (Model.Product.Id != 0)
+        {
+            <input type="hidden" asp-for="Product.Id" />
+        }
 
-    <div class="col-10">
-        <h2 class="text-primary">@title</h2>
-    </div>
+        <div style="display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start;">
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <!-- LEFT COLUMN -->
+            <div class="tc-admin-card">
+                <div asp-validation-summary="ModelOnly" class="tc-admin-alert tc-admin-alert--error" style="margin-bottom:16px;"></div>
 
-    <div class="col-8">
+                <div class="tc-form-group">
+                    <label>Product Name</label>
+                    <input asp-for="Product.Name" class="form-control" placeholder="Enter product name" />
+                    <span asp-validation-for="Product.Name" class="tc-admin-field-error"></span>
+                </div>
 
-        <!-- Product Name -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.Name"></label>
+                <div class="tc-form-group">
+                    <label>Description</label>
+                    <textarea asp-for="Product.Description" class="form-control" rows="3" placeholder="Optional product description"></textarea>
+                </div>
+
+                <div class="tc-two-col">
+                    <div class="tc-form-group">
+                        <label>Price (&#8377;)</label>
+                        <input asp-for="Product.Price" class="form-control" placeholder="0" />
+                        <span asp-validation-for="Product.Price" class="tc-admin-field-error"></span>
+                    </div>
+                    <div class="tc-form-group">
+                        <label>Discount Price (&#8377;) <span style="color:var(--tc-gray-3);font-weight:400;">optional</span></label>
+                        <input asp-for="Product.DiscountPrice" class="form-control" placeholder="0" />
+                    </div>
+                </div>
+
+                <div class="tc-two-col">
+                    <div class="tc-form-group">
+                        <label>Category</label>
+                        <select asp-for="Product.CategoryId" asp-items="Model.CategoryList" class="form-control" id="CategoryId">
+                            <option value="">-- Select Category --</option>
+                        </select>
+                        <span asp-validation-for="Product.CategoryId" class="tc-admin-field-error"></span>
+                    </div>
+                    <div class="tc-form-group">
+                        <label>Product Type</label>
+                        <input type="hidden" id="selectedProductTypeId" value="@Model.Product.ProductTypeId" />
+                        <select asp-for="Product.ProductTypeId" class="form-control" id="ProductTypeId">
+                            <option value="">-- Select Type --</option>
+                        </select>
+                        <span asp-validation-for="Product.ProductTypeId" class="tc-admin-field-error"></span>
+                    </div>
+                </div>
+
+                <div class="tc-form-group">
+                    <label>Brand</label>
+                    <select asp-for="Product.BrandId" asp-items="Model.BrandList" class="form-control">
+                        <option value="0">-- Select Brand --</option>
+                    </select>
+                    <span asp-validation-for="Product.BrandId" class="tc-admin-field-error"></span>
+                </div>
+
+                <div class="tc-form-group" style="display:flex;align-items:center;gap:12px;">
+                    <input asp-for="Product.IsActive" style="width:18px;height:18px;accent-color:var(--tc-black);cursor:pointer;" />
+                    <label style="margin:0;font-size:14px;font-weight:600;cursor:pointer;">Active (visible in store)</label>
+                </div>
+
+                <div style="display:flex;gap:12px;margin-top:24px;">
+                    <button type="submit" class="tc-btn tc-btn--primary">@saveupdate Product</button>
+                    <a asp-action="Index" class="tc-btn tc-btn--outline">← Cancel</a>
+                </div>
             </div>
-            <div class="col-8">
-                <input asp-for="Product.Name" class="form-control" />
-                <span asp-validation-for="Product.Name" class="text-danger"></span>
-            </div>
-        </div>
 
-        <!-- Description -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.Description"></label>
-            </div>
-            <div class="col-8">
-                <textarea asp-for="Product.Description" class="form-control"></textarea>
-                <span asp-validation-for="Product.Description" class="text-danger"></span>
-            </div>
-        </div>
+            <!-- RIGHT COLUMN — Image -->
+            <div class="tc-admin-card">
+                <div class="tc-form-group">
+                    <label>Product Image</label>
+                    <label for="productImage" style="display:block;border:2px dashed var(--tc-border-dark);border-radius:var(--tc-radius-md);padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;background:var(--tc-bg);" onmouseover="this.style.borderColor='#111'" onmouseout="this.style.borderColor='var(--tc-border-dark)'">
+                        <input type="file" name="file" id="productImage" style="display:none;" accept="image/*" onchange="previewProductImage(this)" />
+                        <div style="font-size:2rem;margin-bottom:8px;">📷</div>
+                        <div style="font-size:13px;font-weight:600;color:var(--tc-black);">Click to upload</div>
+                        <div style="font-size:11px;color:var(--tc-gray-3);margin-top:4px;">JPG, PNG, WEBP</div>
+                    </label>
+                </div>
 
-
-        <!-- Price -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.Price"></label>
+                @if (!string.IsNullOrEmpty(Model.Product.ImageUrl))
+                {
+                    <div style="margin-top:8px;">
+                        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--tc-gray-3);margin-bottom:8px;">Current Image</div>
+                        <img id="productPreview" src="@Model.Product.ImageUrl"
+                             style="width:100%;border-radius:var(--tc-radius-md);border:1px solid var(--tc-border);object-fit:contain;background:var(--tc-surface-alt);max-height:260px;" />
+                    </div>
+                }
+                else
+                {
+                    <img id="productPreview" src="" style="display:none;width:100%;border-radius:var(--tc-radius-md);border:1px solid var(--tc-border);object-fit:contain;max-height:260px;margin-top:8px;" />
+                }
             </div>
-            <div class="col-8">
-                <input asp-for="Product.Price" class="form-control" />
-                <span asp-validation-for="Product.Price" class="text-danger"></span>
-            </div>
-        </div>
-
-        <!-- Discount Price -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.DiscountPrice"></label>
-            </div>
-            <div class="col-8">
-                <input asp-for="Product.DiscountPrice" class="form-control" />
-            </div>
-        </div>
-
-        <!-- Category -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.CategoryId"></label>
-            </div>
-            <div class="col-8">
-                <select asp-for="Product.CategoryId"
-                        asp-items="Model.CategoryList"
-                        class="form-control"
-                        id="CategoryId">
-                    <option value="">-- Select Category --</option>
-                </select>
-
-                <span asp-validation-for="Product.CategoryId" class="text-danger"></span>
-            </div>
-        </div>
-
-        <!-- Product Type -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.ProductTypeId"></label>
-            </div>
-            <input type="hidden" id="selectedProductTypeId"
-                   value="@Model.Product.ProductTypeId" />
-
-            <div class="col-8">
-                <select asp-for="Product.ProductTypeId"
-                        class="form-control"
-                        id="ProductTypeId">
-                    <option value="">-- Select Product Type --</option>
-                </select>
-
-                <span asp-validation-for="Product.ProductTypeId" class="text-danger"></span>
-            </div>
-        </div>
-
-        <!-- Brand -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.BrandId"></label>
-            </div>
-            <div class="col-8">
-                <select asp-for="Product.BrandId"
-                        asp-items="Model.BrandList"
-                        class="form-control">
-                    <option value="0">-- Select Brand --</option>
-                </select>
-                <span asp-validation-for="Product.BrandId" class="text-danger"></span>
-            </div>
-        </div>
-        <!-- Image Upload -->
-        <div class="form-group row p-2 m-2">
-            <label asp-for="Product.ImageUrl"></label>
-            @* <input type="file" name="files" id="imageId" multiple class="form-control" /> *@
-            <input type="file" name="file" class="form-control" />
 
         </div>
+    </form>
+</div>
 
-        <!-- Is Active -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4">
-                <label asp-for="Product.IsActive"></label>
-            </div>
-            <div class="col-8">
-                <input asp-for="Product.IsActive" />
-            </div>
-        </div>
-
-        <!-- Buttons -->
-        <div class="form-group row p-2 m-2">
-            <div class="col-4 offset-4">
-                <button type="submit" class="btn btn-info form-control">
-                    @saveupdate
-                </button>
-            </div>
-            <div class="col-4">
-                <a asp-action="Index" class="btn btn-success form-control">
-                    Back To List
-                </a>
-            </div>
-        </div>
-
-    </div>
-</form>
-@if (!string.IsNullOrEmpty(Model.Product.ImageUrl))
-{
-    <div class="mt-2">
-        <img src="@Model.Product.ImageUrl"
-             width="120"
-             style="border-radius:8px;border:1px solid #ddd" />
-    </div>
-}
-
-@section Scripts
-{
+@section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/Product.js"></script>
+    <script>
+        function previewProductImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var img = document.getElementById('productPreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 }
-

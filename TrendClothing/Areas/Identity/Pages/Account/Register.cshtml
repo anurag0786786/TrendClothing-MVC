@@ -4,261 +4,133 @@
     ViewData["Title"] = "Register";
 }
 
-<link rel="stylesheet" href="~/css/auth-register.css" />
-<link rel="stylesheet" href="~/css/auth-register.mobile.css" />
-<div class="desktop-only">
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
 
-<div class="register-bg"></div>
+<div class="tc-auth-page">
 
-<div class="register-wrapper">
-    <div class="register-card">
+    <!-- LEFT BRAND PANEL -->
+    <div class="tc-auth-left">
+        <a href="/" class="tc-auth-left__brand">TrendClothing</a>
 
-        <!-- LEFT -->
-        <div class="register-left">
-            <h1>Hello, Friend</h1>
-            <p>Create your account & start shopping with TrendClothing</p>
+        <div class="tc-auth-left__body">
+            <p class="tc-auth-left__eyebrow">Join Us Today</p>
+            <h1 class="tc-auth-left__title">Hello,<br />Friend.</h1>
+            <p class="tc-auth-left__sub">Create your account and start shopping with TrendClothing.</p>
 
             <a asp-page="./Login"
                asp-route-returnUrl="@Model.ReturnUrl"
-               class="btn-outline">
-                Already have an account?
+               class="tc-auth-left__action">
+                Already have an account? →
             </a>
 
-            <div class="social-left">
-                <p class="social-text">Register with one click</p>
-
+            <div class="tc-auth-left__social">
+                <p class="tc-auth-left__social-label">Register with one click</p>
                 <form asp-area="Identity"
                       asp-page="/Account/ExternalLogin"
                       asp-route-returnUrl="@Model.ReturnUrl"
-                      method="post"
-                      class="social-left-form">
-
-                    <button type="submit"
-                            name="provider"
-                            value="Google"
-                            class="btn-outline social-pill">
-
-                        <span class="social-icon">
-                            <img src="~/Images/google.svg" alt="Google" />
-                        </span>
-
-                        <span class="social-text-btn">Continue with Google</span>
+                      method="post">
+                    <button type="submit" name="provider" value="Google" class="tc-auth-social-btn">
+                        <img src="~/Images/google.svg" alt="Google" />
+                        Continue with Google
                     </button>
-
-
-                    <button type="submit"
-                            name="provider"
-                            value="Facebook"
-                            class="btn-outline social-btn">
-                        <span class="social-icon">
-                            <img src="~/Images/facebook.svg" alt="Facebook" />
-                        </span>
-
-                        <span class="social-text-btn">Continue with Facebook</span>
+                </form>
+                <form asp-area="Identity"
+                      asp-page="/Account/ExternalLogin"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+                    <button type="submit" name="provider" value="Facebook" class="tc-auth-social-btn">
+                        <img src="~/Images/facebook.svg" alt="Facebook" />
+                        Continue with Facebook
                     </button>
                 </form>
             </div>
-
         </div>
 
-        <!-- RIGHT -->
-        <div class="register-right">
+        <div style="font-size:12px; color:rgba(255,255,255,0.25);">© TrendClothing</div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="tc-auth-right">
+        <div class="tc-auth-form-wrap">
+
             <h2>Create Account</h2>
+            <p class="tc-auth-sub">Fill in your details to get started</p>
 
-            <!-- ✅ NORMAL REGISTER FORM -->
             <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:16px; font-size:13px;"></div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Email" placeholder=" " autocomplete="username" required />
-                    <label>Email</label>
+                    <label>Email address</label>
+                    <span asp-validation-for="Input.Email" class="tc-auth-error"></span>
                 </div>
 
-                <div class="input-box">
-                    <div style="display:flex; gap:10px;">
-                        <select asp-for="Input.CountryCode" class="form-control" style="max-width:120px;">
-                            <option value="+91">🇮🇳 +91</option>
-                            <option value="+1">🇺🇸 +1</option>
-                            <option value="+44">🇬🇧 +44</option>
-                            <option value="+971">🇦🇪 +971</option>
-                        </select>
-
-                        <input asp-for="Input.PhoneNumber" placeholder="Enter phone number" />
+                <div class="tc-auth-phone-row">
+                    <select asp-for="Input.CountryCode">
+                        <option value="+91">🇮🇳 +91</option>
+                        <option value="+1">🇺🇸 +1</option>
+                        <option value="+44">🇬🇧 +44</option>
+                        <option value="+971">🇦🇪 +971</option>
+                    </select>
+                    <div class="tc-auth-field">
+                        <input asp-for="Input.PhoneNumber" placeholder=" " />
+                        <label>Phone number</label>
+                        <span asp-validation-for="Input.PhoneNumber" class="tc-auth-error"></span>
                     </div>
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Name" placeholder=" " required />
-                    <label>Name</label>
+                    <label>Full name</label>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Address" placeholder=" " />
                     <label>Address</label>
                 </div>
 
-                <div class="two-col">
-                    <div class="input-box">
+                <div class="tc-auth-two-col" style="margin-bottom:20px;">
+                    <div class="tc-auth-field">
                         <input asp-for="Input.City" placeholder=" " />
                         <label>City</label>
                     </div>
-
-                    <div class="input-box">
+                    <div class="tc-auth-field">
                         <input asp-for="Input.State" placeholder=" " />
                         <label>State</label>
                     </div>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.PostalCode" placeholder=" " />
-                    <label>Postal Code</label>
+                    <label>Postal code</label>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Password" type="password" placeholder=" " autocomplete="new-password" required />
                     <label>Password</label>
+                    <span asp-validation-for="Input.Password" class="tc-auth-error"></span>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.ConfirmPassword" type="password" placeholder=" " autocomplete="new-password" required />
-                    <label>Confirm Password</label>
+                    <label>Confirm password</label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="tc-auth-error"></span>
                 </div>
 
-                <button type="submit" class="btn-main">
-                    REGISTER
-                </button>
-            </form>
-        </div>
+                <button type="submit" class="tc-auth-submit">Create Account</button>
 
-    </div>
+                <div class="tc-auth-footer-link">
+                    Already have an account? <a asp-page="./Login">Sign in</a>
+                </div>
+            </form>
+
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-<div class="mobile-only">
-
-    <div class="mobile-auth-wrapper">
-
-        <!-- BRAND -->
-        <div class="mobile-auth-brand">
-            TrendClothing
-        </div>
-
-        <!-- CARD -->
-        <div class="mobile-auth-card">
-
-            <h2 class="mobile-auth-title">Create Account</h2>
-            <p class="mobile-auth-sub">
-                Join TrendClothing & start shopping
-            </p>
-
-            <!-- REGISTER FORM -->
-            <form method="post" class="mobile-auth-form">
-
-                <!-- EMAIL -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Email" required />
-                    <label>Email</label>
-                </div>
-
-                <!-- PHONE -->
-                <div class="mobile-phone-row">
-                    <select asp-for="Input.CountryCode">
-                        <option value="+91">🇮🇳 +91</option>
-                        <option value="+1">🇺🇸 +1</option>
-                        <option value="+44">🇬🇧 +44</option>
-                    </select>
-
-                    <input asp-for="Input.PhoneNumber"
-                           placeholder="Phone number" />
-                </div>
-
-                <!-- FULL NAME -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Name" required />
-                    <label>Full Name</label>
-                </div>
-
-                <!-- ADDRESS -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Address" />
-                    <label>Address</label>
-                </div>
-
-                <!-- CITY + STATE -->
-                <div class="mobile-two-col">
-                    <div class="mobile-float">
-                        <input asp-for="Input.City" required />
-                        <label>City</label>
-                    </div>
-
-                    <div class="mobile-float">
-                        <input asp-for="Input.State" required />
-                        <label>State</label>
-                    </div>
-                </div>
-
-                <!-- POSTAL CODE -->
-                <div class="mobile-float">
-                    <input asp-for="Input.PostalCode" />
-                    <label>Postal Code</label>
-                </div>
-
-                <!-- PASSWORD -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Password" type="password" required />
-                    <label>Password</label>
-                </div>
-
-                <!-- CONFIRM PASSWORD -->
-                <div class="mobile-float">
-                    <input asp-for="Input.ConfirmPassword" type="password" required />
-                    <label>Confirm Password</label>
-                </div>
-
-                <!-- REGISTER BUTTON -->
-                <button type="submit" class="mobile-auth-btn">
-                    Register
-                </button>
-            </form>
-
-            <!-- SOCIAL LOGIN -->
-            <form asp-area="Identity"
-                  asp-page="/Account/ExternalLogin"
-                  asp-route-returnUrl="@Model.ReturnUrl"
-                  method="post">
-
-                <div class="mobile-social-row">
-
-                    <button type="submit"
-                            name="provider"
-                            value="Google"
-                            class="mobile-social-btn google">
-                        <img src="~/Images/google.svg" alt="Google" />
-                        Google
-                    </button>
-
-                    <button type="submit"
-                            name="provider"
-                            value="Facebook"
-                            class="mobile-social-btn facebook">
-                        <img src="~/Images/facebook.svg" alt="Facebook" />
-                        Facebook
-                    </button>
-
-                </div>
-            </form>
-
-            <!-- LOGIN LINK -->
-            <div class="mobile-auth-footer">
-                Already have an account?
-                <a asp-page="./Login">Login</a>
-            </div>
-
-        </div>
-    </div>
-
-</div>

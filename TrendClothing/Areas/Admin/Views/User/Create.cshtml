@@ -3,36 +3,47 @@
     ViewData["Title"] = "Create User";
 }
 
-<h2 class="text-primary">Create New User</h2>
+<div class="tc-admin-form-wrap">
+    <nav class="tc-breadcrumb">
+        <a asp-action="Index">Users</a>
+        <span class="tc-breadcrumb__sep">/</span>
+        <span class="tc-breadcrumb__current">Create User</span>
+    </nav>
 
-<form method="post">
-    <div class="border p-3 mt-4 rounded">
-        <div class="mb-3">
-            <label>Name</label>
-            <input asp-for="Name" class="form-control" />
-        </div>
+    <h1 class="tc-admin-title" style="margin-bottom:28px;">Create New User</h1>
 
-        <div class="mb-3">
-            <label>Email</label>
-            <input asp-for="Email" class="form-control" />
-        </div>
+    <div class="tc-admin-card" style="max-width:560px;">
+        <form method="post">
 
-        <div class="mb-3">
-            <label>Password</label>
-            <input asp-for="Password" class="form-control" type="password" />
-        </div>
+            <div class="tc-form-group">
+                <label>Full Name</label>
+                <input asp-for="Name" class="form-control" placeholder="Enter full name" />
+            </div>
 
-        <div class="mb-3">
-            <label>Role</label>
-            <select asp-for="Role" class="form-control">
-                @foreach (var role in ViewBag.RoleList)
-                {
-                    <option value="@role">@role</option>
-                }
-            </select>
-        </div>
+            <div class="tc-form-group">
+                <label>Email</label>
+                <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+            </div>
 
-        <button type="submit" class="btn btn-primary">Create User</button>
-        <a asp-action="Index" class="btn btn-secondary">Back</a>
+            <div class="tc-form-group">
+                <label>Password</label>
+                <input asp-for="Password" class="form-control" type="password" placeholder="Min. 6 characters" />
+            </div>
+
+            <div class="tc-form-group">
+                <label>Role</label>
+                <select asp-for="Role" class="form-control">
+                    @foreach (var role in ViewBag.RoleList)
+                    {
+                        <option value="@role">@role</option>
+                    }
+                </select>
+            </div>
+
+            <div style="display:flex;gap:12px;margin-top:24px;">
+                <button type="submit" class="tc-btn tc-btn--primary">Create User</button>
+                <a asp-action="Index" class="tc-btn tc-btn--outline">← Back</a>
+            </div>
+        </form>
     </div>
-</form>
+</div>

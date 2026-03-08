@@ -1,0 +1,427 @@
+/* ================================================================
+   HOME.CSS — TrendClothing Home Page
+   Uses tc-theme.css variables
+================================================================ */
+
+/* ── HERO ── */
+.tc-hero {
+    background: var(--tc-surface);
+    border-bottom: 1px solid var(--tc-border);
+    overflow: hidden;
+    min-height: 560px;
+}
+
+.tc-hero__inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 560px;
+    align-items: stretch;
+}
+
+/* LEFT TEXT */
+.tc-hero__text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 48px 60px 0;
+    gap: 16px;
+}
+
+.tc-hero__eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--tc-gray-3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tc-hero__eyebrow::before {
+    content: '';
+    width: 24px;
+    height: 1.5px;
+    background: var(--tc-gray-3);
+}
+
+.tc-hero__title {
+    font-family: var(--tc-font-display);
+    font-size: clamp(2.4rem, 4vw, 3.6rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--tc-black);
+}
+
+.tc-hero__sub {
+    font-size: 15px;
+    color: var(--tc-gray-2);
+    max-width: 360px;
+    line-height: 1.6;
+}
+
+.tc-hero__actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 8px;
+}
+
+.tc-hero__scroll {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tc-gray-2);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+}
+.tc-hero__scroll:hover { color: var(--tc-black); opacity: 1; }
+
+/* ── HERO STATS (below CTA) ── */
+.tc-hero__stats {
+    display: flex;
+    gap: 28px;
+    margin-top: 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--tc-border);
+}
+.tc-hero__stat-num {
+    font-family: var(--tc-font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--tc-black);
+    line-height: 1;
+}
+.tc-hero__stat-label {
+    font-size: 11px;
+    color: var(--tc-gray-3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+/* RIGHT IMAGE — FLOATING */
+.tc-hero__img-wrap {
+    position: relative;
+    overflow: visible;
+    background: var(--tc-bg);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+/* Circular bg behind the model */
+.tc-hero__img-wrap::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 88%;
+    aspect-ratio: 1;
+    background: var(--tc-surface-alt, #f0ede8);
+    border-radius: 50% 50% 0 0;
+    z-index: 0;
+}
+
+/* Floating animation on the image */
+@keyframes tc-float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-14px); }
+}
+
+.tc-hero__img {
+    position: relative;
+    z-index: 1;
+    width: 82%;
+    max-width: 420px;
+    height: auto;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    animation: tc-float 4s ease-in-out infinite;
+    filter: drop-shadow(0 24px 40px rgba(0,0,0,0.13));
+}
+
+/* ── FLOATING BADGES ── */
+.tc-hero__badge {
+    position: absolute;
+    z-index: 10;
+    background: var(--tc-surface);
+    border: 1.5px solid var(--tc-border);
+    border-radius: 40px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    white-space: nowrap;
+    animation: tc-float 4s ease-in-out infinite;
+}
+
+/* Offset each badge animation slightly */
+.tc-hero__badge--1 { animation-delay: 0s;    top: 18%;  left: -8%; }
+.tc-hero__badge--2 { animation-delay: 0.8s;  top: 42%;  right: -6%; }
+.tc-hero__badge--3 { animation-delay: 1.6s;  bottom: 22%; left: -4%; }
+
+.tc-hero__badge-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--tc-black);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.tc-hero__badge-icon--gold {
+    background: linear-gradient(135deg, #c9a84c, #e8c96a);
+}
+
+.tc-hero__badge-text-main {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--tc-black);
+    line-height: 1.2;
+}
+.tc-hero__badge-text-sub {
+    font-size: 11px;
+    color: var(--tc-gray-3);
+}
+
+/* Discount pill — top right of image */
+.tc-hero__discount {
+    position: absolute;
+    z-index: 10;
+    top: 12%;
+    right: -4%;
+    width: 64px;
+    height: 64px;
+    background: var(--tc-black);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    animation: tc-float 4s ease-in-out infinite;
+    animation-delay: 2s;
+}
+.tc-hero__discount strong {
+    font-family: var(--tc-font-display);
+    font-size: 1.3rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1;
+}
+
+.tc-hero__watermark {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--tc-font-display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 400;
+    color: rgba(0,0,0,0.05);
+    letter-spacing: 8px;
+    pointer-events: none;
+    user-select: none;
+    text-transform: uppercase;
+    z-index: 0;
+    white-space: nowrap;
+}
+
+
+/* ── CATEGORY GRID ── */
+.tc-cat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.tc-cat-card {
+    display: block;
+    border-radius: var(--tc-radius-lg);
+    overflow: hidden;
+    position: relative;
+    background: var(--tc-surface-alt);
+    border: 1px solid var(--tc-border);
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.tc-cat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--tc-shadow-md);
+    opacity: 1;
+}
+
+.tc-cat-card__img-wrap {
+    aspect-ratio: 3/4;
+    overflow: hidden;
+}
+.tc-cat-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.tc-cat-card:hover .tc-cat-card__img { transform: scale(1.05); }
+
+.tc-cat-card__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tc-black);
+    border-top: 1px solid var(--tc-border);
+    background: var(--tc-surface);
+}
+.tc-cat-card__arrow {
+    font-size: 16px;
+    color: var(--tc-gray-3);
+    transition: transform 0.2s, color 0.2s;
+}
+.tc-cat-card:hover .tc-cat-card__arrow {
+    transform: translate(3px, -3px);
+    color: var(--tc-black);
+}
+
+/* ── OFFERS BANNER ── */
+.tc-offers__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+    background: var(--tc-surface-alt);
+    border-radius: var(--tc-radius-xl);
+    overflow: hidden;
+    border: 1px solid var(--tc-border);
+    padding: 0;
+}
+
+.tc-offers__img-col {
+    height: 460px;
+    overflow: hidden;
+}
+.tc-offers__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tc-offers__text-col {
+    padding: 48px 48px 48px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tc-offers__eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--tc-gray-3);
+    background: var(--tc-surface);
+    border: 1px solid var(--tc-border);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.tc-offers__title {
+    font-family: var(--tc-font-display);
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--tc-black);
+}
+
+.tc-offers__desc {
+    font-size: 14px;
+    color: var(--tc-gray-2);
+    line-height: 1.7;
+    max-width: 340px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .tc-hero {
+        min-height: auto;
+    }
+    .tc-hero__inner {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    /* Image on top */
+    .tc-hero__img-wrap {
+        order: 1;
+        min-height: 420px;
+    }
+    .tc-hero__img-wrap::before {
+        width: 100%;
+        border-radius: 0;
+    }
+    .tc-hero__img-wrap::after { display: none; }
+    .tc-hero__img {
+        width: 65%;
+        animation: tc-float 4s ease-in-out infinite;
+        filter: drop-shadow(0 16px 28px rgba(0,0,0,0.12));
+    }
+
+    /* Badges repositioned for mobile */
+    .tc-hero__badge--1 { left: 4%; top: 8%; }
+    .tc-hero__badge--2 { right: 2%; top: 38%; }
+    .tc-hero__badge--3 { left: 4%; bottom: 10%; }
+    .tc-hero__discount { top: 8%; right: 2%; }
+
+    /* Text below image */
+    .tc-hero__text {
+        order: 2;
+        padding: 28px 20px 36px;
+        gap: 12px;
+        color: var(--tc-black);
+    }
+    .tc-hero__title { font-size: clamp(1.9rem, 6vw, 2.6rem); }
+    .tc-hero__stats { gap: 20px; margin-top: 8px; }
+    .tc-hero__watermark { display: none; }
+
+    .tc-offers__grid { grid-template-columns: 1fr; }
+    .tc-offers__img-col { height: 260px; }
+    .tc-offers__text-col { padding: 28px; }
+}
+
+@media (max-width: 640px) {
+    /* Category grid — single column on mobile, portrait images */
+    .tc-cat-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    .tc-cat-grid .tc-cat-card:last-child {
+        grid-column: span 1;
+    }
+    .tc-cat-card__img-wrap {
+        aspect-ratio: 4/3;
+    }
+    .tc-cat-card__img {
+        object-position: top center;
+    }
+    .tc-cat-card__label {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+}
