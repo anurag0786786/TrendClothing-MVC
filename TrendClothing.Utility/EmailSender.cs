@@ -1,34 +1,49 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Resend;
+using System.Net;
+using System.Net.Mail;
 
 namespace TrendClothing.Utility
 {
     public class EmailSender : IEmailSender
     {
-        private readonly IResend _resend;
         private readonly ILogger<EmailSender> _logger;
+        private readonly string _apiKey;
 
-        public EmailSender(IResend resend, ILogger<EmailSender> logger)
+        public EmailSender(IConfiguration configuration, ILogger<EmailSender> logger)
         {
-            _resend = resend;
             _logger = logger;
+            _apiKey = configuration["Authentication:ResendApiKey"] ?? "";
         }
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
             try
             {
-                var message = new EmailMessage();
-                message.From = "TrendClothing <onboarding@resend.dev>";
-                message.To.Add(email);
-                message.Subject = subject;
-                message.HtmlBody = htmlMessage;
-                await _resend.EmailSendAsync(message);
+                var client = new SmtpClient("smtp.resend.com", 587)
+                {
+                    Credentials = new NetworkCredential("resend", _apiKey),
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("onboarding@resend.dev", "TrendClothing"),
+                    Subject = subject,
+                    Body = htmlMessage,
+                    IsBodyHtml = true
+                };
+
+                mailMessage.To.Add(email);
+
+                await client.SendMailAsync(mailMessage);
+                _logger.LogInformation("Email sent to {Email} via Resend SMTP", email);
             }
             catch (Exception ex)
             {
-                // Email fail hone pe app crash nahi karega
                 _logger.LogWarning("Email send failed to {Email}: {Message}", email, ex.Message);
             }
         }

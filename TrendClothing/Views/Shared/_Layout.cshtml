@@ -212,15 +212,6 @@
                 <option value="Children">Children</option>
             </select>
 
-            @if (SignInManager.IsSignedIn(User))
-            {
-                <select class="tc-nav__select" id="newProductDropdown" onchange="navigateNewProduct(this.value)">
-                    <option value="">New Product</option>
-                    <option value="Men">Men</option>
-                    <option value="Women">Women</option>
-                    <option value="Children">Children</option>
-                </select>
-            }
 
             <form asp-area="Customer" asp-controller="Home" asp-action="Category"
                   method="get" style="display:contents;">

@@ -11,6 +11,18 @@
             max-width: 1200px;
         }
 
+        .tc-img-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--tc-gray-3);
+            margin: 32px 0 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--tc-border);
+            max-width: 1200px;
+        }
+
         .tc-img-card {
             background: var(--tc-surface);
             border: 1.5px solid var(--tc-border);
@@ -94,29 +106,78 @@
         <h1 class="tc-admin-title">Site Images</h1>
     </div>
 </div>
-
-<p style="font-size:13px;color:var(--tc-gray-2);margin:0 0 28px;">
-    Manage the hero banner and category images shown on the homepage.
+<p style="font-size:13px;color:var(--tc-gray-2);margin:0 0 8px;">
+    Manage all homepage images — hero banner, promo cards, and sub-category images.
 </p>
 
+@* ── HERO ── *@
+<p class="tc-img-section-title">Hero Banner</p>
 <div class="tc-img-grid">
+    @{
+        var heroKey = "Hero";
+        var heroUrl = ViewBag.Hero as string;
+    }
+    <div class="tc-img-card">
+        @if (!string.IsNullOrEmpty(heroUrl))
+        {
+            <img src="@heroUrl" alt="Hero Banner" class="tc-img-card__preview" />
+        }
+        else
+        {
+            <div class="tc-img-card__placeholder">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                </svg>
+                No image set
+            </div>
+        }
+        <div class="tc-img-card__body">
+            <p class="tc-img-card__title">Hero Banner</p>
+            <p class="tc-img-card__hint">Recommended: 900 × 600px · JPG, PNG, WEBP</p>
+            <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="key" value="Hero" />
+                <label for="file_Hero" class="tc-img-card__dropzone">
+                    <input type="file" name="file" id="file_Hero" style="display:none;" accept="image/*" onchange="previewImage(this,'Hero')" />
+                    📁 Choose image
+                </label>
+                <img id="preview_Hero" class="tc-img-card__new-preview" src="" alt="preview" />
+                <button type="submit" class="tc-btn tc-btn--primary" style="width:100%;font-size:13px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 
-    @foreach (var item in new[] {
-        new { Key = "Hero",     Label = "Hero Banner",       Hint = "Recommended: 900 × 600px",  Url = ViewBag.Hero     as string },
-        new { Key = "Men",      Label = "Men Category",      Hint = "Recommended: 600 × 800px",  Url = ViewBag.Men      as string },
-        new { Key = "Women",    Label = "Women Category",    Hint = "Recommended: 600 × 800px",  Url = ViewBag.Women    as string },
-        new { Key = "Children", Label = "Children Category", Hint = "Recommended: 600 × 800px",  Url = ViewBag.Children as string },
-        })
+@* ── COLLECTIONS (4 cards) ── *@
+<p class="tc-img-section-title">Collections (Topwear, Bottomwear, Activewear, Accessories)</p>
+<div class="tc-img-grid">
+    @{
+        var collectionCards = new[]
+        {
+        new { Key = "TopwearImg",     Label = "Topwear",     Hint = "600 × 800px portrait", Url = ViewBag.TopwearImg     as string },
+        new { Key = "BottomwearImg",  Label = "Bottomwear",  Hint = "600 × 800px portrait", Url = ViewBag.BottomwearImg  as string },
+        new { Key = "ActivewearImg",  Label = "Activewear",  Hint = "600 × 800px portrait", Url = ViewBag.ActivewearImg  as string },
+        new { Key = "AccessoriesImg", Label = "Accessories", Hint = "600 × 800px portrait", Url = ViewBag.AccessoriesImg as string },
+        };
+    }
+    @foreach (var item in collectionCards)
     {
         <div class="tc-img-card">
-
             @if (!string.IsNullOrEmpty(item.Url))
             {
-                <img src="@item.Url" alt="@item.Label" class="tc-img-card__preview" id="current_@item.Key" />
+                <img src="@item.Url" alt="@item.Label" class="tc-img-card__preview" />
             }
             else
             {
-                <div class="tc-img-card__placeholder" id="current_@item.Key">
+                <div class="tc-img-card__placeholder">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <rect x="3" y="3" width="18" height="18" rx="2" />
                         <circle cx="8.5" cy="8.5" r="1.5" />
@@ -125,23 +186,17 @@
                     No image set
                 </div>
             }
-
             <div class="tc-img-card__body">
                 <p class="tc-img-card__title">@item.Label</p>
                 <p class="tc-img-card__hint">@item.Hint · JPG, PNG, WEBP</p>
-
                 <form asp-action="Upload" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="key" value="@item.Key" />
-
                     <label for="file_@item.Key" class="tc-img-card__dropzone">
-                        <input type="file" name="file" id="file_@item.Key"
-                               style="display:none;" accept="image/*"
-                               onchange="previewImage(this, '@item.Key')" />
+                        <input type="file" name="file" id="file_@item.Key" style="display:none;" accept="image/*"
+                               onchange="previewImage(this,'@item.Key')" />
                         📁 Choose image
                     </label>
-
                     <img id="preview_@item.Key" class="tc-img-card__new-preview" src="" alt="preview" />
-
                     <button type="submit" class="tc-btn tc-btn--primary" style="width:100%;font-size:13px;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;">
                             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
@@ -154,7 +209,62 @@
             </div>
         </div>
     }
+</div>
 
+@* ── SUB CATEGORY IMAGES ── *@
+<p class="tc-img-section-title">Sub Category Images (5-item grid)</p>
+<div class="tc-img-grid">
+    @{
+        var subCats = new[]
+        {
+        new { Key = "TshirtImg",  Label = "T-Shirt",          Hint = "400 × 530px", Url = ViewBag.TshirtImg  as string },
+        new { Key = "ShirtImg",   Label = "Shirts",           Hint = "400 × 530px", Url = ViewBag.ShirtImg   as string },
+        new { Key = "JoggerImg",  Label = "Cargo & Joggers",  Hint = "400 × 530px", Url = ViewBag.JoggerImg  as string },
+        new { Key = "JeansImg",   Label = "Jeans",            Hint = "400 × 530px", Url = ViewBag.JeansImg   as string },
+        new { Key = "TrouserImg", Label = "Trousers & Pants", Hint = "400 × 530px", Url = ViewBag.TrouserImg as string },
+        };
+    }
+    @foreach (var item in subCats)
+    {
+        <div class="tc-img-card">
+            @if (!string.IsNullOrEmpty(item.Url))
+            {
+                <img src="@item.Url" alt="@item.Label" class="tc-img-card__preview" />
+            }
+            else
+            {
+                <div class="tc-img-card__placeholder">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    No image set
+                </div>
+            }
+            <div class="tc-img-card__body">
+                <p class="tc-img-card__title">@item.Label</p>
+                <p class="tc-img-card__hint">@item.Hint · JPG, PNG, WEBP</p>
+                <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="key" value="@item.Key" />
+                    <label for="file_@item.Key" class="tc-img-card__dropzone">
+                        <input type="file" name="file" id="file_@item.Key" style="display:none;" accept="image/*"
+                               onchange="previewImage(this,'@item.Key')" />
+                        📁 Choose image
+                    </label>
+                    <img id="preview_@item.Key" class="tc-img-card__new-preview" src="" alt="preview" />
+                    <button type="submit" class="tc-btn tc-btn--primary" style="width:100%;font-size:13px;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                        Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
@@ -162,7 +272,7 @@
         function previewImage(input, key) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     var prev = document.getElementById('preview_' + key);
                     prev.src = e.target.result;
                     prev.style.display = 'block';

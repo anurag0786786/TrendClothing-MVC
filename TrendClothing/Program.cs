@@ -7,7 +7,6 @@ using TrendClothing.Data;
 using TrendClothing.DataAccess.Repository;
 using TrendClothing.DataAccess.Repository.IRepository;
 using TrendClothing.Utility;
-using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,14 +89,9 @@ builder.Services.AddAuthentication()
         options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
     });
 
-// ── RESEND EMAIL ──────────────────────────────────────────────────────────────
-builder.Services.AddOptions();
-builder.Services.AddHttpClient<ResendClient>();
-builder.Services.Configure<ResendClientOptions>(o =>
-{
-    o.ApiToken = builder.Configuration["Authentication:ResendApiKey"]!;
-});
-builder.Services.AddTransient<IResend, ResendClient>();
+// ── EMAIL (Resend SMTP) ───────────────────────────────────────────────────────
+// API Key appsettings mein Authentication:ResendApiKey se aata hai
+// EmailSender SmtpClient use karta hai smtp.resend.com se
 
 // ── DATA PROTECTION ───────────────────────────────────────────────────────────
 builder.Services.AddDataProtection()

@@ -54,10 +54,21 @@ namespace TrendClothing.Areas.Customer.Controllers
             try { siteImages = _db.SiteImages.ToList(); }
             catch { /* fallback to default images */ }
 
+            // Hero
             ViewBag.HeroImg = siteImages.FirstOrDefault(x => x.Key == "Hero")?.ImageUrl ?? "/Images/hero/hero.jpg";
-            ViewBag.MenImg = siteImages.FirstOrDefault(x => x.Key == "Men")?.ImageUrl ?? "/Images/Categories/Men.jpg";
-            ViewBag.WomenImg = siteImages.FirstOrDefault(x => x.Key == "Women")?.ImageUrl ?? "/Images/Categories/Women.jpg";
-            ViewBag.ChildrenImg = siteImages.FirstOrDefault(x => x.Key == "Children")?.ImageUrl ?? "/Images/Categories/Children.jpg";
+
+            // 4 Collection Cards
+            ViewBag.TopwearImg = siteImages.FirstOrDefault(x => x.Key == "TopwearImg")?.ImageUrl ?? "/Images/Categories/Topwear.jpg";
+            ViewBag.BottomwearImg = siteImages.FirstOrDefault(x => x.Key == "BottomwearImg")?.ImageUrl ?? "/Images/Categories/Bottomwear.jpg";
+            ViewBag.ActivewearImg = siteImages.FirstOrDefault(x => x.Key == "ActivewearImg")?.ImageUrl ?? "/Images/Categories/Activewear.jpg";
+            ViewBag.AccessoriesImg = siteImages.FirstOrDefault(x => x.Key == "AccessoriesImg")?.ImageUrl ?? "/Images/Categories/Accessories.jpg";
+
+            // Sub Category Images
+            ViewBag.TshirtImg = siteImages.FirstOrDefault(x => x.Key == "TshirtImg")?.ImageUrl ?? "/Images/Categories/Tshirt.jpg";
+            ViewBag.ShirtImg = siteImages.FirstOrDefault(x => x.Key == "ShirtImg")?.ImageUrl ?? "/Images/Categories/Shirt.jpg";
+            ViewBag.JoggerImg = siteImages.FirstOrDefault(x => x.Key == "JoggerImg")?.ImageUrl ?? "/Images/Categories/Jogger.jpg";
+            ViewBag.JeansImg = siteImages.FirstOrDefault(x => x.Key == "JeansImg")?.ImageUrl ?? "/Images/Categories/Jeans.jpg";
+            ViewBag.TrouserImg = siteImages.FirstOrDefault(x => x.Key == "TrouserImg")?.ImageUrl ?? "/Images/Categories/Trouser.jpg";
 
             // ✅ PERF FIX: Sirf 8 products DB se lo — Take pehle, phir load
             var productList = _db.Products
@@ -199,11 +210,61 @@ namespace TrendClothing.Areas.Customer.Controllers
             }
 
             // ── Category browse ──
-            // ✅ PERF FIX: Load once, use for both types and products
-            var allCatProducts = _unitOfWork.product.GetAll(
-                p => p.IsActive && p.Category.Name == name,
+            // Topwear group: T-Shirt, Shirt, Hoodie, Jacket, Oversized, Sweater etc.
+            var topwearTypes = new[] { "t-shirt", "tshirt", "shirt", "hoodie", "hoodies", "jacket", "oversized", "sweater", "top", "polo" };
+            // Bottomwear group: Jeans, Lower, Jogger, Trouser, Cargo, Track Pant etc.
+            var bottomwearTypes = new[] { "jeans", "lower", "jogger", "trouser", "cargo", "track pant", "shorts", "pant" };
+            // Activewear group
+            var activewearTypes = new[] { "activewear", "gym wear", "sports", "track suit", "compression" };
+            // Accessories group
+            var accessoriesTypes = new[] { "accessories", "cap", "belt", "wallet", "watch", "bag", "socks", "sunglasses" };
+
+            var nameLower = name?.Trim().ToLower() ?? "";
+
+            List<TrendClothing.Models.Product> allCatProducts;
+
+            // Load all active products with includes once
+            var allProducts = _unitOfWork.product.GetAll(
+                p => p.IsActive,
                 IncludeProperties: "Brand,Category,ProductType"
             ).ToList();
+
+            if (nameLower == "topwear")
+            {
+                allCatProducts = allProducts.Where(p =>
+                    p.ProductType != null &&
+                    topwearTypes.Any(t => p.ProductType.Name.ToLower().Contains(t))
+                ).ToList();
+            }
+            else if (nameLower == "bottomwear")
+            {
+                allCatProducts = allProducts.Where(p =>
+                    p.ProductType != null &&
+                    bottomwearTypes.Any(t => p.ProductType.Name.ToLower().Contains(t))
+                ).ToList();
+            }
+            else if (nameLower == "activewear")
+            {
+                allCatProducts = allProducts.Where(p =>
+                    p.ProductType != null &&
+                    activewearTypes.Any(t => p.ProductType.Name.ToLower().Contains(t))
+                ).ToList();
+            }
+            else if (nameLower == "accessories")
+            {
+                allCatProducts = allProducts.Where(p =>
+                    p.ProductType != null &&
+                    accessoriesTypes.Any(t => p.ProductType.Name.ToLower().Contains(t))
+                ).ToList();
+            }
+            else
+            {
+                // Exact Category name OR exact ProductType name match
+                allCatProducts = allProducts.Where(p =>
+                    p.Category.Name.ToLower() == nameLower ||
+                    (p.ProductType != null && p.ProductType.Name.ToLower() == nameLower)
+                ).ToList();
+            }
 
             ViewBag.ProductTypes = allCatProducts
                 .Where(p => p.ProductType != null)

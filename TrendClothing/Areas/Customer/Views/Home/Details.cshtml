@@ -564,12 +564,18 @@
             body: 'variantId=' + variantId + '&count=' + count
         })
         .then(function(r) {
-            // ✅ FIX: Login nahi hai to login page pe bhejo
-            if (r.status === 401 || r.redirected && r.url.indexOf('/Login') > -1) {
+            // Not logged in — 401 ya login page pe redirect
+            if (r.status === 401 || r.status === 403 ||
+                (r.redirected && r.url.toLowerCase().indexOf('login') > -1) ||
+                !r.ok) {
                 window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
                 return null;
             }
-            return r.json();
+            return r.json().catch(function() {
+                // JSON parse fail = HTML page mila (login redirect)
+                window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                return null;
+            });
         })
         .then(function(data) {
             if (!data) return;

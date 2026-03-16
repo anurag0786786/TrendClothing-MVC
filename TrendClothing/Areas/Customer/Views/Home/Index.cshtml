@@ -4,6 +4,128 @@
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
     <style>
+
+        /* ══════════════════════════════════════
+                   SHARED — subcat + collections grid
+                ══════════════════════════════════════ */
+        .tc-subcat-section {
+            padding: 48px 0;
+        }
+
+        .tc-subcat-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+            .tc-subcat-header h2 {
+                font-family: var(--tc-font-body);
+                font-size: 1.05rem;
+                font-weight: 700;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                color: var(--tc-black);
+            }
+
+            .tc-subcat-header a {
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: var(--tc-gray-2);
+                text-decoration: underline;
+                text-underline-offset: 3px;
+            }
+
+        /* 5-col grid for sub categories */
+        .tc-subcat-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        /* 4-col grid for collections */
+        .tc-collections-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+
+        /* shared card item */
+        .tc-subcat-item {
+            display: block;
+            text-decoration: none;
+            color: var(--tc-black);
+        }
+
+        .tc-subcat-item__img-wrap {
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            border-radius: 4px;
+            background: var(--tc-surface-alt);
+            position: relative;
+        }
+
+            .tc-subcat-item__img-wrap img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+
+            .tc-subcat-item__img-wrap .tc-subcat-item__overlay-label {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 32px 12px 12px;
+                background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+                color: #fff;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }
+
+        .tc-subcat-item:hover .tc-subcat-item__img-wrap img {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+        .tc-subcat-item__name {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--tc-black);
+            margin-top: 10px;
+        }
+
+        .tc-subcat-item__cta {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--tc-gray-3);
+            margin-top: 4px;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* ══════════════════════════════════════
+                   PRODUCT GRID — 5 col, tall cards
+                ══════════════════════════════════════ */
+        .tc-home-product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+            .tc-home-product-grid .tc-product-card__img-wrap {
+                aspect-ratio: 3/4 !important;
+            }
+
+        /* ── rating badge ── */
         .tc-card-rating {
             position: absolute;
             bottom: 10px;
@@ -46,10 +168,49 @@
                 background: #fde8e0;
                 border-color: #f0a090;
             }
+
+        /* ══════════════════════════════════════
+                   RESPONSIVE
+                ══════════════════════════════════════ */
+        @@media (max-width: 1024px) {
+            .tc-home-product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @@media (max-width: 900px) {
+            .tc-subcat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .tc-collections-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tc-home-product-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .tc-subcat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tc-collections-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tc-home-product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 }
 
-@* ── HERO ── *@
+@* ══════════════════════════════════════
+   1. HERO
+══════════════════════════════════════ *@
 <section class="tc-hero">
     <div class="tc-hero__inner tc-container">
         <div class="tc-hero__text">
@@ -57,121 +218,154 @@
             <h1 class="tc-hero__title">We are digital<br />meets fashion.</h1>
             <p class="tc-hero__sub">Explore high-quality pieces crafted for every style.</p>
             <div class="tc-hero__actions">
-                <a href="#categories" class="tc-btn tc-btn--primary tc-btn--lg">
+                <a href="#subcategories" class="tc-btn tc-btn--primary tc-btn--lg">
                     Start shopping
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
                 </a>
-                <a href="#new-arrivals" class="tc-hero__scroll">
-                    Top collections
-                </a>
+                <a href="#new-arrivals" class="tc-hero__scroll">New arrivals</a>
             </div>
-
             <div class="tc-hero__stats">
-                <div>
-                    <div class="tc-hero__stat-num">500+</div>
-                    <div class="tc-hero__stat-label">Products</div>
-                </div>
-                <div>
-                    <div class="tc-hero__stat-num">10K+</div>
-                    <div class="tc-hero__stat-label">Customers</div>
-                </div>
-                <div>
-                    <div class="tc-hero__stat-num">50+</div>
-                    <div class="tc-hero__stat-label">Brands</div>
-                </div>
+                <div><div class="tc-hero__stat-num">500+</div><div class="tc-hero__stat-label">Products</div></div>
+                <div><div class="tc-hero__stat-num">10K+</div><div class="tc-hero__stat-label">Customers</div></div>
+                <div><div class="tc-hero__stat-num">50+</div><div class="tc-hero__stat-label">Brands</div></div>
             </div>
         </div>
         <div class="tc-hero__img-wrap">
-
-            <!-- Floating Badge 1 — New Season -->
             <div class="tc-hero__badge tc-hero__badge--1">
                 <div class="tc-hero__badge-icon">✦</div>
-                <div>
-                    <div class="tc-hero__badge-text-main">New Season</div>
-                    <div class="tc-hero__badge-text-sub">2025 Collection</div>
-                </div>
+                <div><div class="tc-hero__badge-text-main">New Season</div><div class="tc-hero__badge-text-sub">2025 Collection</div></div>
             </div>
-
-            <!-- Discount Circle -->
-            <div class="tc-hero__discount">
-                <strong>50%</strong>
-                OFF
-            </div>
-
-            <!-- Floating Badge 2 — Free Delivery -->
+            <div class="tc-hero__discount"><strong>50%</strong>OFF</div>
             <div class="tc-hero__badge tc-hero__badge--2">
                 <div class="tc-hero__badge-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                 </div>
-                <div>
-                    <div class="tc-hero__badge-text-main">Free Delivery</div>
-                    <div class="tc-hero__badge-text-sub">On all orders</div>
-                </div>
+                <div><div class="tc-hero__badge-text-main">Free Delivery</div><div class="tc-hero__badge-text-sub">On all orders</div></div>
             </div>
-
-            <!-- Floating Badge 3 — Rating -->
             <div class="tc-hero__badge tc-hero__badge--3">
                 <div class="tc-hero__badge-icon tc-hero__badge-icon--gold">★</div>
-                <div>
-                    <div class="tc-hero__badge-text-main">4.9 Rating</div>
-                    <div class="tc-hero__badge-text-sub">500+ Reviews</div>
-                </div>
+                <div><div class="tc-hero__badge-text-main">4.9 Rating</div><div class="tc-hero__badge-text-sub">500+ Reviews</div></div>
             </div>
-
             <img src="@ViewBag.HeroImg" alt="New Season" class="tc-hero__img" />
-            <div class="tc-hero__watermark">LUXIOUS</div>
+            <div class="tc-hero__watermark">TRENDY</div>
         </div>
     </div>
 </section>
 
-@* ── CATEGORY TABS ── *@
-<section class="tc-section-gap tc-container" id="categories">
-    <div class="tc-section-head">
-        <div>
-            <p class="tc-section-head__sub">Browse</p>
-            <h2 class="tc-section-head__title">Shop by Category</h2>
-        </div>
-        <a asp-action="Category" asp-route-name="Men" class="tc-section-head__link">
-            View all →
-        </a>
+@* ══════════════════════════════════════
+   4. COLLECTIONS — Topwear, Bottomwear, Accessories, Activewear
+      (same style as Sub Categories)
+══════════════════════════════════════ *@
+<section class="tc-subcat-section tc-container" id="collections">
+    <div class="tc-subcat-header">
+        <h2>Collections</h2>
+        <a asp-action="Category" asp-route-name="Topwear">VIEW ALL</a>
     </div>
+    <div class="tc-collections-grid">
 
-    <div class="tc-cat-grid">
-
-        <a asp-action="Category" asp-route-name="Men" class="tc-cat-card">
-            <div class="tc-cat-card__img-wrap">
-                <img src="@ViewBag.MenImg" alt="Men" class="tc-cat-card__img" />
+        <a asp-action="Category" asp-route-name="Topwear" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.TopwearImg" alt="Topwear" />
+                <span class="tc-subcat-item__overlay-label">Topwear</span>
             </div>
-            <div class="tc-cat-card__label">
-                <span>Men</span>
-                <span class="tc-cat-card__arrow">↗</span>
-            </div>
+            <div class="tc-subcat-item__name">TOPWEAR</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
         </a>
 
-        <a asp-action="Category" asp-route-name="Women" class="tc-cat-card">
-            <div class="tc-cat-card__img-wrap">
-                <img src="@ViewBag.WomenImg" alt="Women" class="tc-cat-card__img" />
+        <a asp-action="Category" asp-route-name="Bottomwear" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.BottomwearImg" alt="Bottomwear" />
+                <span class="tc-subcat-item__overlay-label">Bottomwear</span>
             </div>
-            <div class="tc-cat-card__label">
-                <span>Women</span>
-                <span class="tc-cat-card__arrow">↗</span>
-            </div>
+            <div class="tc-subcat-item__name">BOTTOMWEAR</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
         </a>
 
-        <a asp-action="Category" asp-route-name="Children" class="tc-cat-card">
-            <div class="tc-cat-card__img-wrap">
-                <img src="@ViewBag.ChildrenImg" alt="Children" class="tc-cat-card__img" />
+        <a asp-action="Category" asp-route-name="Activewear" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.ActivewearImg" alt="Activewear" />
+                <span class="tc-subcat-item__overlay-label">Activewear</span>
             </div>
-            <div class="tc-cat-card__label">
-                <span>Children</span>
-                <span class="tc-cat-card__arrow">↗</span>
+            <div class="tc-subcat-item__name">ACTIVEWEAR</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
+        </a>
+
+        <a asp-action="Category" asp-route-name="Accessories" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.AccessoriesImg" alt="Accessories" />
+                <span class="tc-subcat-item__overlay-label">Accessories</span>
             </div>
+            <div class="tc-subcat-item__name">ACCESSORIES</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
         </a>
 
     </div>
 </section>
 
-@* ── NEW ARRIVALS ── *@
+
+@* ══════════════════════════════════════
+   2. SUB CATEGORIES (5 items)
+══════════════════════════════════════ *@
+<section class="tc-subcat-section tc-container" id="subcategories">
+    <div class="tc-subcat-header">
+        <h2>Sub Categories</h2>
+        <a asp-action="Category" asp-route-name="Topwear">VIEW ALL</a>
+    </div>
+    <div class="tc-subcat-grid">
+
+        <a asp-action="Category" asp-route-name="T-Shirt" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.TshirtImg" alt="T-Shirt" />
+                <span class="tc-subcat-item__overlay-label">T-Shirt</span>
+            </div>
+            <div class="tc-subcat-item__name">T-SHIRT</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
+        </a>
+
+        <a asp-action="Category" asp-route-name="Shirt" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.ShirtImg" alt="Shirts" />
+                <span class="tc-subcat-item__overlay-label">Shirts</span>
+            </div>
+            <div class="tc-subcat-item__name">SHIRTS</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
+        </a>
+
+        <a asp-action="Category" asp-route-name="Jogger" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.JoggerImg" alt="Cargo & Joggers" />
+                <span class="tc-subcat-item__overlay-label">Cargo &amp; Joggers</span>
+            </div>
+            <div class="tc-subcat-item__name">CARGO &amp; JOGGERS</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
+        </a>
+
+        <a asp-action="Category" asp-route-name="Jeans" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.JeansImg" alt="Jeans" />
+                <span class="tc-subcat-item__overlay-label">Jeans</span>
+            </div>
+            <div class="tc-subcat-item__name">JEANS</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
+        </a>
+
+        <a asp-action="Category" asp-route-name="Trouser" class="tc-subcat-item">
+            <div class="tc-subcat-item__img-wrap">
+                <img src="@ViewBag.TrouserImg" alt="Trousers & Pants" />
+                <span class="tc-subcat-item__overlay-label">Trousers &amp; Pants</span>
+            </div>
+            <div class="tc-subcat-item__name">TROUSERS &amp; PANTS</div>
+            <div class="tc-subcat-item__cta">SHOP NOW</div>
+        </a>
+
+    </div>
+</section>
+
+
+
+@* ══════════════════════════════════════
+   3. NEW ARRIVALS
+══════════════════════════════════════ *@
 @{
     var homeReviews = ViewBag.HomeReviews as Dictionary<int, double> ?? new Dictionary<int, double>();
     var homeWishlist = ViewBag.HomeWishlist as HashSet<int> ?? new HashSet<int>();
@@ -185,30 +379,24 @@
                 <p class="tc-section-head__sub">Catalogs</p>
                 <h2 class="tc-section-head__title">Fresh arrivals and<br />new selections.</h2>
             </div>
-            <a asp-action="Category" asp-route-name="Men" class="tc-section-head__link">
-                View all →
-            </a>
+            <a asp-action="Category" asp-route-name="Topwear" class="tc-section-head__link">View all →</a>
         </div>
 
-        <div class="tc-grid-4">
+        <div class="tc-home-product-grid">
             @foreach (var product in Model)
             {
                 homeReviews.TryGetValue(product.Id, out double homeAvg);
                 bool homeIsWl = homeWishlist.Contains(product.Id);
                 <div class="tc-product-card">
                     <div class="tc-product-card__img-wrap">
-                        @* ✅ FIX: Clickable image + lazy loading *@
-                        <a asp-action="Details" asp-route-id="@product.Id" style="display:block;">
-                            <img src="@product.ImageUrl" alt="@product.Name"
-                                 class="tc-product-card__img"
-                                 loading="lazy" />
+                        <a asp-action="Details" asp-route-id="@product.Id" style="display:block;height:100%;">
+                            <img src="@product.ImageUrl" alt="@product.Name" class="tc-product-card__img" loading="lazy" />
                         </a>
                         @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
                         {
                             var pct = (int)(((product.Price - product.DiscountPrice) / product.Price) * 100);
                             <span class="tc-product-card__badge">@pct% OFF</span>
                         }
-                        @* ✅ Rating badge *@
                         @if (homeAvg > 0)
                         {
                             <div class="tc-card-rating"><span class="star">★</span> @homeAvg</div>
@@ -232,11 +420,8 @@
                                 <span class="tc-product-card__price">&#8377; @product.Price</span>
                             }
                         </div>
-                        @* ✅ View Details + Wishlist row *@
                         <div style="display:flex;gap:8px;align-items:center;">
-                            <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta" style="flex:1;">
-                                View Details
-                            </a>
+                            <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta" style="flex:1;">View Details</a>
                             @if (User.Identity.IsAuthenticated)
                             {
                                 <button type="button"
@@ -257,23 +442,6 @@
     </section>
 }
 
-@* ── OFFERS BANNER ── *@
-<section class="tc-offers tc-container tc-section-gap">
-    <div class="tc-offers__grid">
-        <div class="tc-offers__img-col">
-            <img src="@ViewBag.HeroImg" alt="Offers" class="tc-offers__img" />
-        </div>
-        <div class="tc-offers__text-col">
-            <p class="tc-offers__eyebrow">Offers</p>
-            <h2 class="tc-offers__title">Exclusive fashion<br />offers await</h2>
-            <p class="tc-offers__desc">Unlock fashion favorites transformed into affordable luxuries. Every selection within our Offer Section belongs to you to embrace.</p>
-            <a asp-action="Category" asp-route-name="Men" class="tc-btn tc-btn--primary">
-                Try now
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10" /></svg>
-            </a>
-        </div>
-    </div>
-</section>
 
 @section Scripts {
     <script>
@@ -282,21 +450,21 @@
             var pid = btn.getAttribute('data-pid');
             btn.disabled = true;
             fetch('/Customer/Wishlist/Toggle', {
-                method:'POST',
-                headers:{'Content-Type':'application/x-www-form-urlencoded','RequestVerificationToken':__token},
-                body:'productId='+pid
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': __token },
+                body: 'productId=' + pid
             })
-            .then(function(r){return r.json();})
-            .then(function(d){
-                btn.disabled=false;
-                if(!d.success)return;
-                btn.classList.toggle('wishlisted',d.wishlisted);
-                var svg=btn.querySelector('svg');
-                if(svg)svg.setAttribute('fill',d.wishlisted?'#c1440e':'none');
-                var t=document.getElementById('toast');
-                if(t){t.textContent=d.message;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+            .then(r => r.json())
+            .then(d => {
+                btn.disabled = false;
+                if (!d.success) return;
+                btn.classList.toggle('wishlisted', d.wishlisted);
+                var svg = btn.querySelector('svg');
+                if (svg) svg.setAttribute('fill', d.wishlisted ? '#c1440e' : 'none');
+                var t = document.getElementById('toast');
+                if (t) { t.textContent = d.message; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
             })
-            .catch(function(){btn.disabled=false;});
+            .catch(() => btn.disabled = false);
         }
     </script>
 }
