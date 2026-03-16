@@ -3,10 +3,171 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/details.css" asp-append-version="true" />
+    <style>
+        /* ── WISHLIST HEART BUTTON ── */
+        .wl-toggle-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .wl-toggle-btn:hover, .wl-toggle-btn.wishlisted {
+            background: #fde8e0;
+            border-color: #f0a090;
+        }
+        .wl-toggle-btn svg {
+            width: 18px; height: 18px;
+            stroke: #c1440e;
+            fill: none;
+            transition: fill 0.2s;
+        }
+        .wl-toggle-btn.wishlisted svg { fill: #c1440e; }
+        .pd-add-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .pd-add-row .pd-add-btn { flex: 1; }
+
+        /* ── REVIEWS SECTION ── */
+        .rv-section {
+            border-top: 1px solid var(--tc-border);
+            padding: 48px 0 64px;
+            margin-top: 48px;
+        }
+        .rv-section .tc-container { max-width: 860px; }
+        .rv-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .rv-title {
+            font-family: var(--tc-font-display);
+            font-size: 1.5rem;
+            color: var(--tc-black);
+        }
+        .rv-avg-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .rv-avg-num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--tc-black);
+            line-height: 1;
+        }
+        .rv-stars-big { font-size: 20px; color: #f59e0b; letter-spacing: 2px; }
+        .rv-count { font-size: 13px; color: var(--tc-gray-2); }
+
+        /* Submit form */
+        .rv-submit-box {
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            border-radius: var(--tc-radius-md);
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+        .rv-submit-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--tc-black);
+            margin-bottom: 14px;
+        }
+        /* ✅ FIX: JS-based star rating */
+        .rv-star-pick { display: flex; gap: 4px; margin-bottom: 14px; }
+        .rv-star-pick input[type="radio"] { display: none; }
+        .rv-star-pick .star-lbl {
+            font-size: 30px;
+            color: var(--tc-gray-4);
+            cursor: pointer;
+            transition: color 0.1s;
+            line-height: 1;
+            user-select: none;
+        }
+        .rv-star-pick .star-lbl.active { color: #f59e0b; }
+        .rv-textarea {
+            width: 100%;
+            min-height: 90px;
+            padding: 12px 14px;
+            border: 1.5px solid var(--tc-border-dark);
+            border-radius: var(--tc-radius-sm);
+            font-family: var(--tc-font-body);
+            font-size: 14px;
+            color: var(--tc-black);
+            background: var(--tc-bg);
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+        .rv-textarea:focus {
+            outline: none;
+            border-color: var(--tc-black);
+        }
+        .rv-submit-btn {
+            padding: 10px 28px;
+            background: var(--tc-black);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .rv-submit-btn:hover { opacity: 0.8; }
+        .rv-login-note {
+            font-size: 13px;
+            color: var(--tc-gray-2);
+            padding: 16px;
+            background: var(--tc-surface-alt);
+            border-radius: var(--tc-radius-sm);
+            margin-bottom: 32px;
+        }
+        .rv-login-note a { color: var(--tc-black); font-weight: 600; text-decoration: underline; }
+
+        /* Review cards */
+        .rv-list { display: flex; flex-direction: column; gap: 16px; }
+        .rv-card {
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            border-radius: var(--tc-radius-md);
+            padding: 20px;
+        }
+        .rv-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .rv-reviewer { font-size: 14px; font-weight: 600; color: var(--tc-black); }
+        .rv-date { font-size: 12px; color: var(--tc-gray-3); }
+        .rv-stars { font-size: 15px; color: #f59e0b; letter-spacing: 1px; margin-bottom: 8px; }
+        .rv-text { font-size: 14px; color: var(--tc-gray-1); line-height: 1.6; }
+        .rv-empty-msg {
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--tc-gray-2);
+            font-size: 14px;
+        }
+        .rv-loading { text-align: center; color: var(--tc-gray-3); font-size: 14px; padding: 24px; }
+    </style>
 }
 
 @{
     bool hasVariants = Model.Variants != null && Model.Variants.Any();
+    bool isLoggedIn  = User.Identity.IsAuthenticated;
 }
 
 <form asp-area="Customer"
@@ -15,7 +176,9 @@
       method="post"
       id="addToCartForm">
 
+    @Html.AntiForgeryToken()
     <input type="hidden" name="variantId" id="SelectedVariantId" />
+    <input type="hidden" name="count" id="countInput" value="1" />
     <input type="hidden" name="returnUrl"
            value="@Context.Request.Path@Context.Request.QueryString" />
 
@@ -83,28 +246,23 @@
                     <div class="pd-section">
                         <div class="pd-section-label">Select Size</div>
                         <div class="pd-sizes" id="sizeContainer">
-                            @foreach (var sizeItem in Model.Variants
-                                .Select(v => v.Size)
-                                .DistinctBy(s => s.Id))
+                            @foreach (var sizeItem in Model.Variants.Select(v => v.Size).DistinctBy(s => s.Id))
                             {
-                                <button type="button"
-                                        class="pd-size-btn"
-                                        data-sizeid="@sizeItem.Id">
+                                <button type="button" class="pd-size-btn" data-sizeid="@sizeItem.Id">
                                     @sizeItem.Name
                                 </button>
                             }
                         </div>
                     </div>
 
-                    @* COLOR (shown after size selected via JS) *@
+                    @* COLOR *@
                     <div class="pd-section d-none" id="colorSection">
                         <div class="pd-section-label">Select Color</div>
                         <div class="pd-colors" id="colorContainer"></div>
                     </div>
 
-                    <div class="pd-error d-none" id="variantError">
-                        &#9888; Please select size and color
-                    </div>
+                    <div id="stockIndicator" style="display:none;margin-bottom:12px;font-size:13px;font-weight:600;"></div>
+                    <div class="pd-error d-none" id="variantError">&#9888; Please select size and color</div>
                 }
 
                 @* QUANTITY *@
@@ -112,30 +270,39 @@
                     <div class="pd-section-label">Quantity</div>
                     <div class="pd-qty-row">
                         <button type="button" class="pd-qty-btn" id="qtyMinus">&#8722;</button>
-                        <input asp-for="Count"
-                               id="qtyInput"
-                               class="pd-qty-input"
-                               min="1"
-                               value="1"
-                               readonly />
+                        <input type="text" id="qtyInput" class="pd-qty-input" min="1" value="1" readonly />
                         <button type="button" class="pd-qty-btn" id="qtyPlus">&#43;</button>
                     </div>
                 </div>
 
-                @* ADD TO CART *@
-                <button type="submit"
-                        class="pd-add-btn"
-                        onclick="return validateVariant();">
-                    + Add to Cart
-                </button>
+                @* ✅ ADD TO CART + WISHLIST HEART side by side *@
+                <div class="pd-add-row">
+                    <button type="button" class="pd-add-btn" id="addToCartBtn" onclick="submitCart()">
+                        + Add to Cart
+                    </button>
+
+                    @if (isLoggedIn)
+                    {
+                        @* FIX: Nested form HTML mein allowed nahi — JS fetch use karo *@
+                        <button type="button"
+                                class="wl-toggle-btn @(ViewBag.IsWishlisted == true ? "wishlisted" : "")"
+                                id="wishlistBtn"
+                                data-product-id="@Model.Product.Id"
+                                data-return-url="@Context.Request.Path@Context.Request.QueryString"
+                                title="@(ViewBag.IsWishlisted == true ? "Remove from wishlist" : "Add to wishlist")"
+                                onclick="toggleWishlist(this)">
+                            <svg viewBox="0 0 24 24" stroke-width="1.8">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                            </svg>
+                        </button>
+                    }
+                </div>
 
                 @* ACCORDION *@
                 <div class="pd-accordion">
-
                     <div class="pd-acc-item">
                         <button type="button" class="pd-acc-head" data-target="acc-product">
-                            Product Info
-                            <span class="pd-acc-icon">+</span>
+                            Product Info <span class="pd-acc-icon">+</span>
                         </button>
                         <div class="pd-acc-body" id="acc-product">
                             <p>Brand: <strong>@Model.Product.Brand?.Name</strong></p>
@@ -146,28 +313,23 @@
                             }
                         </div>
                     </div>
-
                     <div class="pd-acc-item">
                         <button type="button" class="pd-acc-head" data-target="acc-delivery">
-                            Delivery Info
-                            <span class="pd-acc-icon">+</span>
+                            Delivery Info <span class="pd-acc-icon">+</span>
                         </button>
                         <div class="pd-acc-body" id="acc-delivery">
-                            <p>Free delivery on orders above &#8377;999.</p>
-                            <p>Estimated delivery: 3&#8211;5 business days.</p>
+                            <p>Free delivery on all orders.</p>
+                            <p>Estimated delivery: 3&ndash;5 business days.</p>
                         </div>
                     </div>
-
                     <div class="pd-acc-item">
                         <button type="button" class="pd-acc-head" data-target="acc-returns">
-                            Returns Info
-                            <span class="pd-acc-icon">+</span>
+                            Returns Info <span class="pd-acc-icon">+</span>
                         </button>
                         <div class="pd-acc-body" id="acc-returns">
-                            <p>Easy 7&#8211;day returns. Item must be unused and in original packaging.</p>
+                            <p>Easy 7&ndash;day returns. Item must be unused and in original packaging.</p>
                         </div>
                     </div>
-
                 </div>
 
             </div>
@@ -175,109 +337,351 @@
     </div>
 </form>
 
+@* ═══════════════════════════════════════════════════════
+   ✅ REVIEWS SECTION
+═══════════════════════════════════════════════════════ *@
+<div class="rv-section">
+    <div class="tc-container" style="max-width:860px;">
+
+        <div class="rv-header">
+            <h2 class="rv-title">Customer Reviews</h2>
+            <div class="rv-avg-wrap" id="avgWrap" style="display:none;">
+                <div class="rv-avg-num" id="avgNum">0</div>
+                <div>
+                    <div class="rv-stars-big" id="avgStars">☆☆☆☆☆</div>
+                    <div class="rv-count" id="rvCount">0 reviews</div>
+                </div>
+            </div>
+        </div>
+
+        @* ── Submit form — sirf purchasers ko dikhega ── *@
+        @if (ViewBag.HasPurchased == true)
+        {
+            <div class="rv-submit-box">
+                <div class="rv-submit-title">Write a Review</div>
+                <form asp-area="Customer"
+                      asp-controller="Review"
+                      asp-action="Submit"
+                      method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.Product.Id" />
+
+                    <input type="hidden" name="rating" id="ratingValue" value="0" />
+                    <div class="rv-star-pick" id="starPicker">
+                        <span class="star-lbl" data-value="1">&#9733;</span>
+                        <span class="star-lbl" data-value="2">&#9733;</span>
+                        <span class="star-lbl" data-value="3">&#9733;</span>
+                        <span class="star-lbl" data-value="4">&#9733;</span>
+                        <span class="star-lbl" data-value="5">&#9733;</span>
+                    </div>
+
+                    <textarea name="reviewText"
+                              class="rv-textarea"
+                              placeholder="Aapka experience kaisa raha? (optional)..."
+                              maxlength="1000"></textarea>
+
+                    <button type="submit" class="rv-submit-btn">Submit Review</button>
+                </form>
+            </div>
+        }
+        else if (User.Identity.IsAuthenticated)
+        {
+            @* Logged in hai but purchase nahi kiya *@
+            <div class="rv-login-note" style="display:flex;align-items:center;gap:10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:0.5">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>Sirf <strong>purchased customers</strong> hi review de sakte hain. Pehle yeh product order karo.</span>
+            </div>
+        }
+        else
+        {
+            @* Not logged in *@
+            <div class="rv-login-note">
+                <a asp-area="Identity" asp-page="/Account/Login">Login karo</a> — review sirf purchased customers de sakte hain.
+            </div>
+        }
+
+        @* ── Review list (loaded via AJAX) ── *@
+        <div id="rvLoading" class="rv-loading">Loading reviews...</div>
+        <div class="rv-list" id="rvList"></div>
+        <div id="rvEmpty" class="rv-empty-msg" style="display:none;">
+            Abhi tak koi review nahi hai. Pehle review likhne wale bano!
+        </div>
+
+    </div>
+</div>
+
 @section Scripts {
 <script>
-    // Variants data from server — no HexCode used
+    /* ─── VARIANTS JS (unchanged from original) ─── */
     var variants = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
         Model.Variants != null
             ? Model.Variants.Select(v => new {
-                id      = v.Id,
-                sizeId  = v.SizeId,
-                colorName = v.Color.Name
+                id        = v.Id,
+                sizeId    = v.SizeId,
+                colorName = v.Color.Name,
+                stock     = v.Stock
               })
             : Enumerable.Empty<object>()
     ));
+    var hasVariants = @hasVariants.ToString().ToLower();
+    var currentStock = 0;
 
-    // Size button click
     document.querySelectorAll(".pd-size-btn").forEach(function(btn) {
         btn.addEventListener("click", function () {
-            document.querySelectorAll(".pd-size-btn").forEach(function(b) {
-                b.classList.remove("active");
-            });
+            document.querySelectorAll(".pd-size-btn").forEach(b => b.classList.remove("active"));
             this.classList.add("active");
-
-            var sizeId = this.getAttribute("data-sizeid");
-            var colorSection = document.getElementById("colorSection");
+            var sizeId    = this.getAttribute("data-sizeid");
             var container = document.getElementById("colorContainer");
-
-            colorSection.classList.remove("d-none");
+            document.getElementById("colorSection").classList.remove("d-none");
             container.innerHTML = "";
             document.getElementById("SelectedVariantId").value = "";
-
-            variants.filter(function(v) { return v.sizeId == sizeId; })
-                .forEach(function(v) {
-                    var colorBtn = document.createElement("button");
-                    colorBtn.type = "button";
-                    colorBtn.className = "pd-color-btn";
-                    colorBtn.innerText = v.colorName;
-                    colorBtn.dataset.variantid = v.id;
-
-                    colorBtn.onclick = function () {
-                        document.querySelectorAll(".pd-color-btn").forEach(function(cb) {
-                            cb.classList.remove("active");
-                        });
-                        this.classList.add("active");
-                        document.getElementById("SelectedVariantId").value = this.dataset.variantid;
-                        document.getElementById("variantError").classList.add("d-none");
-                    };
-
-                    container.appendChild(colorBtn);
-                });
+            document.getElementById("stockIndicator").style.display = "none";
+            document.getElementById("qtyInput").value = 1;
+            currentStock = 0;
+            variants.filter(v => v.sizeId == sizeId).forEach(function(v) {
+                var colorBtn       = document.createElement("button");
+                colorBtn.type      = "button";
+                colorBtn.className = "pd-color-btn" + (v.stock === 0 ? " pd-color-btn--oos" : "");
+                colorBtn.innerText = v.colorName + (v.stock === 0 ? " (Out of Stock)" : "");
+                colorBtn.dataset.variantid = v.id;
+                colorBtn.dataset.stock     = v.stock;
+                if (v.stock === 0) colorBtn.disabled = true;
+                colorBtn.onclick = function () {
+                    document.querySelectorAll(".pd-color-btn").forEach(cb => cb.classList.remove("active"));
+                    this.classList.add("active");
+                    document.getElementById("SelectedVariantId").value = this.dataset.variantid;
+                    document.getElementById("variantError").classList.add("d-none");
+                    currentStock = parseInt(this.dataset.stock);
+                    var indicator = document.getElementById("stockIndicator");
+                    indicator.style.display = "block";
+                    if (currentStock === 0) {
+                        indicator.style.color = "#c1440e"; indicator.textContent = "Out of Stock";
+                        document.getElementById("addToCartBtn").disabled = true;
+                        document.getElementById("addToCartBtn").style.opacity = "0.5";
+                    } else if (currentStock <= 5) {
+                        indicator.style.color = "#b5830a"; indicator.textContent = "Only " + currentStock + " left!";
+                        document.getElementById("addToCartBtn").disabled = false;
+                        document.getElementById("addToCartBtn").style.opacity = "1";
+                    } else {
+                        indicator.style.color = "#2d6a4f"; indicator.textContent = "In Stock (" + currentStock + " available)";
+                        document.getElementById("addToCartBtn").disabled = false;
+                        document.getElementById("addToCartBtn").style.opacity = "1";
+                    }
+                    document.getElementById("qtyInput").value = 1;
+                };
+                container.appendChild(colorBtn);
+            });
         });
     });
 
-    // Quantity controls
     document.getElementById("qtyMinus").addEventListener("click", function () {
         var inp = document.getElementById("qtyInput");
         if (parseInt(inp.value) > 1) inp.value = parseInt(inp.value) - 1;
     });
     document.getElementById("qtyPlus").addEventListener("click", function () {
         var inp = document.getElementById("qtyInput");
-        inp.value = parseInt(inp.value) + 1;
+        var cur = parseInt(inp.value);
+        if (currentStock > 0 && cur >= currentStock) { alert("Only " + currentStock + " items available!"); return; }
+        inp.value = cur + 1;
     });
 
-    // Validate before submit
-    function validateVariant() {
-        var hasVariants = @hasVariants.ToString().ToLower();
-        var errorDiv = document.getElementById("variantError");
-
-        if (!hasVariants) {
-            errorDiv.innerText = "This product has no selectable variants.";
-            errorDiv.classList.remove("d-none");
-            return false;
-        }
-
+    function submitCart() {
+        if (!hasVariants) return;
         var variantId = document.getElementById("SelectedVariantId").value;
+        var errorDiv  = document.getElementById("variantError");
         if (!variantId || variantId === "0") {
             errorDiv.innerText = "Please select size and color first";
-            errorDiv.classList.remove("d-none");
-            return false;
+            errorDiv.classList.remove("d-none"); return;
         }
-
+        if (currentStock === 0) {
+            errorDiv.innerText = "This variant is out of stock";
+            errorDiv.classList.remove("d-none"); return;
+        }
         errorDiv.classList.add("d-none");
-        return true;
+
+        var btn   = document.getElementById("addToCartBtn");
+        var count = document.getElementById("qtyInput").value;
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        btn.disabled    = true;
+        btn.textContent = "Adding...";
+
+        fetch('/Customer/Cart/AddToCart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: 'variantId=' + variantId + '&count=' + count
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled    = false;
+            btn.textContent = "+ Add to Cart";
+            if (data.cartCount !== undefined) {
+                var cartEl = document.getElementById('cartCount');
+                if (cartEl) cartEl.textContent = data.cartCount;
+            }
+            var toast = document.getElementById('toast');
+            if (toast) {
+                toast.textContent    = data.message;
+                toast.style.background = data.success ? '#0d6efd' : '#c1440e';
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+        })
+        .catch(function() {
+            btn.disabled    = false;
+            btn.textContent = "+ Add to Cart";
+        });
     }
 
-    // Accordion
     document.querySelectorAll(".pd-acc-head").forEach(function(btn) {
         btn.addEventListener("click", function () {
-            var targetId = this.getAttribute("data-target");
-            var body = document.getElementById(targetId);
-            var icon = this.querySelector(".pd-acc-icon");
+            var body   = document.getElementById(this.getAttribute("data-target"));
+            var icon   = this.querySelector(".pd-acc-icon");
             var isOpen = body.classList.contains("open");
-
-            document.querySelectorAll(".pd-acc-body").forEach(function(b) {
-                b.classList.remove("open");
-            });
-            document.querySelectorAll(".pd-acc-icon").forEach(function(i) {
-                i.textContent = "+";
-            });
-
-            if (!isOpen) {
-                body.classList.add("open");
-                icon.textContent = "−";
-            }
+            document.querySelectorAll(".pd-acc-body").forEach(b => b.classList.remove("open"));
+            document.querySelectorAll(".pd-acc-icon").forEach(i => i.textContent = "+");
+            if (!isOpen) { body.classList.add("open"); icon.textContent = "−"; }
         });
     });
+
+    /* ─── REVIEWS AJAX LOAD ─── */
+    var productId = @Model.Product.Id;
+
+    function starsHtml(rating) {
+        var s = "";
+        for (var i = 1; i <= 5; i++) s += i <= rating ? "★" : "☆";
+        return s;
+    }
+
+    function loadReviews() {
+        fetch("/Customer/Review/GetReviews?productId=" + productId)
+            .then(r => r.json())
+            .then(function(data) {
+                document.getElementById("rvLoading").style.display = "none";
+                var list = document.getElementById("rvList");
+                var empty = document.getElementById("rvEmpty");
+
+                // avg rating banner
+                if (data.count > 0) {
+                    document.getElementById("avgWrap").style.display = "flex";
+                    document.getElementById("avgNum").textContent  = data.avgRating;
+                    document.getElementById("avgStars").textContent = starsHtml(Math.round(data.avgRating));
+                    document.getElementById("rvCount").textContent  = data.count + " review" + (data.count === 1 ? "" : "s");
+                }
+
+                if (data.reviews.length === 0) {
+                    empty.style.display = "block";
+                    return;
+                }
+
+                list.innerHTML = "";
+                data.reviews.forEach(function(r) {
+                    var card = document.createElement("div");
+                    card.className = "rv-card";
+                    card.innerHTML =
+                        '<div class="rv-card-top">' +
+                            '<span class="rv-reviewer">' + r.reviewerName + '</span>' +
+                            '<span class="rv-date">' + r.date + '</span>' +
+                        '</div>' +
+                        '<div class="rv-stars">' + starsHtml(r.rating) + '</div>' +
+                        (r.reviewText ? '<div class="rv-text">' + r.reviewText + '</div>' : '');
+                    list.appendChild(card);
+                });
+            })
+            .catch(function() {
+                document.getElementById("rvLoading").textContent = "Reviews load nahi hue. Refresh karo.";
+            });
+    }
+
+    loadReviews();
+
+    /* ─── STAR RATING JS FIX ─── */
+    (function() {
+        var picker  = document.getElementById('starPicker');
+        if (!picker) return;
+        var labels  = picker.querySelectorAll('.star-lbl');
+        var hidden  = document.getElementById('ratingValue');
+        var selected = 0;
+
+        function paint(upTo) {
+            labels.forEach(function(lbl) {
+                lbl.classList.toggle('active', parseInt(lbl.dataset.value) <= upTo);
+            });
+        }
+
+        labels.forEach(function(lbl) {
+            // hover highlight
+            lbl.addEventListener('mouseenter', function() {
+                paint(parseInt(this.dataset.value));
+            });
+            // click = lock selection
+            lbl.addEventListener('click', function() {
+                selected = parseInt(this.dataset.value);
+                hidden.value = selected;   // hidden input mein set karo
+                paint(selected);
+            });
+        });
+
+        // mouse leaves = go back to selected
+        picker.addEventListener('mouseleave', function() {
+            paint(selected);
+        });
+
+        // form submit pe validate karo
+        var form = picker.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (selected < 1) {
+                    e.preventDefault();
+                    alert('Pehle star select karo!');
+                }
+            });
+        }
+    })();
+
+    /* ─── WISHLIST TOGGLE — AJAX (nested form fix) ─── */
+    function toggleWishlist(btn) {
+        var productId = btn.getAttribute('data-product-id');
+        var returnUrl = btn.getAttribute('data-return-url');
+
+        // Antiforgery token get karo
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        btn.disabled = true;
+
+        fetch('/Customer/Wishlist/Toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: 'productId=' + productId
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            if (!data.success) return;
+            btn.classList.toggle('wishlisted', data.wishlisted);
+            btn.title = data.wishlisted ? 'Remove from wishlist' : 'Add to wishlist';
+            var toast = document.getElementById('toast');
+            if (toast) {
+                toast.textContent = data.message;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+        })
+        .catch(function() {
+            btn.disabled = false;
+        });
+    }
 </script>
+
+<style>
+    .pd-color-btn--oos { opacity: 0.4; cursor: not-allowed; text-decoration: line-through; }
+</style>
 }

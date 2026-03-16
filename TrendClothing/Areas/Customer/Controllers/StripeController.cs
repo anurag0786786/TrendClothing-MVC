@@ -4,13 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using Stripe.Checkout;
 using System.Security.Claims;
-
 using TrendClothing.Models;
-using TrendClothing.Models.ViewModels; // ✅ ADDED (OrderEmailVM)
+using TrendClothing.Models.ViewModels;
 using TrendClothing.Utility;
-using TrendClothing;
 using TrendClothing.DataAccess.Repository.IRepository;
-
 
 namespace TrendClothing.Areas.Customer.Controllers
 {
@@ -22,6 +19,7 @@ namespace TrendClothing.Areas.Customer.Controllers
         private readonly IEmailSender _emailSender;
         private readonly EmailTemplateRenderer _emailTemplateRenderer;
         private readonly ISmsSender _smsSender;
+
         public StripeController(
             IUnitofWork unitOfWork,
             IEmailSender emailSender,
@@ -34,16 +32,15 @@ namespace TrendClothing.Areas.Customer.Controllers
             _smsSender = smsSender;
         }
 
+        // ── PAY ──
         [HttpPost]
-        [Authorize]
+        [ValidateAntiForgeryToken]
         public IActionResult Pay(int SelectedAddressId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            // 🔹 Address fetch
-            var address = _unitOfWork.Address
-                .FirstOrDefault(a => a.Id == SelectedAddressId
-                                  && a.ApplicationUserId == userId);
+            var address = _unitOfWork.Address.FirstOrDefault(
+                a => a.Id == SelectedAddressId && a.ApplicationUserId == userId);
 
             if (address == null)
             {
@@ -52,48 +49,43 @@ namespace TrendClothing.Areas.Customer.Controllers
                 return RedirectToAction("Summary", "Cart");
             }
 
-            // 🔹 Address session me save (order ke liye)
+            var cartList = _unitOfWork.ShoppingCart.GetAll(
+                c => c.ApplicationUserId == userId,
+                IncludeProperties: "ProductVariant,ProductVariant.Product"
+            ).ToList();
+
+            if (!cartList.Any())
+                return RedirectToAction("Index", "Cart");
+
+            // ✅ Stock check before payment
+            foreach (var item in cartList)
+            {
+                var variant = _unitOfWork.ProductVariant
+                    .FirstOrDefault(v => v.Id == item.ProductVariantId);
+                if (variant == null || variant.Stock < item.Count)
+                {
+                    TempData["ToastMessage"] = $"'{item.ProductVariant.Product.Name}' mein sirf {variant?.Stock ?? 0} stock bacha hai ❌";
+                    TempData["ToastColor"] = "red";
+                    return RedirectToAction("Index", "Cart");
+                }
+            }
+
+            // Save address to session
             HttpContext.Session.SetString("Order_Name", address.Name);
             HttpContext.Session.SetString("Order_Street", address.Street);
             HttpContext.Session.SetString("Order_City", address.City);
             HttpContext.Session.SetString("Order_State", address.State);
             HttpContext.Session.SetString("Order_Postal", address.PostalCode);
 
-            // 🔹 Cart items
-            var cartList = _unitOfWork.ShoppingCart.GetAll(
-                c => c.ApplicationUserId == userId,
-                IncludeProperties: "ProductVariant,ProductVariant.Product"
-            );
-
-            if (!cartList.Any())
-            {
-                return RedirectToAction("Index", "Cart");
-            }
-
-            // 🔹 Stripe session create
-            //var options = new SessionCreateOptions
-            //{
-            //    PaymentMethodTypes = new List<string> { "card" },
-            //    Mode = "payment",
-            //    SuccessUrl = "https://localhost:7154/Customer/Stripe/Success",
-            //    CancelUrl = "https://localhost:7154/Customer/Cart/Summary",
-            //    LineItems = new List<SessionLineItemOptions>()
-            //};
-            // 🔥 IMPORTANT: dynamic domain
             var domain = Request.Scheme + "://" + Request.Host.Value;
-
             var options = new SessionCreateOptions
             {
                 PaymentMethodTypes = new List<string> { "card" },
                 Mode = "payment",
-
-                // ✅ FIXED URLs (local + live dono ke liye)
                 SuccessUrl = domain + "/Customer/Stripe/Success",
                 CancelUrl = domain + "/Customer/Cart/Summary",
-
                 LineItems = new List<SessionLineItemOptions>()
             };
-
 
             foreach (var item in cartList)
             {
@@ -113,30 +105,36 @@ namespace TrendClothing.Areas.Customer.Controllers
             }
 
             var service = new SessionService();
-            Session session = service.Create(options);
+            var session = service.Create(options);
 
+            HttpContext.Session.SetString("Stripe_SessionId", session.Id);
             return Redirect(session.Url);
         }
 
-
-
-        [Authorize]
+        // ── SUCCESS ──
         public async Task<IActionResult> Success()
         {
-            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            //string userEmail = User.FindFirstValue(ClaimTypes.Email);
-            //string userPhone = User.FindFirstValue(ClaimTypes.MobilePhone);
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            ApplicationUser user = _unitOfWork.ApplicationUser
-    .FirstOrDefault(u => u.Id == userId);
+            // ✅ FIX: Verify Stripe payment before creating order
+            var stripeSessionId = HttpContext.Session.GetString("Stripe_SessionId");
+            if (!string.IsNullOrEmpty(stripeSessionId) && stripeSessionId != "Stripe-Paid")
+            {
+                try
+                {
+                    var sessionService = new SessionService();
+                    var stripeSession = sessionService.Get(stripeSessionId);
 
-
-            string userPhone = user?.PhoneNumber;
-            string userEmail = user?.Email;
-
-
-
+                    // Payment complete nahi hua toh redirect
+                    if (stripeSession.PaymentStatus != "paid")
+                    {
+                        TempData["ToastMessage"] = "Payment not completed ❌";
+                        TempData["ToastColor"] = "red";
+                        return RedirectToAction("Summary", "Cart");
+                    }
+                }
+                catch { /* session expired — continue */ }
+            }
 
             var cartList = _unitOfWork.ShoppingCart.GetAll(
                 c => c.ApplicationUserId == userId,
@@ -146,27 +144,40 @@ namespace TrendClothing.Areas.Customer.Controllers
             if (!cartList.Any())
                 return RedirectToAction("Index", "Order");
 
+            ApplicationUser user = _unitOfWork.ApplicationUser
+                .FirstOrDefault(u => u.Id == userId);
+
+            string userPhone = user?.PhoneNumber;
+            string userEmail = user?.Email;
+
             var name = HttpContext.Session.GetString("Order_Name");
             var street = HttpContext.Session.GetString("Order_Street");
             var city = HttpContext.Session.GetString("Order_City");
             var state = HttpContext.Session.GetString("Order_State");
             var postal = HttpContext.Session.GetString("Order_Postal");
 
-            OrderHeader orderHeader = new OrderHeader
+            // Validate session data
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(street))
             {
-                ApplicationuserId = userId,
+                TempData["ToastMessage"] = "Session expired. Please try again ❌";
+                TempData["ToastColor"] = "red";
+                return RedirectToAction("Summary", "Cart");
+            }
+
+            var orderHeader = new OrderHeader
+            {
+                ApplicationUserId = userId,
                 OrderDate = DateTime.UtcNow,
                 ShippingDate = DateTime.UtcNow.AddDays(3),
                 PaymentDate = DateTime.UtcNow,
                 PaymentDueDate = DateTime.UtcNow,
                 DueDate = DateTime.UtcNow.AddDays(7).ToString("yyyy-MM-dd"),
-
                 OrderStatus = SD.OrderStatusApproved,
                 PaymentStatus = SD.PaymentStatusApproved,
                 OrderTotal = cartList.Sum(c => c.ProductVariant.Price * c.Count),
                 Carrier = "Stripe",
                 TrackingNumber = "NA",
-                TransactionId = "Stripe-Paid",
+                TransactionId = stripeSessionId ?? "Stripe-Paid",
                 Name = name,
                 StreetAddress = street,
                 PhoneNumber = userPhone,
@@ -177,99 +188,138 @@ namespace TrendClothing.Areas.Customer.Controllers
 
             _unitOfWork.OrderHeader.Add(orderHeader);
             _unitOfWork.Save();
-            
-
 
             foreach (var cart in cartList)
             {
-                OrderDetails details = new OrderDetails
+                _unitOfWork.OrderDetails.Add(new OrderDetails
                 {
                     OrderHeaderId = orderHeader.Id,
                     ProductId = cart.ProductVariant.ProductId,
                     Count = cart.Count,
                     Price = cart.ProductVariant.Price
-                };
+                });
 
-                _unitOfWork.OrderDetails.Add(details);
+                // ✅ FIX: Stock deduct karo
+                var variant = _unitOfWork.ProductVariant
+                    .FirstOrDefault(v => v.Id == cart.ProductVariantId);
+                if (variant != null)
+                {
+                    variant.Stock = Math.Max(0, variant.Stock - cart.Count);
+                }
             }
-
             _unitOfWork.Save();
 
-            // ================= ONLY CHANGE START =================
-
-            var emailVM = new OrderEmailVM
-            {
-                OrderId = orderHeader.Id,
-                Name = orderHeader.Name,
-                Email = userEmail,
-                PhoneNumber = userPhone,
-
-                StreetAddress = orderHeader.StreetAddress,
-                City = orderHeader.City,
-                State = orderHeader.State,
-                PostalCode = orderHeader.PostalCode,
-                ExpectedFrom = DateTime.UtcNow.AddDays(7),
-                ExpectedTo = DateTime.UtcNow.AddDays(14),
-
-                Products = cartList.Select(c =>
-                    (c.ProductVariant.Product.Name, c.Count)
-     ).ToList()
-            };
-
+            // ── 1. Customer confirmation email ──
             try
             {
+                var emailVM = new OrderEmailVM
+                {
+                    OrderId = orderHeader.Id,
+                    Name = orderHeader.Name,
+                    Email = userEmail,
+                    PhoneNumber = userPhone,
+                    StreetAddress = orderHeader.StreetAddress,
+                    City = orderHeader.City,
+                    State = orderHeader.State,
+                    PostalCode = orderHeader.PostalCode,
+                    ExpectedFrom = DateTime.UtcNow.AddDays(7),
+                    ExpectedTo = DateTime.UtcNow.AddDays(14),
+                    Products = cartList.Select(c =>
+                        (c.ProductVariant.Product.Name, c.Count)).ToList()
+                };
+
                 string emailBody = await _emailTemplateRenderer.RenderToStringAsync(
                     this.ControllerContext,
                     "/Areas/Customer/Views/Email/OrderConfirmationEmail.cshtml",
                     emailVM
                 );
-
-                await _emailSender.SendEmailAsync(
-                    emailVM.Email,
-                    "Order Confirmed – Trend Clothing",
-                    emailBody
-                );
+                // ✅ Fire-and-forget
+                _ = _emailSender.SendEmailAsync(userEmail, "Order Confirmed – TrendClothing", emailBody);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString()); // prod me baad me empty catch kar sakta hai
-            }
+            catch { }
 
+            // ── 2. Customer SMS ──
             try
             {
                 if (!string.IsNullOrEmpty(userPhone))
                 {
-                    await _smsSender.SendSmsAsync(
-                        userPhone,
-                        $"Hi {orderHeader.Name}, your order #{orderHeader.Id} has been placed successfully! 🎉"
-                    );
+                    // ✅ Fire-and-forget
+                    _ = _smsSender.SendSmsAsync(userPhone, $"Hi {orderHeader.Name}, your order #{orderHeader.Id} has been placed!");
                 }
             }
-            catch
+            catch { }
+
+            // ── 3. Admin notification email ──
+            try
             {
-                // SMS fail ho jaye to order flow break nahi hona chahiye
+                var productRows = cartList.Select(c =>
+                    $"<tr>" +
+                    $"<td style='padding:6px 0;'>{c.ProductVariant.Product.Name}</td>" +
+                    $"<td style='text-align:center;'>x{c.Count}</td>" +
+                    $"<td style='text-align:right;font-weight:700;'>&#8377;{c.ProductVariant.Price * c.Count:N0}</td>" +
+                    $"</tr>"
+                );
+
+                var adminBody = $@"
+                <div style='font-family:sans-serif;max-width:560px;margin:0 auto;'>
+                    <div style='background:#111;border-radius:16px 16px 0 0;padding:20px 28px;'>
+                        <div style='font-family:Georgia,serif;font-size:1.3rem;color:#fff;'>TrendClothing</div>
+                        <div style='font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:2px;text-transform:uppercase;'>Admin Notification</div>
+                    </div>
+                    <div style='background:#16a34a;padding:14px 28px;'>
+                        <div style='font-size:15px;font-weight:700;color:#fff;'>🛒 New Order #{orderHeader.Id}</div>
+                        <div style='font-size:12px;color:rgba(255,255,255,0.8);'>{DateTime.Now:dd MMM yyyy, hh:mm tt}</div>
+                    </div>
+                    <div style='background:#f7f5f0;padding:24px 28px;'>
+                        <table style='width:100%;font-size:14px;border-collapse:collapse;background:#fff;border-radius:10px;padding:16px;'>
+                            <tr><td style='padding:6px;color:#666;'>Customer</td><td style='font-weight:700;text-align:right;'>{orderHeader.Name}</td></tr>
+                            <tr><td style='padding:6px;color:#666;'>Phone</td><td style='font-weight:700;text-align:right;'>{orderHeader.PhoneNumber}</td></tr>
+                            <tr><td style='padding:6px;color:#666;'>Email</td><td style='font-weight:700;text-align:right;'>{userEmail}</td></tr>
+                            <tr><td style='padding:6px;color:#666;'>Address</td><td style='font-weight:600;text-align:right;'>{orderHeader.StreetAddress}, {orderHeader.City}</td></tr>
+                        </table>
+                        <table style='width:100%;font-size:14px;border-collapse:collapse;margin-top:16px;'>
+                            <tr style='border-bottom:1px solid #e8e2d9;'>
+                                <th style='padding:6px 0;text-align:left;font-size:11px;color:#999;text-transform:uppercase;'>Product</th>
+                                <th style='text-align:center;font-size:11px;color:#999;text-transform:uppercase;'>Qty</th>
+                                <th style='text-align:right;font-size:11px;color:#999;text-transform:uppercase;'>Amount</th>
+                            </tr>
+                            {string.Join("", productRows)}
+                            <tr style='border-top:2px solid #111;'>
+                                <td colspan='2' style='padding:10px 0;font-weight:700;font-size:15px;'>Total</td>
+                                <td style='padding:10px 0;font-weight:700;font-size:15px;text-align:right;'>&#8377;{orderHeader.OrderTotal:N0}</td>
+                            </tr>
+                        </table>
+                        <div style='text-align:center;margin-top:20px;'>
+                            <a href='https://yoursite.com/Admin/Order/Index'
+                               style='background:#111;color:#fff;padding:12px 28px;border-radius:24px;text-decoration:none;font-weight:700;font-size:13px;'>
+                                Manage Order →
+                            </a>
+                        </div>
+                    </div>
+                    <div style='background:#111;border-radius:0 0 16px 16px;padding:14px 28px;text-align:center;'>
+                        <div style='font-size:12px;color:rgba(255,255,255,0.3);'>© TrendClothing Admin Panel</div>
+                    </div>
+                </div>";
+
+                // ✅ Fire-and-forget
+                _ = _emailSender.SendEmailAsync(SD.AdminEmail, $"New Order #{orderHeader.Id}", adminBody);
             }
-            Console.WriteLine("USER PHONE = " + userPhone);
+            catch { }
 
-
-
-
-
-            // ================= ONLY CHANGE END =================
-
+            // ── Cleanup ──
             _unitOfWork.ShoppingCart.RemoveRange(cartList);
             _unitOfWork.Save();
 
             HttpContext.Session.SetInt32(SD.Ss_cartSessionCount, 0);
-
             HttpContext.Session.Remove("Order_Name");
             HttpContext.Session.Remove("Order_Street");
             HttpContext.Session.Remove("Order_City");
             HttpContext.Session.Remove("Order_State");
             HttpContext.Session.Remove("Order_Postal");
+            HttpContext.Session.Remove("Stripe_SessionId");
 
-            return RedirectToAction("OrderSuccess", "Order",new { area = "Customer", id = orderHeader.Id } );
-
+            return RedirectToAction("OrderSuccess", "Order",
+                new { area = "Customer", id = orderHeader.Id });
         }
     }
 }

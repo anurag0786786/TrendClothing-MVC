@@ -19,12 +19,15 @@
     color: #fff;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 48px 48px 48px;
+    justify-content: space-between; /* brand top, body middle, copyright bottom */
+    padding: 48px 48px;
     position: relative;
     overflow: hidden;
+    /* ✅ Full height fill */
+    min-height: 100vh;
 }
 
+    /* Watermark background text */
     .tc-auth-left::before {
         content: 'TRENDCLOTHING';
         position: absolute;
@@ -52,7 +55,7 @@
 .tc-auth-left__body {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .tc-auth-left__eyebrow {
@@ -100,51 +103,6 @@
         border-color: rgba(255,255,255,0.5);
         opacity: 1;
         color: #fff;
-    }
-
-.tc-auth-left__social {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 8px;
-}
-
-.tc-auth-left__social-label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.35);
-    margin-bottom: 4px;
-}
-
-.tc-auth-social-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    border-radius: 24px;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: var(--tc-font-body);
-    border: 1.5px solid rgba(255,255,255,0.2);
-    color: #fff;
-    background: transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-    justify-content: center;
-}
-
-    .tc-auth-social-btn:hover {
-        background: rgba(255,255,255,0.1);
-        border-color: rgba(255,255,255,0.45);
-    }
-
-    .tc-auth-social-btn img {
-        width: 18px;
-        height: 18px;
-        filter: brightness(0) invert(1);
     }
 
 /* ── RIGHT FORM PANEL ── */
@@ -268,7 +226,7 @@
         margin-bottom: 0;
     }
 
-/* Extra row (remember + forgot) */
+/* Extra row */
 .tc-auth-extra {
     display: flex;
     justify-content: space-between;
@@ -298,7 +256,7 @@
             opacity: 1;
         }
 
-/* Submit button */
+/* Submit */
 .tc-auth-submit {
     width: 100%;
     padding: 15px;
@@ -345,14 +303,16 @@
     padding-left: 4px;
 }
 
-/* ── RESPONSIVE ── */
+/* ══ TABLET ══ */
 @media (max-width: 900px) {
     .tc-auth-left {
         width: 300px;
         padding: 36px 32px;
+        min-height: 100vh;
     }
 }
 
+/* ══ MOBILE ══ */
 @media (max-width: 680px) {
     .tc-auth-page {
         flex-direction: column;
@@ -361,7 +321,11 @@
     .tc-auth-left {
         width: 100%;
         min-height: auto;
-        padding: 32px 24px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 18px 20px;
     }
 
         .tc-auth-left::before {
@@ -369,20 +333,32 @@
         }
 
     .tc-auth-left__body {
-        gap: 12px;
-    }
-
-    .tc-auth-left__title {
-        font-size: 1.8rem;
-    }
-
-    .tc-auth-left__social {
         display: none;
     }
 
-    .tc-auth-right {
-        padding: 32px 20px;
+    .tc-auth-left__brand {
+        font-size: 1.3rem;
     }
+
+    .tc-auth-left__action {
+        display: inline-flex !important;
+        margin-top: 0;
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .tc-auth-right {
+        padding: 28px 20px 40px;
+        align-items: flex-start;
+    }
+
+    .tc-auth-form-wrap {
+        max-width: 100%;
+    }
+
+        .tc-auth-form-wrap h2 {
+            font-size: 1.6rem;
+        }
 
     .tc-auth-two-col {
         grid-template-columns: 1fr;
@@ -391,4 +367,18 @@
         .tc-auth-two-col .tc-auth-field {
             margin-bottom: 20px;
         }
+
+    .tc-auth-phone-row select {
+        width: 110px;
+    }
+}
+
+@media (max-width: 400px) {
+    .tc-auth-left {
+        padding: 14px 16px;
+    }
+
+    .tc-auth-right {
+        padding: 20px 16px 32px;
+    }
 }

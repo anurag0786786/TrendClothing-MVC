@@ -1,0 +1,322 @@
+﻿@model IEnumerable<TrendClothing.Models.Wishlist>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+    <style>
+        .wl-page {
+            min-height: 60vh;
+            padding: 48px 0 80px;
+        }
+
+        .wl-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .wl-title {
+            font-family: var(--tc-font-display);
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            color: var(--tc-black);
+        }
+
+        .wl-count {
+            font-size: 14px;
+            color: var(--tc-gray-2);
+            margin-top: 4px;
+        }
+
+        .wl-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+        }
+
+        .wl-card {
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            border-radius: var(--tc-radius-md);
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+            position: relative;
+        }
+
+            .wl-card:hover {
+                box-shadow: var(--tc-shadow-md);
+                transform: translateY(-2px);
+            }
+
+        .wl-remove-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: background 0.2s;
+        }
+
+            .wl-remove-btn:hover {
+                background: #fde8e0;
+                border-color: #f0a090;
+            }
+
+            .wl-remove-btn svg {
+                width: 16px;
+                height: 16px;
+                fill: #c1440e;
+                stroke: #c1440e;
+            }
+
+        .wl-img-wrap {
+            height: 220px;
+            overflow: hidden;
+            background: var(--tc-surface-alt);
+            display: block;
+        }
+
+            .wl-img-wrap img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s;
+            }
+
+        .wl-card:hover .wl-img-wrap img {
+            transform: scale(1.04);
+        }
+
+        .wl-card-body {
+            padding: 14px 16px 16px;
+        }
+
+        .wl-brand {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--tc-gray-3);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .wl-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--tc-black);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .wl-price-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .wl-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--tc-black);
+        }
+
+        .wl-price-old {
+            font-size: 13px;
+            color: var(--tc-gray-3);
+            text-decoration: line-through;
+        }
+
+        .wl-badge-off {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 20px;
+            background: #fde8e0;
+            color: #c1440e;
+        }
+
+        .wl-view-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: var(--tc-black);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--tc-radius-sm);
+            text-align: center;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+            .wl-view-btn:hover {
+                opacity: 0.8;
+                color: #fff;
+            }
+
+        .wl-empty {
+            text-align: center;
+            padding: 80px 24px;
+        }
+
+        .wl-empty-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            opacity: 0.18;
+        }
+
+        .wl-empty-title {
+            font-family: var(--tc-font-display);
+            font-size: 1.6rem;
+            color: var(--tc-black);
+            margin-bottom: 10px;
+        }
+
+        .wl-empty-sub {
+            font-size: 14px;
+            color: var(--tc-gray-2);
+            margin-bottom: 28px;
+        }
+
+        .wl-shop-btn {
+            display: inline-block;
+            padding: 12px 32px;
+            background: var(--tc-black);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 100px;
+            text-decoration: none;
+        }
+
+            .wl-shop-btn:hover {
+                opacity: 0.8;
+                color: #fff;
+            }
+
+        @@media (max-width: 480px) {
+            .wl-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+        }
+    </style>
+}
+
+@* AntiForgery token for AJAX remove *@
+@Html.AntiForgeryToken()
+
+<div class="wl-page tc-container">
+    <div class="wl-header">
+        <div>
+            <h1 class="wl-title">My Wishlist</h1>
+            <p class="wl-count">@Model.Count() item@(Model.Count() == 1 ? "" : "s") saved</p>
+        </div>
+        <a href="/" style="font-size:13px;padding:8px 20px;border-radius:100px;border:1.5px solid var(--tc-border-dark);font-weight:600;text-decoration:none;color:var(--tc-black);">
+            Continue Shopping
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="wl-empty">
+            <svg class="wl-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+            <h2 class="wl-empty-title">Your wishlist is empty</h2>
+            <p class="wl-empty-sub">Dil pasand cheezein save karo yahan — jab bhi ready ho le lena.</p>
+            <a href="/" class="wl-shop-btn">Start Shopping</a>
+        </div>
+    }
+    else
+    {
+        <div class="wl-grid">
+            @foreach (var wlItem in Model)
+            {
+                var wlProduct = wlItem.Product;
+                var wlSellPrice = wlProduct.DiscountPrice ?? wlProduct.Price;
+                var wlDiscount = wlProduct.DiscountPrice.HasValue
+                ? (int)Math.Round((wlProduct.Price - wlProduct.DiscountPrice.Value) / wlProduct.Price * 100)
+                : 0;
+
+                <div class="wl-card" id="wl-card-@wlProduct.Id">
+                    <button type="button"
+                            class="wl-remove-btn"
+                            title="Remove from wishlist"
+                            onclick="wlRemove(@wlProduct.Id, this)">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+
+                    <a href="/Customer/Home/Details/@wlProduct.Id" class="wl-img-wrap">
+                        <img src="@wlProduct.ImageUrl" alt="@wlProduct.Name" loading="lazy" />
+                    </a>
+
+                    <div class="wl-card-body">
+                        <div class="wl-brand">@(wlProduct.Brand?.Name ?? "")</div>
+                        <div class="wl-name">@wlProduct.Name</div>
+                        <div class="wl-price-row">
+                            <span class="wl-price">&#8377; @wlSellPrice.ToString("N0")</span>
+                            @if (wlDiscount > 0)
+                            {
+                                <span class="wl-price-old">&#8377; @wlProduct.Price.ToString("N0")</span>
+                                <span class="wl-badge-off">@wlDiscount% OFF</span>
+                            }
+                        </div>
+                        <a href="/Customer/Home/Details/@wlProduct.Id" class="wl-view-btn">View Product</a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function wlRemove(productId, btn) {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            btn.disabled = true;
+            fetch('/Customer/Wishlist/Toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: 'productId=' + productId
+            })
+            .then(function () {
+                var card = document.getElementById('wl-card-' + productId);
+                if (card) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(function () {
+                        card.remove();
+                        var remaining = document.querySelectorAll('.wl-card').length;
+                        var countEl = document.querySelector('.wl-count');
+                        if (countEl) countEl.textContent = remaining + ' item' + (remaining === 1 ? '' : 's') + ' saved';
+                        if (remaining === 0) window.location.reload();
+                    }, 300);
+                }
+            })
+            .catch(function () {
+                btn.disabled = false;
+                alert('Remove nahi hua. Dobara try karo.');
+            });
+        }
+    </script>
+}

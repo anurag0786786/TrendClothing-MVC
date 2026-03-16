@@ -3,7 +3,6 @@
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @{
-    // Exact role names from SD.cs
     bool isAdminUser = false;
     if (SignInManager.IsSignedIn(User))
     {
@@ -22,19 +21,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] — TrendClothing</title>
 
-    <!-- Bootstrap CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Your Theme -->
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
 
-    <!-- FontAwesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+    <style>
+        @@media (max-width: 768px) {
+            .tc-nav__link,
+            .tc-nav__cart,
+            .tc-nav__admin-btn,
+            .tc-nav__desktop-auth,
+            .tc-nav__wishlist-btn {
+                display: none !important;
+            }
 
-    <!-- Toastr -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
+            .tc-nav__hamburger {
+                display: flex !important;
+            }
+
+            .tc-nav__bottom {
+                display: none !important;
+            }
+
+            .tc-nav__top {
+                padding: 12px 16px !important;
+            }
+        }
+
+        @@media (min-width: 769px) {
+            .tc-nav__hamburger {
+                display: none !important;
+            }
+        }
+
+        .tc-nav__profile-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--tc-black);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            flex-shrink: 0;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+            .tc-nav__profile-avatar:hover {
+                opacity: 0.8;
+            }
+
+        /* ✅ NEW: Wishlist icon button in navbar */
+        .tc-nav__wishlist-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1.5px solid var(--tc-border-dark);
+            background: transparent;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--tc-black);
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+            .tc-nav__wishlist-btn:hover {
+                background: #fde8e0;
+                border-color: #f0a090;
+                color: #c1440e;
+            }
+
+            .tc-nav__wishlist-btn svg {
+                width: 14px;
+                height: 14px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 2;
+            }
+
+        .tc-nav__mobile-login {
+            display: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--tc-black);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            font-family: var(--tc-font-body);
+        }
+
+        @@media (max-width: 768px) {
+            .tc-nav__mobile-login {
+                display: inline-flex;
+                align-items: center;
+            }
+        }
+    </style>
 
     @RenderSection("Styles", required: false)
 </head>
@@ -44,15 +134,14 @@
     <nav class="tc-nav">
         <div class="tc-nav__top">
 
-            <!-- Brand -->
             <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="tc-nav__brand">
                 TrendClothing
             </a>
 
-            <!-- Right side -->
             <div class="tc-nav__right">
+
                 <a asp-area="Customer" asp-controller="Home" asp-action="Index"
-                   asp-route-name="About" class="tc-nav__link">About</a>
+                   class="tc-nav__link">About</a>
                 <a href="#" class="tc-nav__link">FAQs</a>
 
                 <!-- Cart -->
@@ -66,23 +155,29 @@
                     <span class="tc-nav__cart-count" id="cartCount">0</span>
                 </a>
 
-                <!-- Auth -->
                 @if (SignInManager.IsSignedIn(User))
                 {
-                    <!-- My Orders link -->
                     <a asp-area="Customer" asp-controller="Order" asp-action="Index"
                        class="tc-nav__link" style="font-weight:600;">Orders</a>
 
-                    <!-- Profile avatar -->
+                    <!-- ✅ WISHLIST BUTTON — desktop navbar -->
+                    <a asp-area="Customer" asp-controller="Wishlist" asp-action="Index"
+                       class="tc-nav__wishlist-btn">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                        Wishlist
+                    </a>
+
                     <a asp-area="Customer" asp-controller="Profile" asp-action="Index"
-                       style="width:34px;height:34px;border-radius:50%;background:var(--tc-black);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">
+                       class="tc-nav__profile-avatar">
                         @((User.Identity?.Name ?? "U").Substring(0, 1).ToUpper())
                     </a>
 
-                    <!-- Admin link if admin/employee -->
                     @if (isAdminUser)
                     {
-                        <a asp-area="Admin" asp-controller="Product" asp-action="Index"
+                        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                           class="tc-nav__admin-btn"
                            style="font-size:12px;font-weight:700;padding:6px 14px;border:1.5px solid var(--tc-border-dark);border-radius:20px;color:var(--tc-black);text-decoration:none;">
                             Admin
                         </a>
@@ -90,26 +185,27 @@
                 }
                 else
                 {
-                    <a asp-area="Identity" asp-page="/Account/Login"
-                       class="tc-nav__link" style="font-weight:600;">Login</a>
+                    <div class="tc-nav__desktop-auth" style="display:flex;gap:10px;align-items:center;">
+                        <a asp-area="Identity" asp-page="/Account/Login"
+                           class="tc-nav__link" style="font-weight:600;">Login</a>
+                        <a asp-area="Identity" asp-page="/Account/Register"
+                           class="tc-btn tc-btn--primary" style="padding:7px 18px;font-size:13px;">
+                            Register
+                        </a>
+                    </div>
                     <a asp-area="Identity" asp-page="/Account/Register"
-                       class="tc-btn tc-btn--primary" style="padding:7px 18px;font-size:13px;">
-                        Register
-                    </a>
+                       class="tc-nav__mobile-login">Register</a>
                 }
 
-                <!-- Hamburger (mobile) -->
                 <button class="tc-nav__hamburger" id="hamburgerBtn" aria-label="Menu">
                     <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
 
-        <!-- Bottom bar — categories + search -->
+        <!-- Bottom bar — desktop -->
         <div class="tc-nav__bottom">
-
-            <select class="tc-nav__select" id="categoryDropdown"
-                    onchange="navigateCategory(this.value)">
+            <select class="tc-nav__select" id="categoryDropdown" onchange="navigateCategory(this.value)">
                 <option value="">Categories</option>
                 <option value="Men">Men</option>
                 <option value="Women">Women</option>
@@ -118,8 +214,7 @@
 
             @if (SignInManager.IsSignedIn(User))
             {
-                <select class="tc-nav__select" id="newProductDropdown"
-                        onchange="navigateNewProduct(this.value)">
+                <select class="tc-nav__select" id="newProductDropdown" onchange="navigateNewProduct(this.value)">
                     <option value="">New Product</option>
                     <option value="Men">Men</option>
                     <option value="Women">Women</option>
@@ -127,7 +222,6 @@
                 </select>
             }
 
-            <!-- Search -->
             <form asp-area="Customer" asp-controller="Home" asp-action="Category"
                   method="get" style="display:contents;">
                 <input type="hidden" name="name" value="" />
@@ -140,80 +234,84 @@
                 </div>
             </form>
 
-            <!-- Category buttons -->
             <button class="tc-nav__cat-btn" onclick="location.href='/Customer/Home/Category?name=Men'">Men</button>
             <button class="tc-nav__cat-btn" onclick="location.href='/Customer/Home/Category?name=Women'">Women</button>
             <button class="tc-nav__cat-btn" onclick="location.href='/Customer/Home/Category?name=Children'">Children</button>
 
             @if (isAdminUser)
             {
-                <a asp-area="Admin" asp-controller="Product" asp-action="Index"
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
                    class="tc-nav__cat-btn">Admin</a>
             }
         </div>
     </nav>
 
-    <!-- Mobile Drawer -->
+    <!-- ══ MOBILE DRAWER ══ -->
     <div class="tc-drawer" id="mobileDrawer">
         <button class="tc-drawer__close" id="drawerClose">✕</button>
         <div class="tc-drawer__brand">TrendClothing</div>
 
-        <a asp-area="Customer" asp-controller="Home" asp-action="Category" asp-route-name="Men">Men</a>
-        <a asp-area="Customer" asp-controller="Home" asp-action="Category" asp-route-name="Women">Women</a>
-        <a asp-area="Customer" asp-controller="Home" asp-action="Category" asp-route-name="Children">Children</a>
+        <form asp-area="Customer" asp-controller="Home" asp-action="Category"
+              method="get" style="margin:8px 0 16px;">
+            <input type="hidden" name="name" value="" />
+            <div style="display:flex;align-items:center;gap:8px;background:var(--tc-bg);border:1.5px solid var(--tc-border-dark);border-radius:20px;padding:8px 14px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <input type="text" name="Search" placeholder="Search..."
+                       style="border:none;background:none;outline:none;font-size:13px;font-family:var(--tc-font-body);width:100%;" />
+            </div>
+        </form>
+
+        <a href="/Customer/Home/Category?name=Men">👔 Men</a>
+        <a href="/Customer/Home/Category?name=Women">👗 Women</a>
+        <a href="/Customer/Home/Category?name=Children">🧒 Children</a>
 
         @if (SignInManager.IsSignedIn(User))
         {
-            <a asp-area="Customer" asp-controller="Profile" asp-action="Index">My Profile</a>
-            <a asp-area="Customer" asp-controller="Order" asp-action="Index">My Orders</a>
-            <a asp-area="Customer" asp-controller="Cart" asp-action="Index">Cart</a>
+            <a asp-area="Customer" asp-controller="Cart" asp-action="Index">🛒 Cart</a>
+            <a asp-area="Customer" asp-controller="Order" asp-action="Index">📦 My Orders</a>
+            <!-- ✅ WISHLIST — mobile drawer mein bhi -->
+            <a asp-area="Customer" asp-controller="Wishlist" asp-action="Index">❤️ Wishlist</a>
+            <a asp-area="Customer" asp-controller="Profile" asp-action="Index">👤 My Profile</a>
 
             @if (isAdminUser)
             {
-                <a asp-area="Admin" asp-controller="Product" asp-action="Index">Admin Panel</a>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">⚙️ Admin Panel</a>
             }
 
-            <form asp-area="Identity" asp-page="/Account/Logout" method="post" style="margin-top:12px;">
-                <button type="submit" style="width:100%;background:none;border:1.5px solid var(--tc-border-dark);border-radius:20px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;">
+            <form asp-area="Identity" asp-page="/Account/Logout" method="post" style="margin-top:16px;">
+                <button type="submit"
+                        style="width:100%;background:none;border:1.5px solid var(--tc-border-dark);border-radius:20px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--tc-font-body);">
                     Logout
                 </button>
             </form>
         }
         else
         {
-            <a asp-area="Identity" asp-page="/Account/Login">Login</a>
-            <a asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a asp-area="Identity" asp-page="/Account/Login">🔑 Login</a>
+            <a asp-area="Identity" asp-page="/Account/Register"
+               style="background:var(--tc-black);color:#fff;border-radius:20px;text-align:center;padding:12px;">
+                Register →
+            </a>
         }
     </div>
     <div class="tc-drawer__overlay" id="drawerOverlay"></div>
 
-    <!-- ══ MAIN CONTENT ══ -->
-    <main>
-        @RenderBody()
-    </main>
+    <main>@RenderBody()</main>
 
-    <!-- ══ FOOTER ══ -->
     <footer style="background:var(--tc-black);color:rgba(255,255,255,0.5);text-align:center;padding:20px;font-size:13px;margin-top:80px;">
         © 2025 – TrendClothing
     </footer>
 
-    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- Scripts -->
-    <!-- jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-    <!-- Bootstrap CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Toastr -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
-    <!-- Your JS -->
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- Toast from TempData -->
     @if (TempData["ToastMessage"] != null)
     {
         <script>
@@ -228,20 +326,19 @@
         </script>
     }
 
-    <!-- Mobile drawer + cart count -->
     <script>
-        // Mobile drawer
         var hamburger = document.getElementById('hamburgerBtn');
-        var drawer = document.getElementById('mobileDrawer');
-        var overlay = document.getElementById('drawerOverlay');
-        var close = document.getElementById('drawerClose');
-        function openDrawer() { drawer.classList.add('open'); overlay.style.display = 'block'; }
-        function closeDrawer() { drawer.classList.remove('open'); overlay.style.display = 'none'; }
-        if (hamburger) hamburger.addEventListener('click', openDrawer);
-        if (close) close.addEventListener('click', closeDrawer);
-        if (overlay) overlay.addEventListener('click', closeDrawer);
+        var drawer    = document.getElementById('mobileDrawer');
+        var overlay   = document.getElementById('drawerOverlay');
+        var closeBtn  = document.getElementById('drawerClose');
 
-        // Category navigate
+        function openDrawer()  { drawer.classList.add('open');    overlay.style.display = 'block'; }
+        function closeDrawer() { drawer.classList.remove('open'); overlay.style.display = 'none';  }
+
+        if (hamburger) hamburger.addEventListener('click', openDrawer);
+        if (closeBtn)  closeBtn.addEventListener('click', closeDrawer);
+        if (overlay)   overlay.addEventListener('click', closeDrawer);
+
         function navigateCategory(val) {
             if (val) window.location.href = '/Customer/Home/Category?name=' + val;
         }
@@ -249,7 +346,6 @@
             if (val) window.location.href = '/Admin/Product/Upsert?category=' + val;
         }
 
-        // Cart count — fetch from API
         (function () {
             fetch('/Customer/Cart/GetCartCount')
                 .then(function(r) { return r.ok ? r.json() : Promise.reject(); })

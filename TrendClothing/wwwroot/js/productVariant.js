@@ -1,19 +1,45 @@
 ﻿var dataTable;
+
 $(document).ready(function () { loadDataTable(); });
 
 function loadDataTable() {
     dataTable = $('#tblData').DataTable({
         "ajax": { "url": "/Admin/ProductVariant/GetAll" },
         "columns": [
-            { "data": "product", "render": data => `<span style="font-weight:600;">${data}</span>` },
+            {
+                "data": "product",
+                "render": data => `<span style="font-weight:600;">${data}</span>`
+            },
             { "data": "size" },
             { "data": "color" },
-            { "data": "price", "render": data => `<span style="font-weight:700;">&#8377; ${data}</span>` },
             {
+                "data": "price",
+                "render": data => `<span style="font-weight:700;">&#8377; ${data}</span>`
+            },
+            {
+                // ✅ Inline stock edit
                 "data": "stock",
-                "render": data => data > 0
-                    ? `<span class="tc-status-active">${data} in stock</span>`
-                    : `<span class="tc-status-inactive">Out of stock</span>`
+                "render": (data, type, row) => {
+                    const badgeClass = data === 0
+                        ? 'tc-status-inactive'
+                        : data <= 5
+                            ? 'style="background:#fffbeb;color:#b5830a;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;"'
+                            : 'tc-status-active';
+
+                    const badgeStyle = data === 0
+                        ? `<span class="tc-status-inactive">Out of stock</span>`
+                        : data <= 5
+                            ? `<span style="background:#fffbeb;color:#b5830a;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;">⚠️ ${data} left</span>`
+                            : `<span class="tc-status-active">${data} in stock</span>`;
+
+                    return `<div style="display:flex;align-items:center;gap:8px;">
+                        ${badgeStyle}
+                        <button class="tc-admin-btn-edit" style="font-size:10px;padding:4px 10px;"
+                            onclick="quickUpdateStock(${row.id}, ${data})">
+                            Update
+                        </button>
+                    </div>`;
+                }
             },
             {
                 "data": "id",
@@ -30,6 +56,27 @@ function loadDataTable() {
                     </div>`
             }
         ]
+    });
+}
+
+// ✅ Quick inline stock update
+function quickUpdateStock(variantId, currentStock) {
+    var newStock = prompt('Update stock for this variant:\nCurrent stock: ' + currentStock, currentStock);
+    if (newStock === null) return; // cancelled
+
+    newStock = parseInt(newStock);
+    if (isNaN(newStock) || newStock < 0) {
+        toastr.error('Please enter a valid stock number');
+        return;
+    }
+
+    $.post('/Admin/ProductVariant/UpdateStock', { id: variantId, stock: newStock }, function (res) {
+        if (res.success) {
+            toastr.success(res.message);
+            dataTable.ajax.reload(null, false);
+        } else {
+            toastr.error(res.message);
+        }
     });
 }
 

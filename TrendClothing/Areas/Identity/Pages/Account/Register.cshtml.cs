@@ -54,6 +54,7 @@ namespace TrendClothing.Areas.Identity.Pages.Account
 
         public string ReturnUrl { get; set; }
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
         [TempData]
         public string ToastMessage { get; set; }
 
@@ -64,14 +65,15 @@ namespace TrendClothing.Areas.Identity.Pages.Account
         {
             [Required, EmailAddress]
             public string Email { get; set; }
+
             [Required]
             [Phone]
             [Display(Name = "Phone Number")]
             public string PhoneNumber { get; set; }
+
             [Required]
             [Display(Name = "Country Code")]
             public string CountryCode { get; set; }
-
 
             [Required, DataType(DataType.Password)]
             public string Password { get; set; }
@@ -89,8 +91,6 @@ namespace TrendClothing.Areas.Identity.Pages.Account
 
             [NotMapped]
             public string Role { get; set; }
-           
-
 
             public IEnumerable<SelectListItem> RoleList { get; set; }
         }
@@ -106,7 +106,6 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                         Text = r.Name,
                         Value = r.Name
                     })
-
             };
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -147,13 +146,9 @@ namespace TrendClothing.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    // Roles ensure
-                    string[] roles =
-                    {
-                        SD.Role_Admin,
-                        SD.Role_Employee,
-                        SD.Role_Idividual
-                    };
+                    // Roles ensure karo
+                    string[] roles = { SD.Role_Admin, SD.Role_Employee, SD.Role_Idividual };
+
                     var profile = new UserProfile
                     {
                         UserId = user.Id,
@@ -165,12 +160,11 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                     };
                     _unitOfWork.UserProfile.Add(profile);
                     _unitOfWork.Save();
+
                     foreach (var role in roles)
                     {
                         if (!await _roleManager.RoleExistsAsync(role))
-                        {
                             await _roleManager.CreateAsync(new IdentityRole(role));
-                        }
                     }
 
                     int totalUsers = _userManager.Users.Count();
@@ -181,22 +175,49 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        // 🔥 FIX: dropdown se jo role aaya wahi assign hoga
                         if (!string.IsNullOrEmpty(Input.Role))
-                        {
                             await _userManager.AddToRoleAsync(user, Input.Role);
-                        }
                         else
-                        {
                             await _userManager.AddToRoleAsync(user, SD.Role_Idividual);
-                        }
                     }
-                    await _emailSender.SendEmailAsync( Input.Email,"Welcome to Trend Clothing 🎉", $"Hi {Input.Email},<br/><br/>Your account has been created successfully.<br/>Happy Shopping! 🛍️"
-   );
 
-                    await _signInManager.SignInAsync(user, false);
-                    // ✅ TOAST SET YAHIN
-                    ToastMessage = "Registration successful 🎉";
+                    // ✅ Welcome email
+                    try
+                    {
+                        // ✅ Fire-and-forget
+                        _ = _emailSender.SendEmailAsync(
+                            Input.Email,
+                            "Welcome to Trend Clothing 🎉",
+                            $"Hi {Input.Name},<br/><br/>Your account has been created successfully.<br/>Happy Shopping! 🛍️"
+                        );
+                    }
+                    catch { }
+
+                    // ✅ Verification email — background mein bhejo
+                    try
+                    {
+                        var userId = await _userManager.GetUserIdAsync(user);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                        var callbackUrl = Url.Page(
+                            "/Account/ConfirmEmail",
+                            pageHandler: null,
+                            values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                            protocol: Request.Scheme
+                        );
+
+                        await _emailSender.SendEmailAsync(
+                            Input.Email,
+                            "Verify your email – TrendClothing",
+                            $"Hi {Input.Name},<br/><br/>Please verify your email by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.<br/><br/>You need to verify your email before placing an order."
+                        );
+                    }
+                    catch { }
+
+                    // ✅ Seedha login — verification email background mein chala gaya
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    ToastMessage = "Registration successful 🎉 Please verify your email to place orders.";
                     ToastColor = "#198754";
                     return LocalRedirect(returnUrl);
                 }
@@ -206,10 +227,8 @@ namespace TrendClothing.Areas.Identity.Pages.Account
                     ModelState.AddModelError(string.Empty, error.Description);
                     ToastMessage = "Registration failed ❌ Please try again";
                     ToastColor = "red";
-
                 }
             }
-
 
             return Page();
         }
@@ -217,9 +236,8 @@ namespace TrendClothing.Areas.Identity.Pages.Account
         private IUserEmailStore<IdentityUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
-            {
                 throw new NotSupportedException("Email not supported.");
-            }
+
             return (IUserEmailStore<IdentityUser>)_userStore;
         }
     }

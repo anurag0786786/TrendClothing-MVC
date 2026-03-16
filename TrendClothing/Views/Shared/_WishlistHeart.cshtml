@@ -1,0 +1,35 @@
+﻿@* ══════════════════════════════════════════════════════════════════
+   _WishlistHeart.cshtml  →  Views/Shared/_WishlistHeart.cshtml
+   
+   Product cards (Index.cshtml, Category.cshtml) mein yeh partial
+   include karo har product card ke upar:
+   
+   @await Html.PartialAsync("_WishlistHeart", product.Id)
+   
+   Ya directly copy-paste karo — dono kaam karega
+══════════════════════════════════════════════════════════════════ *@
+
+@model int
+@* model = productId *@
+
+@if (User.Identity.IsAuthenticated)
+{
+    <form asp-area="Customer"
+          asp-controller="Wishlist"
+          asp-action="Toggle"
+          method="post"
+          class="wl-heart-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="productId" value="@Model" />
+        <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+        <button type="submit"
+                class="wl-heart-btn"
+                title="Add to Wishlist">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="#c1440e" stroke-width="1.8" fill="none">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+        </button>
+    </form>
+}
+
+

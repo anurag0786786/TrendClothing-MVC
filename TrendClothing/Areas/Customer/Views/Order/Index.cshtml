@@ -3,26 +3,128 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+    <style>
+        .order-status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .badge-approved {
+            background: #e0f2e9;
+            color: #2d6a4f;
+        }
+
+        .badge-pending {
+            background: #fffbeb;
+            color: #b5830a;
+        }
+
+        .badge-shipped {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .badge-processing {
+            background: #f3f0ff;
+            color: #6d28d9;
+        }
+
+        .badge-delivered {
+            background: #e0f2e9;
+            color: #1a4731;
+            border: 1px solid #b7dfc9;
+        }
+
+        .badge-cancelled {
+            background: #fde8e0;
+            color: #c1440e;
+        }
+
+        .order-filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .order-filter-tab {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            color: var(--tc-gray-2);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+            .order-filter-tab:hover,
+            .order-filter-tab.active {
+                background: var(--tc-black);
+                color: #fff;
+                border-color: var(--tc-black);
+                opacity: 1;
+            }
+    </style>
+}
+
+@{
+    var filter = Context.Request.Query["filter"].ToString();
+    if (string.IsNullOrEmpty(filter)) filter = "all";
+
+    IEnumerable<TrendClothing.Models.OrderHeader> filteredOrders = Model;
+    if (filter == "active")
+        filteredOrders = Model.Where(o => o.OrderStatus != "Cancelled" && o.OrderStatus != "Delivered");
+    else if (filter == "cancelled")
+        filteredOrders = Model.Where(o => o.OrderStatus == "Cancelled");
+    else if (filter == "delivered")
+        filteredOrders = Model.Where(o => o.OrderStatus == "Delivered");
 }
 
 <div class="tc-container tc-orders-page">
 
     <h1 class="tc-orders-page__title">My Orders</h1>
 
-    @if (!Model.Any())
+    <!-- Filter Tabs -->
+    <div class="order-filter-tabs">
+        <a href="?filter=all" class="order-filter-tab @(filter == "all" ? "active" : "")">All (@Model.Count())</a>
+        <a href="?filter=active" class="order-filter-tab @(filter == "active" ? "active" : "")">Active (@Model.Count(o => o.OrderStatus != "Cancelled" && o.OrderStatus != "Delivered"))</a>
+        <a href="?filter=delivered" class="order-filter-tab @(filter == "delivered" ? "active" : "")">Delivered (@Model.Count(o => o.OrderStatus == "Delivered"))</a>
+        <a href="?filter=cancelled" class="order-filter-tab @(filter == "cancelled" ? "active" : "")">Cancelled (@Model.Count(o => o.OrderStatus == "Cancelled"))</a>
+    </div>
+
+    @if (!filteredOrders.Any())
     {
         <div class="tc-empty">
             <div class="tc-empty__icon">📦</div>
-            <div class="tc-empty__title">No orders yet</div>
-            <div class="tc-empty__sub">Start shopping to see your orders here</div>
-            <a asp-action="Index" asp-controller="Home" class="tc-btn tc-btn--primary tc-mt-md">
-                Start Shopping
-            </a>
+            <div class="tc-empty__title">No orders found</div>
+            <div class="tc-empty__sub">
+                @if (filter == "all")
+                {
+                    <span>Start shopping to see your orders here</span>
+                }
+                else
+                {
+                    <span>No @filter orders — <a href="?filter=all" style="color:var(--tc-black);font-weight:700;">View all</a></span>
+                }
+            </div>
+            @if (filter == "all")
+            {
+                <a asp-action="Index" asp-controller="Home" class="tc-btn tc-btn--primary tc-mt-md">
+                    Start Shopping
+                </a>
+            }
         </div>
     }
     else
     {
-        @* Header Row *@
         <div style="display:grid; grid-template-columns:1fr auto auto auto auto auto; gap:16px; padding:0 24px 12px; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--tc-gray-3);">
             <span>Order</span>
             <span>Date</span>
@@ -32,23 +134,58 @@
             <span></span>
         </div>
 
-        @foreach (var order in Model)
+        @foreach (var order in filteredOrders)
         {
+            string badgeClass = order.OrderStatus switch
+            {
+                "Approved" => "badge-approved",
+                "Pending" => "badge-pending",
+                "Shipped" => "badge-shipped",
+                "InTransit" => "badge-shipped",
+                "Processing" => "badge-processing",
+                "Delivered" => "badge-delivered",
+                "Cancelled" => "badge-cancelled",
+                _ => "badge-pending"
+            };
+
             <div class="tc-order-row">
-                <div class="tc-order-row__id">#@order.Id</div>
+                <div class="tc-order-row__id">
+                    #@order.Id
+                    @if (order.OrderDate.Date == DateTime.Today)
+                    {
+                        <span style="background:#111;color:#fff;border-radius:20px;padding:1px 7px;font-size:9px;font-weight:700;margin-left:5px;vertical-align:middle;">NEW</span>
+                    }
+                </div>
                 <div class="tc-order-row__date">@order.OrderDate.ToString("dd MMM yyyy")</div>
-                <div class="tc-order-row__total">&#8377; @order.OrderTotal</div>
+                <div class="tc-order-row__total">&#8377; @order.OrderTotal.ToString("N0")</div>
                 <div>
                     <span class="tc-badge tc-badge--cream">@order.PaymentStatus</span>
                 </div>
                 <div>
-                    <span class="tc-badge tc-badge--dark">@order.OrderStatus</span>
+                    <span class="order-status-badge @badgeClass">@order.OrderStatus</span>
                 </div>
-                <div>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                     <a asp-action="Details" asp-route-id="@order.Id"
                        class="tc-btn tc-btn--outline tc-btn--sm">
                         View →
                     </a>
+
+                    @if (order.OrderStatus == "Pending" || order.OrderStatus == "Approved")
+                    {
+                        <form asp-area="Customer" asp-controller="Order" asp-action="Cancel"
+                              asp-route-id="@order.Id" method="post" style="display:inline;"
+                              onsubmit="return confirm('Cancel order #@order.Id?')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit"
+                                    style="padding:7px 14px;border-radius:20px;border:1.5px solid #fcc7b0;background:#fde8e0;color:#c1440e;font-size:11px;font-weight:700;font-family:var(--tc-font-body);cursor:pointer;">
+                                Cancel
+                            </button>
+                        </form>
+                    }
+                    else if (order.OrderStatus == "Cancelled" && order.PaymentStatus == "Refunded")
+                    {
+                        <span style="font-size:11px;color:#2d6a4f;font-weight:600;">✅ Refunded</span>
+                    }
                 </div>
             </div>
         }

@@ -664,3 +664,29 @@ button { cursor: pointer; font-family: var(--tc-font-body); }
 .tc-mt-sm { margin-top: 16px; }
 .tc-mt-md { margin-top: 32px; }
 .tc-mt-lg { margin-top: 56px; }
+
+.wl-heart-form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+}
+
+.wl-heart-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #e8e2d9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+    .wl-heart-btn:hover {
+        background: #fde8e0;
+    }
+
+-- Product card mein position:relative zaroor hona chahiye!

@@ -270,6 +270,17 @@
             </div>
 
             <nav class="tc-sidebar__nav">
+                <div class="tc-sidebar__section-label">Overview</div>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                   class="tc-sidebar__link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></svg>
+                    Dashboard
+                </a>
+                <a asp-area="Admin" asp-controller="Order" asp-action="Index"
+                   class="tc-sidebar__link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Order" ? "active" : "")">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                    Orders
+                </a>
                 <div class="tc-sidebar__section-label">Catalogue</div>
 
                 <a asp-area="Admin" asp-controller="Product" asp-action="Index"

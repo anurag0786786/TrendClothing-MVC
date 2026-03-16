@@ -4,188 +4,90 @@
     ViewData["Title"] = "Complete Registration";
 }
 
-<link rel="stylesheet" href="~/css/auth-register.css" />
-<link rel="stylesheet" href="~/css/externalLogin.css" />
-<div class="desktop-only">
+@section Styles {
+    <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
 
+<div class="tc-auth-page">
 
-<div class="register-bg"></div>
+    <!-- LEFT BRAND PANEL -->
+    <div class="tc-auth-left">
+        <a href="/" class="tc-auth-left__brand">TrendClothing</a>
 
-<div class="register-wrapper">
-    <div class="register-card">
+        <div class="tc-auth-left__body">
+            <p class="tc-auth-left__eyebrow">Almost There</p>
+            <h1 class="tc-auth-left__title">Complete<br />Your Profile.</h1>
+            <p class="tc-auth-left__sub">Just a few more details and you're all set to start shopping.</p>
 
-        <!-- LEFT -->
-        <div class="register-left">
-            <h1>Hello, Friend</h1>
-            <p>Complete your account to continue with TrendClothing</p>
+            <a asp-page="./Login" class="tc-auth-left__action">
+                Already have an account? →
+            </a>
         </div>
 
-        <!-- RIGHT -->
-        <div class="register-right">
+        <div style="font-size:12px; color:rgba(255,255,255,0.25);">© TrendClothing</div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="tc-auth-right">
+        <div class="tc-auth-form-wrap">
+
             <h2>Complete Profile</h2>
+            <p class="tc-auth-sub">Fill in your details to finish registration</p>
 
             <form asp-page-handler="Confirmation"
                   asp-route-returnUrl="@Model.ReturnUrl"
                   method="post">
 
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"
+                     style="margin-bottom:16px;font-size:13px;"></div>
 
-                <div class="input-box">
-                    <input asp-for="Input.Name" placeholder=" " />
-                    <label>Name</label>
+                <div class="tc-auth-field">
+                    <input asp-for="Input.Name" placeholder=" " required />
+                    <label>Full Name</label>
                 </div>
 
-                <div class="input-box">
-                    <input asp-for="Input.Email" placeholder=" " readonly />
-                    <label>Email</label>
+                <div class="tc-auth-field">
+                    <input asp-for="Input.Email" placeholder=" " readonly
+                           style="background:var(--tc-bg);color:var(--tc-gray-2);cursor:not-allowed;" />
+                    <label>Email (from @Model.ProviderDisplayName)</label>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.Address" placeholder=" " />
                     <label>Address</label>
                 </div>
 
-                <div class="two-col">
-                    <div class="input-box">
+                <div class="tc-auth-two-col" style="margin-bottom:20px;">
+                    <div class="tc-auth-field">
                         <input asp-for="Input.City" placeholder=" " />
                         <label>City</label>
                     </div>
-
-                    <div class="input-box">
+                    <div class="tc-auth-field">
                         <input asp-for="Input.State" placeholder=" " />
                         <label>State</label>
                     </div>
                 </div>
 
-                <div class="input-box">
+                <div class="tc-auth-field">
                     <input asp-for="Input.PostalCode" placeholder=" " />
                     <label>Postal Code</label>
                 </div>
 
-                <button type="submit" class="btn-main">
-                    COMPLETE REGISTRATION
+                <button type="submit" class="tc-auth-submit">
+                    Complete Registration
                 </button>
 
-            </form>
-        </div>
-        </div>
+                <div class="tc-auth-footer-link">
+                    Already have an account? <a asp-page="./Login">Sign in</a>
+                </div>
 
+            </form>
+
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-<div class="mobile-only">
-
-    <div class="mobile-auth-wrapper">
-
-        <!-- BRAND -->
-        <div class="mobile-auth-brand">
-            TrendClothing
-        </div>
-
-        <!-- CARD -->
-        <div class="mobile-auth-card">
-
-            <h2 class="mobile-auth-title">Create Account</h2>
-            <p class="mobile-auth-sub">
-                Join TrendClothing & start shopping
-            </p>
-
-            <!-- REGISTER FORM -->
-            <form method="post" class="mobile-auth-form">
-
-                <!-- EMAIL -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Email" required />
-                    <label>Email</label>
-                </div>
-
-                <!-- PHONE -->
-                @* <div class="mobile-phone-row">
-                    <select asp-for="Input.CountryCode">
-                        <option value="+91">🇮🇳 +91</option>
-                        <option value="+1">🇺🇸 +1</option>
-                        <option value="+44">🇬🇧 +44</option>
-                    </select>
-
-                    <input asp-for="Input.PhoneNumber"
-                           placeholder="Phone number" />
-                </div> *@
-
-                <!-- FULL NAME -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Name" required />
-                    <label>Full Name</label>
-                </div>
-
-                <!-- ADDRESS -->
-                <div class="mobile-float">
-                    <input asp-for="Input.Address" />
-                    <label>Address</label>
-                </div>
-
-                <!-- CITY + STATE -->
-                <div class="mobile-two-col">
-                    <div class="mobile-float">
-                        <input asp-for="Input.City" required />
-                        <label>City</label>
-                    </div>
-
-                    <div class="mobile-float">
-                        <input asp-for="Input.State" required />
-                        <label>State</label>
-                    </div>
-                </div>
-
-                <!-- POSTAL CODE -->
-                <div class="mobile-float">
-                    <input asp-for="Input.PostalCode" />
-                    <label>Postal Code</label>
-                </div>
-
-               
-                <!-- REGISTER BUTTON -->
-                <button type="submit" class="mobile-auth-btn">
-                    Register
-                </button>
-            </form>
-
-            <!-- SOCIAL LOGIN -->
-            <form asp-area="Identity"
-                  asp-page="/Account/ExternalLogin"
-                  asp-route-returnUrl="@Model.ReturnUrl"
-                  method="post">
-
-                <div class="mobile-social-row">
-
-                    <button type="submit"
-                            name="provider"
-                            value="Google"
-                            class="mobile-social-btn google">
-                        <img src="~/Images/google.svg" alt="Google" />
-                        Google
-                    </button>
-
-                    <button type="submit"
-                            name="provider"
-                            value="Facebook"
-                            class="mobile-social-btn facebook">
-                        <img src="~/Images/facebook.svg" alt="Facebook" />
-                        Facebook
-                    </button>
-
-                </div>
-            </form>
-
-            <!-- LOGIN LINK -->
-            <div class="mobile-auth-footer">
-                Already have an account?
-                <a asp-page="./Login">Login</a>
-            </div>
-
-        </div>
-    </div>
-
-</div>

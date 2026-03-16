@@ -1,20 +1,57 @@
 @model TrendClothing.Models.ViewModels.ShoppingCartVM
-
 @{
     ViewData["Title"] = "My Cart";
-    double bagTotal = 0;
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+    <style>
+        .tc-qty-row__btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-family: var(--tc-font-body);
+            color: var(--tc-black);
+        }
+
+            .tc-qty-row__btn:hover:not(:disabled) {
+                background: var(--tc-black);
+                color: #fff;
+                border-color: var(--tc-black);
+            }
+
+            .tc-qty-row__btn:disabled {
+                opacity: 0.35;
+                cursor: not-allowed;
+            }
+
+        .tc-cart-item {
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+            .tc-cart-item.removing {
+                opacity: 0;
+            }
+    </style>
 }
 
-<div class="tc-container tc-cart-page">
+@* ✅ Single antiforgery token for all AJAX calls *@
+@Html.AntiForgeryToken()
 
+<div class="tc-container tc-cart-page">
     <h1 class="tc-cart-page__title">
         My Bag
-        <span style="font-size:1rem; font-weight:500; color:var(--tc-gray-3); font-family:var(--tc-font-body);">
+        <span id="cartItemCount" style="font-size:1rem;font-weight:500;color:var(--tc-gray-3);font-family:var(--tc-font-body);">
             (@(Model.ListCart?.Count() ?? 0) items)
         </span>
     </h1>
@@ -22,79 +59,84 @@
     @if (Model.ListCart != null && Model.ListCart.Any())
     {
         <div class="row g-4">
-            @* LEFT — ITEMS *@
-            <div class="col-md-8">
+            <div class="col-md-8" id="cartItemsContainer">
+                @{
+                    double bagTotal = 0;
+                }
                 @foreach (var item in Model.ListCart)
                 {
-                    var price = (item.ProductVariant.Product.DiscountPrice > 0
-                    ? item.ProductVariant.Product.DiscountPrice
-                    : item.ProductVariant.Product.Price) ?? 0;
+                    var price = (item.ProductVariant.Product.DiscountPrice > 0 ? item.ProductVariant.Product.DiscountPrice : item.ProductVariant.Product.Price) ?? 0;
                     var subTotal = price * item.Count;
                     bagTotal += subTotal;
+                    var stock = item.ProductVariant.Stock;
 
-                    <div class="tc-cart-item">
-                        <img src="@(item.ProductVariant.Product.ImageUrl ?? "/images/no-image.png")"
-                             alt="product"
-                             class="tc-cart-item__img" />
-
+                    <div class="tc-cart-item" id="cart-item-@item.Id" data-price="@price">
+                        <img src="@(item.ProductVariant.Product.ImageUrl ?? "/images/no-image.png")" alt="product" class="tc-cart-item__img" />
                         <div class="tc-cart-item__body">
                             <div class="tc-cart-item__name">@item.ProductVariant.Product.Name</div>
-                            <div class="tc-cart-item__meta">
-                                Size: @item.ProductVariant.Size.Name &nbsp;·&nbsp;
-                                Color: @item.ProductVariant.Color.Name
-                            </div>
-                            <div class="tc-cart-item__price">&#8377; @price</div>
+                            <div class="tc-cart-item__meta">Size: @item.ProductVariant.Size.Name &nbsp;·&nbsp; Color: @item.ProductVariant.Color.Name</div>
+                            <div class="tc-cart-item__price" id="price-@item.Id">&#8377; @price</div>
 
+                            @if (stock <= 3 && stock > 0)
+                            {
+                                <div style="font-size:11px;color:#b5830a;font-weight:600;margin-bottom:6px;">⚠️ Only @stock left!</div>
+                            }
+                            else if (stock == 0)
+                            {
+                                <div style="font-size:11px;color:#c1440e;font-weight:600;margin-bottom:6px;">❌ Out of stock</div>
+                            }
+
+                            @* ✅ AJAX qty controls — no page reload *@
                             <div class="tc-qty-row">
-                                <a asp-action="Minus" asp-route-id="@item.Id">−</a>
-                                <span class="tc-qty-row__count">@item.Count</span>
-                                <a asp-action="Plus" asp-route-id="@item.Id">+</a>
+                                <button type="button" class="tc-qty-row__btn"
+                                        onclick="cartMinus(@item.Id, this)">
+                                    −
+                                </button>
+                                <span class="tc-qty-row__count" id="qty-@item.Id">@item.Count</span>
+                                <button type="button" class="tc-qty-row__btn"
+                                        id="plus-@item.Id"
+                                        @(item.Count >= stock ? "disabled title='Max stock reached'" : "")
+                                        onclick="cartPlus(@item.Id, @stock, this)">
+                                    +
+                                </button>
                             </div>
                         </div>
 
-                        <a asp-action="Remove" asp-route-id="@item.Id" class="tc-cart-item__delete">
+                        @* ✅ AJAX remove — no page reload, no confirm dialog delay *@
+                        <button type="button" class="tc-cart-item__delete"
+                                onclick="cartRemove(@item.Id, this)">
                             Remove
-                        </a>
+                        </button>
                     </div>
                 }
             </div>
 
-            @* RIGHT — SUMMARY *@
             <div class="col-md-4">
                 <div class="tc-order-summary">
                     <div class="tc-order-summary__title">Order Summary</div>
-
                     <div class="tc-order-summary__row">
                         <span>Subtotal</span>
-                        <span>&#8377; @bagTotal</span>
+                        <span id="subtotalDisplay">&#8377; @bagTotal</span>
                     </div>
                     <div class="tc-order-summary__row">
                         <span>Delivery</span>
-                        <span style="color:var(--tc-success); font-weight:600;">Free</span>
+                        <span style="color:var(--tc-success);font-weight:600;">Free</span>
                     </div>
-
                     <div class="tc-order-summary__row tc-order-summary__row--total">
                         <span>Total</span>
-                        <span>&#8377; @bagTotal</span>
+                        <span id="totalDisplay">&#8377; @bagTotal</span>
                     </div>
-
                     <div class="tc-order-summary__cta">
                         @if (ViewBag.IsEmailConfirmed == true)
                         {
-                            <a asp-action="Summary" class="tc-btn tc-btn--primary tc-btn--full">
-                                Proceed to Shipping →
-                            </a>
+                            <a asp-action="Summary" class="tc-btn tc-btn--primary tc-btn--full">Proceed to Shipping →</a>
                         }
                         else
                         {
-                            <div style="font-size:13px; color:var(--tc-warn); background:#fef9e7; border:1px solid #fde68a; border-radius:var(--tc-radius-md); padding:12px; margin-bottom:8px;">
+                            <div style="font-size:13px;color:var(--tc-warn);background:#fef9e7;border:1px solid #fde68a;border-radius:var(--tc-radius-md);padding:12px;margin-bottom:8px;">
                                 ⚠ Please verify your email to continue checkout
                             </div>
-                            <button type="button"
-                                    class="tc-btn tc-btn--outline tc-btn--full"
-                                    onclick="sendVerificationEmail()">
-                                Verify Email
-                            </button>
+                            <button type="button" class="tc-btn tc-btn--outline tc-btn--full" onclick="sendVerificationEmail()">Verify Email</button>
                         }
                     </div>
                 </div>
@@ -107,20 +149,92 @@
             <div class="tc-empty__icon">🛍</div>
             <div class="tc-empty__title">Your bag is empty</div>
             <div class="tc-empty__sub">Add some items to get started</div>
-            <a asp-action="Index" asp-controller="Home" class="tc-btn tc-btn--primary tc-mt-md">
-                Continue Shopping
-            </a>
+            <a asp-action="Index" asp-controller="Home" class="tc-btn tc-btn--primary tc-mt-md">Continue Shopping</a>
         </div>
     }
 </div>
 
-<form id="verifyEmailForm"
-      asp-action="SendVerificationEmail"
-      asp-controller="Profile"
-      method="post"></form>
+<form id="verifyEmailForm" asp-action="SendVerificationEmail" asp-controller="Profile" method="post"></form>
 
-<script>
-    function sendVerificationEmail() {
-        document.getElementById("verifyEmailForm").submit();
-    }
-</script>
+@section Scripts {
+    <script>
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        function recalcTotal() {
+            var items = document.querySelectorAll('.tc-cart-item');
+            var total = 0;
+            items.forEach(function(el) {
+                var price = parseFloat(el.getAttribute('data-price')) || 0;
+                var qty   = parseInt(el.querySelector('[id^="qty-"]').textContent) || 0;
+                total    += price * qty;
+            });
+            document.getElementById('subtotalDisplay').textContent = '₹ ' + total;
+            document.getElementById('totalDisplay').textContent    = '₹ ' + total;
+            var count = items.length;
+            document.getElementById('cartItemCount').textContent   = '(' + count + ' item' + (count===1?'':'s') + ')';
+        }
+
+        function cartPost(url, data, cb) {
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body: data
+            }).then(function(r){ return r.json(); }).then(cb).catch(function(){});
+        }
+
+        function cartPlus(id, stock, btn) {
+            btn.disabled = true;
+            cartPost('/Customer/Cart/Plus', 'id=' + id, function(data) {
+                btn.disabled = false;
+                if (!data.success) { showToast(data.message || 'Max stock reached', 'red'); return; }
+                document.getElementById('qty-' + id).textContent = data.newCount;
+                if (data.newCount >= stock) btn.disabled = true;
+                recalcTotal();
+            });
+        }
+
+        function cartMinus(id, btn) {
+            btn.disabled = true;
+            cartPost('/Customer/Cart/Minus', 'id=' + id, function(data) {
+                btn.disabled = false;
+                if (!data.success) return;
+                document.getElementById('qty-' + id).textContent = data.newCount;
+                var plusBtn = document.getElementById('plus-' + id);
+                if (plusBtn) plusBtn.disabled = false;
+                recalcTotal();
+            });
+        }
+
+        function cartRemove(id, btn) {
+            var item = document.getElementById('cart-item-' + id);
+            item.classList.add('removing');
+            cartPost('/Customer/Cart/Remove', 'id=' + id, function(data) {
+                if (data.success) {
+                    setTimeout(function() {
+                        item.remove();
+                        recalcTotal();
+                        var cartEl = document.getElementById('cartCount');
+                        if (cartEl) cartEl.textContent = data.cartCount;
+                        if (document.querySelectorAll('.tc-cart-item').length === 0)
+                            window.location.reload();
+                    }, 300);
+                } else {
+                    item.classList.remove('removing');
+                }
+            });
+        }
+
+        function showToast(msg, color) {
+            var t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.style.background = color || '#0d6efd';
+            t.classList.add('show');
+            setTimeout(function(){ t.classList.remove('show'); }, 3000);
+        }
+
+        function sendVerificationEmail() {
+            document.getElementById("verifyEmailForm").submit();
+        }
+    </script>
+}

@@ -1,49 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrendClothing.Utility
+﻿namespace TrendClothing.Utility
 {
-    public class SD
+    public static class SD
     {
-        public const string sp_ProductTypes = "GetProductTypes";
-        public const string Sp_GetProductTypes = "GetProductTypes";
-        public const string Sp_CreateProductTypes = "CreateProductTypes";
-        public const string Sp_UpdateProductTypes = "UpdateProductTypes";
-        public const string Sp_DeleteProductTypes = "DeleteProductTypes";
+        // ─── Roles ───────────────────────────────────────────────────────────────
         public const string Role_Admin = "Admin User";
         public const string Role_Employee = "Employee User";
         public const string Role_Company = "Company User";
-        public const string Role_Idividual = "Individual User";
 
+        // ✅ FIX: Typo was "Role_Idividual" (missing 'n') → fixed
+        public const string Role_Individual = "Individual User";
+
+        // ─── Session Keys ─────────────────────────────────────────────────────────
         public const string Ss_cartSessionCount = "Cart Count Session";
         public const string SessionCart = "SessionShoppingCart";
 
-        public static double GetPriceBasedQuantity(double quantity, double price,
-             double price50, double price100)
-        {
-            if (quantity < 50)
-                return price;
-            else if (quantity < 100)
-                return price50;
-            return price100;
-        }
+        // ─── Order Status ─────────────────────────────────────────────────────────
         public const string OrderStatusPending = "Pending";
         public const string OrderStatusApproved = "Approved";
         public const string OrderStatusInProcess = "Processing";
         public const string OrderStatusShipped = "Shipped";
+        public const string OrderStatusDelivered = "Delivered";
         public const string OrderStatusCancelled = "Cancelled";
         public const string OrderStatusRefunded = "Refunded";
 
+        // ─── Payment Status ───────────────────────────────────────────────────────
         public const string PaymentStatusPending = "Pending";
         public const string PaymentStatusApproved = "Approved";
         public const string PaymentStatusDelayedPayment = "Delayed Payment";
         public const string PaymentStatusRejected = "Rejected";
+        public const string PaymentStatusRefunded = "Refunded";
 
+        // ─── Admin Email ───────────────────────────────────────────────────────────
+        // ✅ NEW: Move to appsettings.json in production (never hardcode real email)
+        public const string AdminEmail = "admin@trendclothing.com";
+
+        // ✅ REMOVED: Unused stored-procedure constants (sp_ProductTypes, Sp_GetProductTypes, etc.)
+        // ✅ REMOVED: GetPriceBasedQuantity() — unused method, clutter removed
+        // ✅ REMOVED: Role_Idividual typo kept as alias below for backward compat during migration
+        [Obsolete("Use Role_Individual instead — this was a typo")]
+        public const string Role_Idividual = Role_Individual;
     }
-
-
 }
-

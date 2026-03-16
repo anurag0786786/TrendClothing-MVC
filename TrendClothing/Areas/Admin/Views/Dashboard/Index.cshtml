@@ -1,0 +1,880 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Styles {
+    <style>
+        /* ── DASHBOARD GRID ── */
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        /* ── STAT CARD ── */
+        .dash-stat {
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            border-radius: var(--tc-radius-lg);
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: box-shadow 0.2s, transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .dash-stat:hover {
+                box-shadow: var(--tc-shadow-md);
+                transform: translateY(-2px);
+            }
+
+            .dash-stat::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                border-radius: 0 0 var(--tc-radius-lg) var(--tc-radius-lg);
+            }
+
+        .dash-stat--revenue::after {
+            background: var(--tc-black);
+        }
+
+        .dash-stat--orders::after {
+            background: #2563eb;
+        }
+
+        .dash-stat--pending::after {
+            background: var(--tc-warn);
+        }
+
+        .dash-stat--shipped::after {
+            background: var(--tc-success);
+        }
+
+        .dash-stat__top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dash-stat__label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--tc-gray-3);
+        }
+
+        .dash-stat__icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--tc-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .dash-stat--revenue .dash-stat__icon {
+            background: #111110;
+            color: #fff;
+        }
+
+        .dash-stat--orders .dash-stat__icon {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .dash-stat--pending .dash-stat__icon {
+            background: #fffbeb;
+            color: var(--tc-warn);
+        }
+
+        .dash-stat--shipped .dash-stat__icon {
+            background: #e0f2e9;
+            color: var(--tc-success);
+        }
+
+        .dash-stat__value {
+            font-family: var(--tc-font-display);
+            font-size: 2rem;
+            font-weight: 400;
+            color: var(--tc-black);
+            line-height: 1;
+        }
+
+        .dash-stat__change {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dash-stat__change--up {
+            color: var(--tc-success);
+        }
+
+        .dash-stat__change--down {
+            color: var(--tc-danger);
+        }
+
+        /* ── TWO-COL LAYOUT ── */
+        .dash-row {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        /* ── PANEL ── */
+        .dash-panel {
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            border-radius: var(--tc-radius-lg);
+            overflow: hidden;
+        }
+
+        .dash-panel__head {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--tc-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dash-panel__title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--tc-black);
+        }
+
+        .dash-panel__sub {
+            font-size: 12px;
+            color: var(--tc-gray-3);
+            margin-top: 2px;
+        }
+
+        .dash-panel__body {
+            padding: 20px 24px;
+        }
+
+        /* ── RECENT ORDERS TABLE ── */
+        .dash-orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+            .dash-orders-table thead th {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--tc-gray-3);
+                padding: 0 16px 12px;
+                text-align: left;
+                border-bottom: 1px solid var(--tc-border);
+            }
+
+                .dash-orders-table thead th:first-child {
+                    padding-left: 24px;
+                }
+
+                .dash-orders-table thead th:last-child {
+                    padding-right: 24px;
+                    text-align: right;
+                }
+
+            .dash-orders-table tbody tr {
+                border-bottom: 1px solid var(--tc-border);
+                transition: background 0.15s;
+            }
+
+                .dash-orders-table tbody tr:last-child {
+                    border-bottom: none;
+                }
+
+                .dash-orders-table tbody tr:hover {
+                    background: var(--tc-bg);
+                }
+
+            .dash-orders-table tbody td {
+                padding: 14px 16px;
+                vertical-align: middle;
+                color: var(--tc-black);
+            }
+
+                .dash-orders-table tbody td:first-child {
+                    padding-left: 24px;
+                }
+
+                .dash-orders-table tbody td:last-child {
+                    padding-right: 24px;
+                    text-align: right;
+                }
+
+        .dash-order-id {
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--tc-black);
+        }
+
+        .dash-order-customer {
+            font-size: 12px;
+            color: var(--tc-gray-2);
+            margin-top: 2px;
+        }
+
+        .dash-order-date {
+            font-size: 12px;
+            color: var(--tc-gray-3);
+        }
+
+        .dash-order-amount {
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        /* Status badges */
+        .dash-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .dash-badge--approved {
+            background: #e0f2e9;
+            color: var(--tc-success);
+        }
+
+        .dash-badge--pending {
+            background: #fffbeb;
+            color: var(--tc-warn);
+        }
+
+        .dash-badge--shipped {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .dash-badge--cancelled {
+            background: #fde8e0;
+            color: var(--tc-danger);
+        }
+
+        .dash-badge--processing {
+            background: #f3f0ff;
+            color: #6d28d9;
+        }
+
+        /* ── ORDER STATUS BREAKDOWN (right panel) ── */
+        .dash-status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .dash-status-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .dash-status-item__left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .dash-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .dash-status-item__name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--tc-black);
+        }
+
+        .dash-status-item__count {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--tc-black);
+            min-width: 28px;
+            text-align: right;
+        }
+
+        .dash-progress {
+            width: 100%;
+            height: 5px;
+            background: var(--tc-border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .dash-progress__bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* ── TOP PRODUCTS ── */
+        .dash-product-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--tc-border);
+        }
+
+            .dash-product-item:last-child {
+                border-bottom: none;
+            }
+
+        .dash-product-rank {
+            font-family: var(--tc-font-display);
+            font-size: 1.3rem;
+            color: var(--tc-gray-4);
+            width: 28px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .dash-product-img {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--tc-radius-sm);
+            object-fit: cover;
+            background: var(--tc-surface-alt);
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .dash-product-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--tc-black);
+        }
+
+        .dash-product-meta {
+            font-size: 11px;
+            color: var(--tc-gray-3);
+            margin-top: 2px;
+        }
+
+        .dash-product-revenue {
+            margin-left: auto;
+            text-align: right;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--tc-black);
+        }
+
+        .dash-product-units {
+            font-size: 11px;
+            color: var(--tc-gray-3);
+            margin-top: 2px;
+        }
+
+        /* ── MINI CHART (SVG sparkline) ── */
+        .dash-sparkline {
+            display: block;
+        }
+
+        /* ── VIEW ALL LINK ── */
+        .dash-viewall {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--tc-gray-2);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .dash-viewall:hover {
+                color: var(--tc-black);
+                opacity: 1;
+            }
+
+        /* ── QUICK ACTIONS ── */
+        .dash-quick-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .dash-qa-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--tc-font-body);
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            color: var(--tc-black);
+            text-decoration: none;
+            transition: all 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+            .dash-qa-btn:hover {
+                background: var(--tc-black);
+                color: #fff;
+                border-color: var(--tc-black);
+                opacity: 1;
+            }
+
+        .dash-qa-btn--primary {
+            background: var(--tc-black);
+            color: #fff;
+            border-color: var(--tc-black);
+        }
+
+            .dash-qa-btn--primary:hover {
+                background: var(--tc-gray-1);
+                color: #fff;
+            }
+
+        /* ── LOADING SKELETON ── */
+        .dash-skeleton {
+            background: linear-gradient(90deg, var(--tc-border) 25%, var(--tc-bg) 50%, var(--tc-border) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @@keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* ── RESPONSIVE ── */
+        @@media (max-width: 1100px) {
+            .dash-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dash-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 600px) {
+            .dash-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+
+            .dash-stat__value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+}
+
+<div class="tc-admin-page">
+    <div class="tc-container">
+
+        <!-- ── HEADER ── -->
+        <div class="tc-admin-header">
+            <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tc-gray-3);margin-bottom:4px;">OVERVIEW</div>
+                <h1 class="tc-admin-title">Dashboard</h1>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:12px;color:var(--tc-gray-3);">
+                    <i class="fa-regular fa-calendar" style="margin-right:5px;"></i>
+                    <span id="dashDate"></span>
+                </span>
+                <a asp-area="Admin" asp-controller="Product" asp-action="Upsert" class="dash-qa-btn dash-qa-btn--primary">
+                    <i class="fa-solid fa-plus" style="font-size:10px;"></i> Add Product
+                </a>
+            </div>
+        </div>
+
+        <!-- ── QUICK ACTIONS ── -->
+        <div class="dash-quick-actions">
+            <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="dash-qa-btn">
+                <i class="fa-solid fa-box" style="font-size:11px;"></i> View Orders
+            </a>
+            <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="dash-qa-btn">
+                <i class="fa-solid fa-tag" style="font-size:11px;"></i> Products
+            </a>
+            <a asp-area="Admin" asp-controller="User" asp-action="Index" class="dash-qa-btn">
+                <i class="fa-solid fa-users" style="font-size:11px;"></i> Users
+            </a>
+            <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="dash-qa-btn" target="_blank">
+                <i class="fa-solid fa-store" style="font-size:11px;"></i> View Store
+            </a>
+        </div>
+
+        <!-- ── STAT CARDS ── -->
+        <div class="dash-grid" id="dashStats">
+            <!-- Revenue -->
+            <div class="dash-stat dash-stat--revenue">
+                <div class="dash-stat__top">
+                    <span class="dash-stat__label">Total Revenue</span>
+                    <div class="dash-stat__icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                </div>
+                <div class="dash-stat__value" id="statRevenue">
+                    <span class="dash-skeleton" style="width:100px;height:32px;display:inline-block;"></span>
+                </div>
+                <div class="dash-stat__change dash-stat__change--up" id="statRevenueChange">
+                    — loading...
+                </div>
+            </div>
+
+            <!-- Total Orders -->
+            <div class="dash-stat dash-stat--orders">
+                <div class="dash-stat__top">
+                    <span class="dash-stat__label">Total Orders</span>
+                    <div class="dash-stat__icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                </div>
+                <div class="dash-stat__value" id="statOrders">
+                    <span class="dash-skeleton" style="width:60px;height:32px;display:inline-block;"></span>
+                </div>
+                <div class="dash-stat__change" id="statOrdersChange">— loading...</div>
+            </div>
+
+            <!-- Pending -->
+            <div class="dash-stat dash-stat--pending">
+                <div class="dash-stat__top">
+                    <span class="dash-stat__label">Pending</span>
+                    <div class="dash-stat__icon"><i class="fa-solid fa-clock"></i></div>
+                </div>
+                <div class="dash-stat__value" id="statPending">
+                    <span class="dash-skeleton" style="width:50px;height:32px;display:inline-block;"></span>
+                </div>
+                <div class="dash-stat__change" id="statPendingChange">— loading...</div>
+            </div>
+
+            <!-- Shipped -->
+            <div class="dash-stat dash-stat--shipped">
+                <div class="dash-stat__top">
+                    <span class="dash-stat__label">Shipped</span>
+                    <div class="dash-stat__icon"><i class="fa-solid fa-truck"></i></div>
+                </div>
+                <div class="dash-stat__value" id="statShipped">
+                    <span class="dash-skeleton" style="width:50px;height:32px;display:inline-block;"></span>
+                </div>
+                <div class="dash-stat__change" id="statShippedChange">— loading...</div>
+            </div>
+        </div>
+
+        <!-- ── MAIN ROW: Recent Orders + Order Breakdown ── -->
+        <div class="dash-row">
+
+            <!-- Recent Orders Table -->
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <div>
+                        <div class="dash-panel__title">Recent Orders</div>
+                        <div class="dash-panel__sub">Latest 10 orders placed</div>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="dash-viewall">
+                        View All <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                    </a>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="dash-orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersBody">
+                            <tr>
+                                <td colspan="4" style="text-align:center;padding:40px;color:var(--tc-gray-3);font-size:13px;">
+                                    <i class="fa-solid fa-circle-notch fa-spin" style="margin-right:8px;"></i>Loading orders...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Order Status Breakdown -->
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <div>
+                        <div class="dash-panel__title">Order Status</div>
+                        <div class="dash-panel__sub">Breakdown by status</div>
+                    </div>
+                </div>
+                <div class="dash-panel__body">
+                    <div class="dash-status-list" id="statusBreakdown">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <div>
+                                <div class="dash-status-item">
+                                    <div class="dash-status-item__left">
+                                        <div class="dash-skeleton" style="width:8px;height:8px;border-radius:50%;"></div>
+                                        <div class="dash-skeleton" style="width:80px;height:13px;"></div>
+                                    </div>
+                                    <div class="dash-skeleton" style="width:24px;height:13px;"></div>
+                                </div>
+                                <div class="dash-progress" style="margin-top:8px;">
+                                    <div class="dash-skeleton" style="width:60%;height:5px;border-radius:4px;"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ── BOTTOM ROW: Top Products + New Users ── -->
+        <div class="dash-row" style="margin-bottom:0;">
+
+            <!-- Top Selling Products -->
+            <div class="dash-panel">
+                <div class="dash-panel__head">
+                    <div>
+                        <div class="dash-panel__title">Top Selling Products</div>
+                        <div class="dash-panel__sub">By units sold</div>
+                    </div>
+                    <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="dash-viewall">
+                        All Products <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                    </a>
+                </div>
+                <div class="dash-panel__body" id="topProductsList">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="dash-product-item">
+                            <div class="dash-skeleton" style="width:28px;height:22px;border-radius:4px;"></div>
+                            <div class="dash-skeleton" style="width:44px;height:44px;border-radius:8px;flex-shrink:0;"></div>
+                            <div style="flex:1;">
+                                <div class="dash-skeleton" style="width:120px;height:13px;margin-bottom:5px;"></div>
+                                <div class="dash-skeleton" style="width:70px;height:11px;"></div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div class="dash-skeleton" style="width:60px;height:13px;margin-bottom:5px;margin-left:auto;"></div>
+                                <div class="dash-skeleton" style="width:40px;height:11px;margin-left:auto;"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Summary Stats (right col) -->
+            <div style="display:flex;flex-direction:column;gap:20px;">
+
+                <!-- Cancelled Orders -->
+                <div class="dash-panel">
+                    <div class="dash-panel__head">
+                        <div>
+                            <div class="dash-panel__title">Cancelled Orders</div>
+                            <div class="dash-panel__sub">Action required</div>
+                        </div>
+                    </div>
+                    <div class="dash-panel__body" style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:50px;height:50px;background:#fde8e0;border-radius:var(--tc-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-xmark" style="color:var(--tc-danger);font-size:20px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:var(--tc-font-display);font-size:2rem;line-height:1;" id="statCancelled">—</div>
+                            <div style="font-size:12px;color:var(--tc-gray-3);margin-top:3px;">Orders cancelled</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- New Customers -->
+                <div class="dash-panel">
+                    <div class="dash-panel__head">
+                        <div>
+                            <div class="dash-panel__title">New Customers</div>
+                            <div class="dash-panel__sub">Registered users</div>
+                        </div>
+                        <a asp-area="Admin" asp-controller="User" asp-action="Index" class="dash-viewall">
+                            View <i class="fa-solid fa-arrow-right" style="font-size:10px;"></i>
+                        </a>
+                    </div>
+                    <div class="dash-panel__body" style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:50px;height:50px;background:#e0f2e9;border-radius:var(--tc-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-user-plus" style="color:var(--tc-success);font-size:18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:var(--tc-font-display);font-size:2rem;line-height:1;" id="statCustomers">—</div>
+                            <div style="font-size:12px;color:var(--tc-gray-3);margin-top:3px;">Total customers</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avg Order Value -->
+                <div class="dash-panel">
+                    <div class="dash-panel__head">
+                        <div>
+                            <div class="dash-panel__title">Avg Order Value</div>
+                            <div class="dash-panel__sub">Per successful order</div>
+                        </div>
+                    </div>
+                    <div class="dash-panel__body" style="display:flex;align-items:center;gap:16px;">
+                        <div style="width:50px;height:50px;background:#f3f0ff;border-radius:var(--tc-radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i class="fa-solid fa-chart-line" style="color:#6d28d9;font-size:18px;"></i>
+                        </div>
+                        <div>
+                            <div style="font-family:var(--tc-font-display);font-size:2rem;line-height:1;" id="statAvgOrder">—</div>
+                            <div style="font-size:12px;color:var(--tc-gray-3);margin-top:3px;">Average per order</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Date ──
+        document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        // ── Load All Dashboard Data ──
+        $(document).ready(function () {
+            $.get('/Admin/Dashboard/GetStats', function (data) {
+                if (!data) return;
+
+                // ── STAT CARDS ──
+                $('#statRevenue').html('&#8377; ' + Number(data.totalRevenue).toLocaleString('en-IN'));
+                $('#statOrders').text(data.totalOrders);
+                $('#statPending').text(data.pendingOrders);
+                $('#statShipped').text(data.shippedOrders);
+                $('#statCancelled').text(data.cancelledOrders);
+                $('#statCustomers').text(data.totalCustomers);
+
+                var avg = data.totalOrders > 0
+                    ? Math.round(data.totalRevenue / data.totalOrders)
+                    : 0;
+                $('#statAvgOrder').html('&#8377; ' + Number(avg).toLocaleString('en-IN'));
+
+                // Change labels
+                $('#statRevenueChange').html('<i class="fa-solid fa-arrow-trend-up"></i> All time revenue');
+                $('#statRevenueChange').addClass('dash-stat__change--up');
+
+                var approved = data.approvedOrders || 0;
+                $('#statOrdersChange').html('<i class="fa-solid fa-circle-check" style="color:var(--tc-success)"></i> ' + data.totalOrders + ' total orders');
+
+                $('#statPendingChange').html('<i class="fa-solid fa-circle-exclamation" style="color:var(--tc-warn)"></i> Needs attention');
+                $('#statShippedChange').html('<i class="fa-solid fa-circle-check" style="color:var(--tc-success)"></i> Out for delivery');
+
+                // ── STATUS BREAKDOWN ──
+                var statuses = [
+                    { label: 'Approved',   count: data.approvedOrders,   color: '#2d6a4f', bg: '#e0f2e9' },
+                    { label: 'Pending',    count: data.pendingOrders,     color: '#b5830a', bg: '#fffbeb' },
+                    { label: 'Shipped',    count: data.shippedOrders,     color: '#2563eb', bg: '#eff6ff' },
+                    { label: 'Processing', count: data.processingOrders,  color: '#6d28d9', bg: '#f3f0ff' },
+                    { label: 'Cancelled',  count: data.cancelledOrders,   color: '#c1440e', bg: '#fde8e0' }
+                ];
+
+                var total = statuses.reduce(function (s, x) { return s + (x.count || 0); }, 0);
+                var html = '';
+                statuses.forEach(function (s) {
+                    var pct = total > 0 ? Math.round(((s.count || 0) / total) * 100) : 0;
+                    html += '<div>' +
+                        '<div class="dash-status-item">' +
+                        '<div class="dash-status-item__left">' +
+                        '<div class="dash-status-dot" style="background:' + s.color + '"></div>' +
+                        '<span class="dash-status-item__name">' + s.label + '</span>' +
+                        '</div>' +
+                        '<span class="dash-status-item__count">' + (s.count || 0) + '</span>' +
+                        '</div>' +
+                        '<div class="dash-progress"><div class="dash-progress__bar" style="width:' + pct + '%;background:' + s.color + '"></div></div>' +
+                        '</div>';
+                });
+                $('#statusBreakdown').html(html);
+
+                // ── TOP PRODUCTS ──
+                if (data.topProducts && data.topProducts.length > 0) {
+                    var prodHtml = '';
+                    data.topProducts.forEach(function (p, i) {
+                        var imgTag = p.imageUrl
+                            ? '<img src="' + p.imageUrl + '" alt="' + p.name + '" style="width:44px;height:44px;object-fit:cover;border-radius:var(--tc-radius-sm);">'
+                            : '<span style="font-size:20px;">👕</span>';
+
+                        prodHtml += '<div class="dash-product-item">' +
+                            '<div class="dash-product-rank">' + (i + 1) + '</div>' +
+                            '<div class="dash-product-img">' + imgTag + '</div>' +
+                            '<div style="flex:1;min-width:0;">' +
+                            '<div class="dash-product-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + p.name + '</div>' +
+                            '<div class="dash-product-meta">' + (p.category || '—') + '</div>' +
+                            '</div>' +
+                            '<div class="dash-product-revenue">' +
+                            '&#8377; ' + Number(p.revenue).toLocaleString('en-IN') +
+                            '<div class="dash-product-units">' + p.unitsSold + ' units</div>' +
+                            '</div>' +
+                            '</div>';
+                    });
+                    $('#topProductsList').html(prodHtml);
+                } else {
+                    $('#topProductsList').html('<div style="text-align:center;padding:40px;color:var(--tc-gray-3);font-size:13px;">No sales data yet</div>');
+                }
+
+                // ── RECENT ORDERS ──
+                if (data.recentOrders && data.recentOrders.length > 0) {
+                    var orderHtml = '';
+                    data.recentOrders.forEach(function (o) {
+                        var badgeClass = 'dash-badge--pending';
+                        if (o.orderStatus === 'Approved') badgeClass = 'dash-badge--approved';
+                        else if (o.orderStatus === 'Shipped' || o.orderStatus === 'InTransit') badgeClass = 'dash-badge--shipped';
+                        else if (o.orderStatus === 'Cancelled') badgeClass = 'dash-badge--cancelled';
+                        else if (o.orderStatus === 'Processing') badgeClass = 'dash-badge--processing';
+
+                        var date = new Date(o.orderDate);
+                        var dateStr = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                        orderHtml += '<tr>' +
+                            '<td><div class="dash-order-id">#' + o.id + '</div>' +
+                            '<div class="dash-order-customer">' + (o.name || 'Customer') + '</div></td>' +
+                            '<td><div class="dash-order-date">' + dateStr + '</div></td>' +
+                            '<td><span class="dash-badge ' + badgeClass + '">' + o.orderStatus + '</span></td>' +
+                            '<td><div class="dash-order-amount">&#8377; ' + Number(o.orderTotal).toLocaleString('en-IN') + '</div></td>' +
+                            '</tr>';
+                    });
+                    $('#recentOrdersBody').html(orderHtml);
+                } else {
+                    $('#recentOrdersBody').html('<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--tc-gray-3);font-size:13px;">No orders yet</td></tr>');
+                }
+            }).fail(function () {
+                $('#recentOrdersBody').html('<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--tc-danger);font-size:13px;">Could not load data</td></tr>');
+            });
+        });
+    </script>
+}

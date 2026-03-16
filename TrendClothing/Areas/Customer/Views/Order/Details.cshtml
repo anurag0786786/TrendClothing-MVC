@@ -3,11 +3,146 @@
 @{
     var order = ViewBag.OrderHeader;
     ViewData["Title"] = "Order Details";
+
+    // Tracking step logic
+    var allSteps = new[] { "Approved", "Processing", "Shipped", "Delivered" };
+    int currentStep = 0;
+    bool isCancelled = order.OrderStatus == "Cancelled";
+
+    if (!isCancelled)
+    {
+        for (int i = 0; i < allSteps.Length; i++)
+        {
+            if (order.OrderStatus == allSteps[i])
+                currentStep = i;
+        }
+    }
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+    <style>
+        /* ── ORDER TRACKING ── */
+        .tc-tracking {
+            background: var(--tc-surface);
+            border: 1px solid var(--tc-border);
+            border-radius: var(--tc-radius-lg);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+        }
+
+        .tc-tracking__title {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--tc-gray-3);
+            margin-bottom: 24px;
+        }
+
+        .tc-tracking__steps {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: relative;
+        }
+            /* Connecting line */
+            .tc-tracking__steps::before {
+                content: '';
+                position: absolute;
+                top: 16px;
+                left: 16px;
+                right: 16px;
+                height: 2px;
+                background: var(--tc-border);
+                z-index: 0;
+            }
+
+        .tc-tracking__line {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            height: 2px;
+            background: var(--tc-black);
+            z-index: 1;
+            transition: width 0.5s ease;
+        }
+
+        .tc-tracking__step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tc-tracking__dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--tc-bg);
+            border: 2px solid var(--tc-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .tc-tracking__step--done .tc-tracking__dot {
+            background: var(--tc-black);
+            border-color: var(--tc-black);
+            color: #fff;
+        }
+
+        .tc-tracking__step--active .tc-tracking__dot {
+            background: var(--tc-black);
+            border-color: var(--tc-black);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(17,17,16,0.15);
+        }
+
+        .tc-tracking__label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--tc-gray-3);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .tc-tracking__step--active .tc-tracking__label,
+        .tc-tracking__step--done .tc-tracking__label {
+            color: var(--tc-black);
+        }
+
+        .tc-tracking--cancelled {
+            background: #fde8e0;
+            border-color: #fcc7b0;
+        }
+
+            .tc-tracking--cancelled .tc-tracking__title {
+                color: #c1440e;
+            }
+
+        @@media (max-width: 600px) {
+            .tc-tracking {
+                padding: 20px 16px;
+            }
+
+            .tc-tracking__label {
+                font-size: 10px;
+            }
+
+            .tc-tracking__dot {
+                width: 26px;
+                height: 26px;
+                font-size: 12px;
+            }
+        }
+    </style>
 }
 
 <div class="tc-container">
@@ -20,6 +155,69 @@
             <span class="tc-breadcrumb__sep">/</span>
             <span class="tc-breadcrumb__current">Order #@order.Id</span>
         </nav>
+
+        <!-- ✅ ORDER TRACKING PROGRESS -->
+        @if (isCancelled)
+        {
+            <div class="tc-tracking tc-tracking--cancelled">
+                <div class="tc-tracking__title">Order Status</div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="font-size:28px;">❌</div>
+                    <div>
+                        <div style="font-size:15px;font-weight:700;color:#c1440e;">Order Cancelled</div>
+                        @if (order.PaymentStatus == "Refunded")
+                        {
+                            <div style="font-size:13px;color:#2d6a4f;margin-top:4px;">✅ Refund initiated — 5-7 business days mein aa jayega</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="tc-tracking">
+                <div class="tc-tracking__title">Order Tracking</div>
+                <div class="tc-tracking__steps" id="trackingSteps">
+                    @{
+                        var stepIcons = new[] { "✓", "⚙", "🚚", "✅" };
+                        var stepLabels = new[] { "Confirmed", "Processing", "Shipped", "Delivered" };
+                        // Calculate line width
+                        double lineWidth = currentStep > 0
+                        ? (currentStep / (double)(allSteps.Length - 1)) * 100
+                        : 0;
+                    }
+
+                    <!-- Progress line -->
+                    <div class="tc-tracking__line"
+                         style="width: calc(@lineWidth.ToString("F0")% - 32px);">
+                    </div>
+
+                    @for (int i = 0; i < allSteps.Length; i++)
+                    {
+                        string stepClass = i < currentStep ? "tc-tracking__step--done"
+                        : i == currentStep ? "tc-tracking__step--active"
+                        : "";
+                        <div class="tc-tracking__step @stepClass">
+                            <div class="tc-tracking__dot">
+                                @if (i <= currentStep)
+                                {
+                                    <span>@stepIcons[i]</span>
+                                }
+                            </div>
+                            <div class="tc-tracking__label">@stepLabels[i]</div>
+                        </div>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(order.TrackingNumber) && order.TrackingNumber != "NA")
+                {
+                    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--tc-border);font-size:13px;color:var(--tc-gray-2);">
+                        <span style="font-weight:700;">Carrier:</span> @order.Carrier &nbsp;·&nbsp;
+                        <span style="font-weight:700;">Tracking:</span> @order.TrackingNumber
+                    </div>
+                }
+            </div>
+        }
 
         <!-- ORDER SUMMARY CARD -->
         <div class="tc-order-detail__summary">
@@ -63,10 +261,39 @@
             </div>
         }
 
-        <div style="margin-top:32px;">
+        <div style="margin-top:32px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
             <a asp-action="Index" class="tc-btn tc-btn--outline">
                 ← Back to My Orders
             </a>
+
+            @if (order.OrderStatus == "Pending" || order.OrderStatus == "Approved")
+            {
+                <form asp-area="Customer" asp-controller="Order" asp-action="Cancel"
+                      asp-route-id="@order.Id" method="post" style="display:inline;"
+                      onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                    @Html.AntiForgeryToken()
+                    <button type="submit"
+                            style="padding:10px 22px;border-radius:24px;border:1.5px solid #fcc7b0;background:#fde8e0;color:#c1440e;font-size:13px;font-weight:700;font-family:var(--tc-font-body);cursor:pointer;">
+                        Cancel Order
+                    </button>
+                </form>
+            }
+            else if (order.OrderStatus == "Cancelled")
+            {
+                <span style="font-size:12px;color:#c1440e;font-weight:600;">
+                    ❌ Order Cancelled
+                    @if (order.PaymentStatus == "Refunded")
+                    {
+                        <span style="color:#2d6a4f;"> — Refund initiated ✅</span>
+                    }
+                </span>
+            }
+            else
+            {
+                <span style="font-size:12px;color:var(--tc-gray-3);">
+                    ⚠️ Cannot cancel — order is @order.OrderStatus
+                </span>
+            }
         </div>
 
     </div>

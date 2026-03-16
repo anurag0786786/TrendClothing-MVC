@@ -25,28 +25,6 @@
                class="tc-auth-left__action">
                 Already have an account? →
             </a>
-
-            <div class="tc-auth-left__social">
-                <p class="tc-auth-left__social-label">Register with one click</p>
-                <form asp-area="Identity"
-                      asp-page="/Account/ExternalLogin"
-                      asp-route-returnUrl="@Model.ReturnUrl"
-                      method="post">
-                    <button type="submit" name="provider" value="Google" class="tc-auth-social-btn">
-                        <img src="~/Images/google.svg" alt="Google" />
-                        Continue with Google
-                    </button>
-                </form>
-                <form asp-area="Identity"
-                      asp-page="/Account/ExternalLogin"
-                      asp-route-returnUrl="@Model.ReturnUrl"
-                      method="post">
-                    <button type="submit" name="provider" value="Facebook" class="tc-auth-social-btn">
-                        <img src="~/Images/facebook.svg" alt="Facebook" />
-                        Continue with Facebook
-                    </button>
-                </form>
-            </div>
         </div>
 
         <div style="font-size:12px; color:rgba(255,255,255,0.25);">© TrendClothing</div>
@@ -126,6 +104,39 @@
                     Already have an account? <a asp-page="./Login">Sign in</a>
                 </div>
             </form>
+
+            <!-- ✅ Social buttons — Create Account ke neeche -->
+            <div style="margin-top:24px;">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                    <div style="flex:1;height:1px;background:var(--tc-border-dark);"></div>
+                    <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tc-gray-3);">Or register with</span>
+                    <div style="flex:1;height:1px;background:var(--tc-border-dark);"></div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <form asp-area="Identity"
+                          asp-page="/Account/ExternalLogin"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+                        <button type="submit" name="provider" value="Google"
+                                style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 20px;border-radius:24px;border:1.5px solid var(--tc-border-dark);background:var(--tc-surface);color:var(--tc-black);font-size:13px;font-weight:600;font-family:var(--tc-font-body);cursor:pointer;transition:all 0.2s;">
+                            <img src="~/Images/google.svg" alt="Google" style="width:18px;height:18px;" />
+                            Continue with Google
+                        </button>
+                    </form>
+
+                    <form asp-area="Identity"
+                          asp-page="/Account/ExternalLogin"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+                        <button type="submit" name="provider" value="Facebook"
+                                style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 20px;border-radius:24px;border:1.5px solid var(--tc-border-dark);background:var(--tc-surface);color:var(--tc-black);font-size:13px;font-weight:600;font-family:var(--tc-font-body);cursor:pointer;transition:all 0.2s;">
+                            <img src="~/Images/facebook.svg" alt="Facebook" style="width:18px;height:18px;" />
+                            Continue with Facebook
+                        </button>
+                    </form>
+                </div>
+            </div>
 
         </div>
     </div>

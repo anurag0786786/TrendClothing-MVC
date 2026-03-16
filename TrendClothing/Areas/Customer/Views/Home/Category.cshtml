@@ -1,8 +1,172 @@
 @model TrendClothing.Models.ViewModels.ProductFilterVM
+@using System.Security.Claims
 
 @section Styles {
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/category.css" asp-append-version="true" />
+    <style>
+        /* ✅ Pagination */
+        .tc-pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .tc-page-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--tc-font-body);
+            color: var(--tc-black);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+            .tc-page-btn:hover {
+                background: var(--tc-black);
+                color: #fff;
+                border-color: var(--tc-black);
+                opacity: 1;
+            }
+
+            .tc-page-btn.active {
+                background: var(--tc-black);
+                color: #fff;
+                border-color: var(--tc-black);
+            }
+
+            .tc-page-btn.disabled {
+                opacity: 0.3;
+                pointer-events: none;
+            }
+
+        .tc-page-info {
+            font-size: 13px;
+            color: var(--tc-gray-3);
+            margin: 0 8px;
+        }
+
+        /* ── RATING BADGE ── */
+        .tc-card-rating {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(17,17,16,0.75);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            backdrop-filter: blur(4px);
+        }
+
+            .tc-card-rating .star {
+                color: #f59e0b;
+                font-size: 11px;
+            }
+
+            .tc-card-rating.no-rating {
+                color: rgba(255,255,255,0.6);
+                font-weight: 400;
+            }
+
+        /* ── WISHLIST HEART ON CARD ── */
+        .tc-card-wl-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.92);
+            border: 1px solid var(--tc-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 3;
+        }
+
+            .tc-card-wl-btn:hover, .tc-card-wl-btn.wishlisted {
+                background: #fde8e0;
+                border-color: #f0a090;
+            }
+
+            .tc-card-wl-btn svg {
+                width: 14px;
+                height: 14px;
+                stroke: #c1440e;
+                fill: none;
+                stroke-width: 2;
+            }
+
+            .tc-card-wl-btn.wishlisted svg {
+                fill: #c1440e;
+            }
+
+        /* ── CTA ROW: View Details + Wishlist ── */
+        .tc-card-cta-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+            .tc-card-cta-row .tc-product-card__cta {
+                flex: 1;
+            }
+
+        .tc-card-wl-row-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--tc-radius-sm);
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+            .tc-card-wl-row-btn:hover, .tc-card-wl-row-btn.wishlisted {
+                background: #fde8e0;
+                border-color: #f0a090;
+            }
+
+            .tc-card-wl-row-btn svg {
+                width: 15px;
+                height: 15px;
+                stroke: #c1440e;
+                fill: none;
+                stroke-width: 2;
+            }
+
+            .tc-card-wl-row-btn.wishlisted svg {
+                fill: #c1440e;
+            }
+    </style>
+}
+
+@{
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalProducts = ViewBag.TotalProducts ?? 0;
 }
 
 <div class="tc-cat-page tc-container">
@@ -17,9 +181,13 @@
     @* PAGE HEADER *@
     <div class="tc-cat-page__header">
         <div>
-            <h1 class="tc-cat-page__title">@ViewBag.CategoryName Wear</h1>
+            <h1 class="tc-cat-page__title">@ViewBag.CategoryName</h1>
             <p class="tc-cat-page__count">
-                @(Model.Products?.Count() ?? 0) products
+                @totalProducts products
+                @if (totalPages > 1)
+                {
+                    <span style="color:var(--tc-gray-4);"> — Page @currentPage of @totalPages</span>
+                }
             </p>
         </div>
 
@@ -29,9 +197,7 @@
                 <input type="hidden" name="name" value="@ViewBag.CategoryName" />
 
                 @* PRODUCT TYPE FILTER *@
-                <select name="Search"
-                        class="tc-nav__select"
-                        onchange="this.form.submit()">
+                <select name="Search" class="tc-nav__select" onchange="this.form.submit()">
                     <option value="">All Products</option>
                     @foreach (var type in ViewBag.ProductTypes as List<string>)
                     {
@@ -40,21 +206,19 @@
                 </select>
 
                 @* SORT *@
-                <select name="Sort"
-                        class="tc-nav__select"
-                        onchange="this.form.submit()">
+                <select name="Sort" class="tc-nav__select" onchange="this.form.submit()">
                     <option value="">New Product</option>
-                    <option value="low"  selected="@(Model.Sort == "low")">Price: Low to High</option>
+                    <option value="low" selected="@(Model.Sort == "low")">Price: Low to High</option>
                     <option value="high" selected="@(Model.Sort == "high")">Price: High to Low</option>
                 </select>
 
                 @* SEARCH *@
                 <div class="tc-nav__search">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                    <input type="text"
-                           name="Search"
-                           value="@Model.Search"
-                           placeholder="Search products..." />
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input type="text" name="Search" value="@Model.Search" placeholder="Search products..." />
                 </div>
             </form>
 
@@ -73,11 +237,18 @@
     <hr class="tc-divider" />
 
     @* PRODUCT GRID *@
+    @{
+        // ✅ PERFORMANCE: ViewBag se pre-loaded data lo — no N+1 queries
+        var catAllReviews = ViewBag.ProductReviews as Dictionary<int, double> ?? new Dictionary<int, double>();
+        var catWishlistIds = ViewBag.WishlistIds as HashSet<int> ?? new HashSet<int>();
+    }
     @if (Model.Products != null && Model.Products.Any())
     {
         <div class="tc-grid-4 tc-cat-page__grid">
             @foreach (var product in Model.Products)
             {
+                var catAvg = catAllReviews.ContainsKey(product.Id) ? catAllReviews[product.Id] : 0;
+                var catIsWl = catWishlistIds.Contains(product.Id);
                 <div class="tc-product-card">
                     <div class="tc-product-card__img-wrap">
                         <img src="@product.ImageUrl" alt="@product.Name" class="tc-product-card__img" />
@@ -87,6 +258,18 @@
                             <span class="tc-product-card__badge">@pct% OFF</span>
                         }
                         <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__action">+</a>
+
+                        @* ── Rating badge (bottom right of image) ── *@
+                        @if (catAvg > 0)
+                        {
+                            <div class="tc-card-rating">
+                                <span class="star">★</span> @catAvg
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="tc-card-rating no-rating">No rating</div>
+                        }
                     </div>
                     <div class="tc-product-card__body">
                         <div class="tc-product-card__brand">@product.Brand?.Name</div>
@@ -102,13 +285,73 @@
                                 <span class="tc-product-card__price">&#8377; @product.Price</span>
                             }
                         </div>
-                        <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta">
-                            View Details
-                        </a>
+                        @* ── CTA row: View Details + Wishlist button ── *@
+                        <div class="tc-card-cta-row">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta">
+                                View Details
+                            </a>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <button type="button"
+                                        class="tc-card-wl-row-btn @(catIsWl ? "wishlisted" : "")"
+                                        data-pid="@product.Id"
+                                        onclick="catWlToggle(this)"
+                                        title="@(catIsWl ? "Remove from wishlist" : "Add to wishlist")">
+                                    <svg viewBox="0 0 24 24">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             }
         </div>
+
+        @* ✅ PAGINATION *@
+        @if (totalPages > 1)
+        {
+            <div class="tc-pagination">
+                @* Prev *@
+                @if (currentPage > 1)
+                {
+                    <a href="?name=@ViewBag.CategoryName&Search=@Model.Search&Sort=@Model.Sort&page=@(currentPage - 1)"
+                       class="tc-page-btn">‹</a>
+                }
+                else
+                {
+                    <span class="tc-page-btn disabled">‹</span>
+                }
+
+                @* Page numbers *@
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    if (i == 1 || i == totalPages || (i >= currentPage - 2 && i <= currentPage + 2))
+                    {
+                        <a href="?name=@ViewBag.CategoryName&Search=@Model.Search&Sort=@Model.Sort&page=@i"
+                           class="tc-page-btn @(i == currentPage ? "active" : "")">@i</a>
+                    }
+                    else if (i == currentPage - 3 || i == currentPage + 3)
+                    {
+                        <span class="tc-page-info">...</span>
+                    }
+                }
+
+                @* Next *@
+                @if (currentPage < totalPages)
+                {
+                    <a href="?name=@ViewBag.CategoryName&Search=@Model.Search&Sort=@Model.Sort&page=@(currentPage + 1)"
+                       class="tc-page-btn">›</a>
+                }
+                else
+                {
+                    <span class="tc-page-btn disabled">›</span>
+                }
+            </div>
+            <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--tc-gray-3);">
+                Showing @((currentPage - 1) * 12 + 1)–@(Math.Min(currentPage * 12, totalProducts)) of @totalProducts products
+            </div>
+        }
     }
     else
     {
@@ -120,6 +363,40 @@
     }
 
 </div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        function catWlToggle(btn) {
+            var productId = btn.getAttribute('data-pid');
+            var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            btn.disabled = true;
+            fetch('/Customer/Wishlist/Toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': token
+                },
+                body: 'productId=' + productId
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                btn.disabled = false;
+                if (!data.success) return;
+                btn.classList.toggle('wishlisted', data.wishlisted);
+                btn.title = data.wishlisted ? 'Remove from wishlist' : 'Add to wishlist';
+                var toast = document.getElementById('toast');
+                if (toast) {
+                    toast.textContent = data.message;
+                    toast.classList.add('show');
+                    setTimeout(function(){ toast.classList.remove('show'); }, 3000);
+                }
+            })
+            .catch(function() { btn.disabled = false; });
+        }
+    </script>
+}
 
 @* MOBILE BOTTOM FILTER BAR *@
 <div class="tc-mobile-filter-bar">
@@ -137,7 +414,7 @@
         <input type="hidden" name="name" value="@ViewBag.CategoryName" />
         <select name="Sort" onchange="this.form.submit()" class="tc-mobile-filter-select">
             <option value="">New Product</option>
-            <option value="low"  selected="@(Model.Sort == "low")">Price ↑</option>
+            <option value="low" selected="@(Model.Sort == "low")">Price ↑</option>
             <option value="high" selected="@(Model.Sort == "high")">Price ↓</option>
         </select>
     </form>

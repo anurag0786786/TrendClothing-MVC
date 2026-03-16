@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Linq;
 using TrendClothing.DataAccess.Repository.IRepository;
 using TrendClothing.Models;
 using TrendClothing.Models.ViewModels;
@@ -20,11 +19,9 @@ namespace TrendClothing.Areas.Admin.Controllers
             _unitofWork = unitofWork;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+        public IActionResult Index() => View();
 
+        // ── GET ALL ──
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -44,25 +41,38 @@ namespace TrendClothing.Areas.Admin.Controllers
                 })
             });
         }
+
+        // ✅ QUICK STOCK UPDATE (inline from table)
+        [HttpPost]
+        public IActionResult UpdateStock(int id, int stock)
+        {
+            var variant = _unitofWork.ProductVariant.FirstOrDefault(v => v.Id == id);
+            if (variant == null)
+                return Json(new { success = false, message = "Variant not found" });
+
+            if (stock < 0)
+                return Json(new { success = false, message = "Stock cannot be negative" });
+
+            variant.Stock = stock;
+            _unitofWork.Save();
+
+            return Json(new { success = true, message = $"Stock updated to {stock}" });
+        }
+
         [HttpGet]
         public IActionResult GetProductPrice(int productId)
         {
             var product = _unitofWork.product.Get(productId);
-            if (product == null)
-                return Json(0);
-
+            if (product == null) return Json(0);
             return Json(product.DiscountPrice > 0 ? product.DiscountPrice : product.Price);
         }
-
 
         [HttpDelete]
         public IActionResult Delete(int id)
         {
             var variant = _unitofWork.ProductVariant.Get(id);
             if (variant == null)
-            {
                 return Json(new { success = false, message = "Error while deleting" });
-            }
 
             _unitofWork.ProductVariant.Remove(variant);
             _unitofWork.Save();
@@ -71,7 +81,7 @@ namespace TrendClothing.Areas.Admin.Controllers
 
         public IActionResult Upsert()
         {
-            ProductVariantVM vm = new ProductVariantVM
+            var vm = new ProductVariantVM
             {
                 ProductList = _unitofWork.product.GetAll()
                     .Select(i => new SelectListItem { Text = i.Name, Value = i.Id.ToString() }),
@@ -80,27 +90,22 @@ namespace TrendClothing.Areas.Admin.Controllers
                 ColorList = _unitofWork.color.GetAll()
                     .Select(i => new SelectListItem { Text = i.Name, Value = i.Id.ToString() })
             };
-
             return View(vm);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Upsert(ProductVariantVM vm)
         {
-            Console.WriteLine("POST HIT");
-
             if (vm.SelectedSizeIds == null || vm.SelectedColorIds == null ||
                 !vm.SelectedSizeIds.Any() || !vm.SelectedColorIds.Any())
             {
-                Console.WriteLine("SIZE OR COLOR EMPTY");
-
                 vm.ProductList = _unitofWork.product.GetAll()
                     .Select(i => new SelectListItem { Text = i.Name, Value = i.Id.ToString() });
                 vm.SizeList = _unitofWork.size.GetAll()
                     .Select(i => new SelectListItem { Text = i.Name, Value = i.Id.ToString() });
                 vm.ColorList = _unitofWork.color.GetAll()
                     .Select(i => new SelectListItem { Text = i.Name, Value = i.Id.ToString() });
-
                 return View(vm);
             }
 
@@ -108,7 +113,13 @@ namespace TrendClothing.Areas.Admin.Controllers
             {
                 foreach (var colorId in vm.SelectedColorIds)
                 {
-                    Console.WriteLine($"INSERT TRY: {sizeId} - {colorId}");
+                    // ✅ Skip if variant already exists
+                    var existing = _unitofWork.ProductVariant.FirstOrDefault(
+                        v => v.ProductId == vm.ProductId &&
+                             v.SizeId == sizeId &&
+                             v.ColorId == colorId);
+
+                    if (existing != null) continue;
 
                     _unitofWork.ProductVariant.Add(new ProductVariant
                     {
@@ -122,52 +133,34 @@ namespace TrendClothing.Areas.Admin.Controllers
             }
 
             _unitofWork.Save();
-            Console.WriteLine("SAVE DONE");
-
             return RedirectToAction(nameof(Index));
         }
+
         public IActionResult Edit(int id)
         {
             var variant = _unitofWork.ProductVariant.FirstOrDefault(
                 u => u.Id == id,
                 IncludeProperties: "Product,Size,Color"
             );
-
-            if (variant == null)
-                return NotFound();
-
+            if (variant == null) return NotFound();
             return View(variant);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(ProductVariant obj)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(obj);
-            }
+            if (!ModelState.IsValid) return View(obj);
 
-            var variantFromDb = _unitofWork.ProductVariant.FirstOrDefault(
-                u => u.Id == obj.Id
-            );
-
-            if (variantFromDb == null)
-            {
-                return NotFound();
-            }
+            var variantFromDb = _unitofWork.ProductVariant.FirstOrDefault(u => u.Id == obj.Id);
+            if (variantFromDb == null) return NotFound();
 
             variantFromDb.Price = obj.Price;
             variantFromDb.Stock = obj.Stock;
-
             _unitofWork.Save();
 
+            TempData["success"] = "Variant updated successfully";
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
     }
 }

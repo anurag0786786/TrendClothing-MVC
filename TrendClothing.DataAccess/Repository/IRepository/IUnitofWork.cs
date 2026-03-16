@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrendClothing.Models;
+﻿using TrendClothing.Models;
 
 namespace TrendClothing.DataAccess.Repository.IRepository
 {
@@ -23,8 +18,11 @@ namespace TrendClothing.DataAccess.Repository.IRepository
         IRepository<Address> Address { get; }
         IRepository<UserProfile> UserProfile { get; }
 
-
-
+        // ✅ NEW
+        IRepository<Wishlist> Wishlist { get; }
+        IRepository<ProductReview> ProductReview { get; }
+        IRepository<SiteImage> SiteImage { get; }
+        IRepository<HeroImage> HeroImage { get; }
 
         void Save();
     }

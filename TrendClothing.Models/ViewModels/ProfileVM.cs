@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using TrendClothing.Models;
 
 namespace TrendClothing.Models.ViewModels
 {
@@ -11,18 +8,20 @@ namespace TrendClothing.Models.ViewModels
         public int ProfileId { get; set; }
 
         // Identity
-        public string Email { get; set; }
-        public string PhoneNumber { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
 
         // UserProfile
-        public string FullName { get; set; }
-        public string Address { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string PostalCode { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string PostalCode { get; set; } = string.Empty;
+
         public bool IsEmailConfirmed { get; set; }
 
+        // ✅ FIX: SavedAddresses was missing from original VM
+        // Used in Profile/Index.cshtml to show all saved addresses
+        public List<Address> SavedAddresses { get; set; } = new();
     }
-
-
 }

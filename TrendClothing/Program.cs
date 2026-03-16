@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.DataProtection;
+﻿using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +11,7 @@ using Resend;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ================= DB =================
+// ── DB ──────────────────────────────────────────────────────────────────────
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")
@@ -21,36 +19,41 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// ================= IDENTITY =================
+// ── IDENTITY ─────────────────────────────────────────────────────────────────
 builder.Services
     .AddDefaultIdentity<IdentityUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
+        // ✅ Slightly stronger password policy
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// ================= MVC + RAZOR =================
-builder.Services.AddControllersWithViews()
-    .AddRazorRuntimeCompilation();
+// ── MVC + RAZOR ──────────────────────────────────────────────────────────────
+var mvcBuilder = builder.Services.AddControllersWithViews();
+
+// ✅ Sirf Development mein RazorRuntimeCompilation — views change karne pe restart nahi chahiye
+// Production mein automatically off rahega — speed pe koi asar nahi
+if (builder.Environment.IsDevelopment())
+{
+    mvcBuilder.AddRazorRuntimeCompilation();
+}
 
 builder.Services.AddRazorPages();
-builder.Services.Configure<TwilioSettings>(
-    builder.Configuration.GetSection("TwilioSettings")
-);
 
-// ================= CUSTOM SERVICES =================
+// ── CUSTOM SERVICES ───────────────────────────────────────────────────────────
 builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<EmailTemplateRenderer>();
 builder.Services.AddScoped<CloudinaryService>();
 
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
-
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("TwilioSettings"));
 builder.Services.AddScoped<ISmsSender, SmsSender>();
 
-// ================= SESSION =================
+// ── SESSION ───────────────────────────────────────────────────────────────────
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -58,7 +61,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// ================= COOKIE =================
+// ── COOKIE CONFIG ─────────────────────────────────────────────────────────────
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login";
@@ -71,42 +74,41 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-// ================= STRIPE =================
-StripeConfiguration.ApiKey =
-    builder.Configuration.GetSection("StripeSettings")["SecretKey"];
+// ── STRIPE ────────────────────────────────────────────────────────────────────
+StripeConfiguration.ApiKey = builder.Configuration["StripeSettings:SecretKey"];
 
-// ================= GOOGLE / FACEBOOK =================
+// ── GOOGLE / FACEBOOK AUTH ───────────────────────────────────────────────────
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
     })
     .AddFacebook(options =>
     {
-        options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
-        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+        options.AppId = builder.Configuration["Authentication:Facebook:AppId"]!;
+        options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"]!;
     });
 
-// ================= RESEND EMAIL — FIXED PATH =================
+// ── RESEND EMAIL ──────────────────────────────────────────────────────────────
 builder.Services.AddOptions();
 builder.Services.AddHttpClient<ResendClient>();
 builder.Services.Configure<ResendClientOptions>(o =>
 {
-    // ✅ FIXED: appsettings.json mein "Authentication:ResendApiKey" hai
     o.ApiToken = builder.Configuration["Authentication:ResendApiKey"]!;
 });
 builder.Services.AddTransient<IResend, ResendClient>();
 
-// ================= DATA PROTECTION =================
+// ── DATA PROTECTION ───────────────────────────────────────────────────────────
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(
-        new DirectoryInfo("/tmp/dataprotection-keys")
-    );
+    .PersistKeysToFileSystem(new DirectoryInfo("/tmp/dataprotection-keys"));
+
+// ✅ NEW: RESPONSE CACHING (for future use with [ResponseCache])
+builder.Services.AddResponseCaching();
 
 var app = builder.Build();
 
-// ================= PIPELINE =================
+// ── PIPELINE ─────────────────────────────────────────────────────────────────
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -118,18 +120,26 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// ✅ Static files with caching headers
 app.UseStaticFiles(new StaticFileOptions
 {
     OnPrepareResponse = ctx =>
     {
-        ctx.Context.Response.Headers.Append("Cache-Control", "public,max-age=600");
+        ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=600");
     }
 });
+
 app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseResponseCaching();
+
+// ✅ FIX: Area route PEHLE register karo — warna Wishlist/Review controllers match nahi hote
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
