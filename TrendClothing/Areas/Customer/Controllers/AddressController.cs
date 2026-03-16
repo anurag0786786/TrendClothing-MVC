@@ -51,23 +51,17 @@ namespace TrendClothing.Areas.Customer.Controllers
         public IActionResult Delete(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            // ✅ Ownership check
             var address = _unitOfWork.Address.FirstOrDefault(
                 a => a.Id == id && a.ApplicationUserId == userId);
 
             if (address == null)
-            {
-                TempData["ToastMessage"] = "Address not found ❌";
-                TempData["ToastColor"] = "red";
-                return RedirectToAction("Summary", "Cart");
-            }
+                return Json(new { success = false });
 
             _unitOfWork.Address.Remove(address);
             _unitOfWork.Save();
 
-            TempData["ToastMessage"] = "Address deleted ✅";
-            TempData["ToastColor"] = "red";
-            return RedirectToAction("Summary", "Cart");
+            // ✅ JSON return — AJAX se call hota hai
+            return Json(new { success = true });
         }
     }
 }

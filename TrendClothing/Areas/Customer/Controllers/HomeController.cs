@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Security.Claims;
 using TrendClothing.Data;
@@ -58,10 +59,36 @@ namespace TrendClothing.Areas.Customer.Controllers
             ViewBag.WomenImg = siteImages.FirstOrDefault(x => x.Key == "Women")?.ImageUrl ?? "/Images/Categories/Women.jpg";
             ViewBag.ChildrenImg = siteImages.FirstOrDefault(x => x.Key == "Children")?.ImageUrl ?? "/Images/Categories/Children.jpg";
 
-            var productList = _unitOfWork.product.GetAll(
-                filter: p => p.IsActive,
-                IncludeProperties: "Category,Brand,ProductType"
-            );
+            // ✅ PERF FIX: Sirf 8 products DB se lo — Take pehle, phir load
+            var productList = _db.Products
+                .Where(p => p.IsActive)
+                .Include("Category").Include("Brand").Include("ProductType")
+                .OrderByDescending(p => p.Id)
+                .Take(8)
+                .ToList();
+
+            // ✅ Wishlist aur rating bhi ek saath
+            ViewBag.HomeReviews = new Dictionary<int, double>();
+            ViewBag.HomeWishlist = new HashSet<int>();
+
+            if (productList.Any())
+            {
+                var ids = productList.Select(p => p.Id).ToList();
+                var reviews = _unitOfWork.ProductReview
+                    .GetAll(r => ids.Contains(r.ProductId) && r.IsVisible)
+                    .GroupBy(r => r.ProductId)
+                    .ToDictionary(g => g.Key, g => Math.Round(g.Average(r => (double)r.Rating), 1));
+                ViewBag.HomeReviews = reviews;
+
+                if (User.Identity.IsAuthenticated)
+                {
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                    var wlIds = _unitOfWork.Wishlist
+                        .GetAll(w => w.ApplicationUserId == userId && ids.Contains(w.ProductId))
+                        .Select(w => w.ProductId).ToHashSet();
+                    ViewBag.HomeWishlist = wlIds;
+                }
+            }
 
             return View(productList);
         }
@@ -113,6 +140,19 @@ namespace TrendClothing.Areas.Customer.Controllers
                         && d.OrderHeader.OrderStatus != "Refunded");
             }
 
+            // ✅ Related products — same category, current product exclude, random 4
+            var allRelated = _unitOfWork.product.GetAll(
+                p => p.IsActive && p.CategoryId == product.CategoryId && p.Id != id,
+                IncludeProperties: "Brand"
+            ).ToList();
+
+            // Random order so different products dikhein
+            var rng = new Random();
+            ViewBag.RelatedProducts = allRelated
+                .OrderBy(_ => rng.Next())
+                .Take(4)
+                .ToList();
+
             var vm = new ProductDetailsVM
             {
                 Product = product,
@@ -159,19 +199,22 @@ namespace TrendClothing.Areas.Customer.Controllers
             }
 
             // ── Category browse ──
-            var products = _unitOfWork.product.GetAll(
+            // ✅ PERF FIX: Load once, use for both types and products
+            var allCatProducts = _unitOfWork.product.GetAll(
                 p => p.IsActive && p.Category.Name == name,
                 IncludeProperties: "Brand,Category,ProductType"
-            ).AsQueryable();
+            ).ToList();
 
-            ViewBag.ProductTypes = products
+            ViewBag.ProductTypes = allCatProducts
                 .Where(p => p.ProductType != null)
                 .Select(p => p.ProductType.Name)
                 .Distinct().OrderBy(t => t).ToList();
 
             ViewBag.CategoryName = name;
 
-            // Search filter
+            // Filter in memory (already loaded)
+            var products = allCatProducts.AsQueryable();
+
             if (!string.IsNullOrEmpty(Search))
             {
                 var s = Search.Trim().ToLower();
@@ -182,7 +225,6 @@ namespace TrendClothing.Areas.Customer.Controllers
                 );
             }
 
-            // Sort
             products = Sort switch
             {
                 "low" => products.OrderBy(p => p.DiscountPrice ?? p.Price),

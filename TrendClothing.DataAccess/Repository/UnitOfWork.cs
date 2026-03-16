@@ -29,6 +29,7 @@ namespace TrendClothing.DataAccess.Repository
             ProductReview = new Repository<ProductReview>(_context);
             SiteImage = new Repository<SiteImage>(_context);
             HeroImage = new Repository<HeroImage>(_context);
+            Coupon = new Repository<Coupon>(_context);
         }
 
         public ICategoryRepository category { get; private set; }
@@ -48,6 +49,7 @@ namespace TrendClothing.DataAccess.Repository
         public IRepository<ProductReview> ProductReview { get; private set; }
         public IRepository<SiteImage> SiteImage { get; private set; }
         public IRepository<HeroImage> HeroImage { get; private set; }
+        public IRepository<Coupon> Coupon { get; private set; }
 
         public void Save() => _context.SaveChanges();
     }

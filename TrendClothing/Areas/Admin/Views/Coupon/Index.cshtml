@@ -1,0 +1,102 @@
+﻿@* Areas/Admin/Views/Coupon/Index.cshtml *@
+@model IEnumerable<TrendClothing.Models.Coupon>
+@{
+    ViewData["Title"] = "Coupons";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h2 style="font-family:var(--tc-font-display,serif);">Coupons</h2>
+        <a asp-action="Upsert" class="btn btn-dark btn-sm px-4">+ New Coupon</a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Min Order</th>
+                        <th>Expiry</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td><strong>@c.Code</strong></td>
+                            <td>@c.DiscountType</td>
+                            <td>
+                                @if (c.DiscountType == "Percent")
+                                {
+                                    <span>@c.DiscountValue%</span>
+                                }
+                                else
+                                {
+
+                                    <span>₹@c.DiscountValue</span>
+                                }
+                            </td>
+                            <td>@(c.MinOrderAmount > 0 ? "₹" + c.MinOrderAmount.ToString("N0") : "—")</td>
+                            <td>@(c.ExpiryDate.HasValue? c.ExpiryDate.Value.ToString("dd MMM yyyy") : "No expiry")</td>
+                            <td>
+                                <button onclick="toggleCoupon(@c.Id, this)"
+                                        class="btn btn-sm @(c.IsActive ? "btn-success" : "btn-secondary")">
+                                    @(c.IsActive ? "Active" : "Inactive")
+                                </button>
+                            </td>
+                            <td>
+                                <a asp-action="Upsert" asp-route-id="@c.Id"
+                                   class="btn btn-sm btn-outline-dark">Edit</a>
+                                <button onclick="deleteCoupon(@c.Id)"
+                                        class="btn btn-sm btn-outline-danger ms-1">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4">No coupons yet — create one!</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+@section Scripts {
+    <script>
+        var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+        function toggleCoupon(id, btn) {
+            fetch('/Admin/Coupon/Toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+                body: 'id=' + id
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    btn.textContent = d.isActive ? 'Active' : 'Inactive';
+                    btn.className   = 'btn btn-sm ' + (d.isActive ? 'btn-success' : 'btn-secondary');
+                }
+            });
+        }
+
+        function deleteCoupon(id) {
+            if (!confirm('Delete this coupon?')) return;
+            fetch('/Admin/Coupon/Delete/' + id, {
+                method: 'DELETE',
+                headers: { 'RequestVerificationToken': token }
+            })
+            .then(r => r.json())
+            .then(d => { if (d.success) location.reload(); });
+        }
+    </script>
+}

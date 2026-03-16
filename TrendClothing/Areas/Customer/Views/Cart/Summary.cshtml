@@ -36,7 +36,7 @@
             <div class="tc-address-grid" id="addressGrid">
                 @foreach (var address in Model.Addresses)
                 {
-                    <label class="tc-address-card">
+                    <label class="tc-address-card" style="position:relative;">
                         <input type="radio"
                                name="SelectedAddressId"
                                value="@address.Id"
@@ -52,6 +52,12 @@
                             <p>@address.PostalCode</p>
                         </div>
                     </label>
+                    @* ✅ FIX: No nested form — AJAX delete *@
+                    <button type="button"
+                            onclick="deleteAddress(@address.Id, this)"
+                            style="position:absolute;top:8px;right:8px;z-index:5;width:22px;height:22px;border-radius:50%;border:1px solid var(--tc-border-dark);background:white;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#c1440e;font-weight:700;line-height:1;">
+                        ✕
+                    </button>
                 }
 
                 <!-- ADD NEW ADDRESS -->
@@ -68,6 +74,44 @@
             <div id="addressError"
                  style="display:none;color:#c1440e;font-size:13px;font-weight:600;margin-bottom:12px;">
                 ⚠️ Please select a delivery address first
+            </div>
+
+            @* ── COUPON SECTION ── *@
+            <div style="margin-bottom:20px;padding:16px;background:var(--tc-surface);border:1px solid var(--tc-border);border-radius:var(--tc-radius-md);">
+                <div style="font-size:13px;font-weight:600;color:var(--tc-black);margin-bottom:10px;">Have a coupon code?</div>
+
+                @* Order summary *@
+                <div style="font-size:13px;color:var(--tc-gray-2);margin-bottom:12px;">
+                    Subtotal: <strong id="subtotalAmt">&#8377; @Model.Cart.OrderHeader.OrderTotal.ToString("N0")</strong>
+                </div>
+
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <input type="text" id="couponInput"
+                           placeholder="Enter code e.g. SAVE20"
+                           style="flex:1;padding:9px 14px;border:1.5px solid var(--tc-border-dark);border-radius:var(--tc-radius-sm);font-family:var(--tc-font-body);font-size:13px;text-transform:uppercase;outline:none;" />
+                    <button type="button" onclick="applyCoupon()"
+                            style="padding:9px 18px;background:var(--tc-black);color:#fff;border:none;border-radius:var(--tc-radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--tc-font-body);white-space:nowrap;">
+                        Apply
+                    </button>
+                    <button type="button" id="removeCouponBtn" onclick="removeCoupon()"
+                            style="display:none;padding:9px 14px;background:#fde8e0;color:#c1440e;border:1px solid #f0a090;border-radius:var(--tc-radius-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--tc-font-body);">
+                        Remove
+                    </button>
+                </div>
+
+                <div id="couponMsg" style="font-size:12px;margin-top:8px;font-weight:600;"></div>
+
+                <div id="discountRow" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--tc-border);">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--tc-gray-2);">
+                        <span>Subtotal</span><span id="origTotal"></span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:13px;color:#2d6a4f;font-weight:600;margin-top:4px;">
+                        <span>Discount</span><span id="discountAmt"></span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--tc-black);margin-top:8px;">
+                        <span>Total</span><span id="finalTotalAmt"></span>
+                    </div>
+                </div>
             </div>
 
             <button type="submit" class="tc-btn tc-btn--primary tc-btn--lg">
@@ -136,6 +180,10 @@
 </div>
 
 <script>
+    var token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+    var orderTotal = @Model.Cart.OrderHeader.OrderTotal;
+    var appliedDiscount = 0;
+
     // ✅ Validate address selected before payment
     function validateAddress() {
         var selected = document.querySelector('input[name="SelectedAddressId"]:checked');
@@ -147,10 +195,94 @@
         return true;
     }
 
-    // Hide error when user selects address
     document.querySelectorAll('.address-radio').forEach(function(radio) {
         radio.addEventListener('change', function() {
             document.getElementById('addressError').style.display = 'none';
         });
     });
+
+    // ── COUPON APPLY ──
+    function applyCoupon() {
+        var code = document.getElementById('couponInput').value.trim();
+        if (!code) return;
+
+        fetch('/Customer/Coupon/Validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+            body: 'code=' + encodeURIComponent(code) + '&orderTotal=' + orderTotal
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var msg = document.getElementById('couponMsg');
+            if (!d.success) {
+                msg.textContent = d.message;
+                msg.style.color = '#c1440e';
+                return;
+            }
+            appliedDiscount = d.discount;
+            msg.textContent = d.message;
+            msg.style.color = '#2d6a4f';
+
+            // Show discount breakdown
+            document.getElementById('discountRow').style.display = 'block';
+            document.getElementById('origTotal').textContent     = '₹' + orderTotal.toFixed(0);
+            document.getElementById('discountAmt').textContent   = '- ₹' + d.discount.toFixed(0);
+            document.getElementById('finalTotalAmt').textContent = '₹' + d.finalTotal.toFixed(0);
+
+            // Show remove button, hide apply
+            document.getElementById('removeCouponBtn').style.display = 'inline-block';
+            document.getElementById('couponInput').disabled = true;
+        });
+    }
+
+    // ── COUPON REMOVE ──
+    function removeCoupon() {
+        fetch('/Customer/Coupon/Remove', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'RequestVerificationToken': token },
+            body: ''
+        })
+        .then(function() {
+            appliedDiscount = 0;
+            document.getElementById('couponInput').value    = '';
+            document.getElementById('couponInput').disabled = false;
+            document.getElementById('couponMsg').textContent = '';
+            document.getElementById('discountRow').style.display = 'none';
+            document.getElementById('removeCouponBtn').style.display = 'none';
+        });
+    }
+
+    // Allow Enter key on coupon input
+    document.getElementById('couponInput')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); applyCoupon(); }
+    });
+
+    // ── DELETE ADDRESS — AJAX ──
+    function deleteAddress(id, btn) {
+        if (!confirm('Remove this address?')) return;
+        btn.disabled = true;
+        fetch('/Customer/Address/Delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'RequestVerificationToken': token
+            },
+            body: 'id=' + id
+        })
+        .then(function(r) {
+            // Address card remove karo
+            var card = btn.closest('label');
+            if (card) {
+                card.style.transition = 'opacity 0.3s';
+                card.style.opacity = '0';
+                setTimeout(function() {
+                    card.remove();
+                    btn.remove();
+                }, 300);
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(function() { btn.disabled = false; });
+    }
 </script>

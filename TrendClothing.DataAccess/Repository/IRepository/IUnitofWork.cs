@@ -23,6 +23,7 @@ namespace TrendClothing.DataAccess.Repository.IRepository
         IRepository<ProductReview> ProductReview { get; }
         IRepository<SiteImage> SiteImage { get; }
         IRepository<HeroImage> HeroImage { get; }
+        IRepository<Coupon> Coupon { get; }
 
         void Save();
     }

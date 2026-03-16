@@ -51,6 +51,10 @@ namespace TrendClothing.Models
         [Display(Name = "Postal Code")]
         public string? PostalCode { get; set; }
 
+        // ✅ Coupon fields
+        public string? CouponCode { get; set; }
+        public double CouponDiscount { get; set; } = 0;
+
         [NotMapped]
         public string? Role { get; set; }
     }

@@ -251,7 +251,7 @@
                 var catIsWl = catWishlistIds.Contains(product.Id);
                 <div class="tc-product-card">
                     <div class="tc-product-card__img-wrap">
-                        <img src="@product.ImageUrl" alt="@product.Name" class="tc-product-card__img" />
+                        <img src="@product.ImageUrl" alt="@product.Name" class="tc-product-card__img" loading="lazy" />
                         @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
                         {
                             var pct = (int)(((product.Price - product.DiscountPrice) / product.Price) * 100);
@@ -380,8 +380,15 @@
                 },
                 body: 'productId=' + productId
             })
-            .then(function(r) { return r.json(); })
+            .then(function(r) {
+                if (r.status === 401 || (r.redirected && r.url.indexOf('/Login') > -1)) {
+                    window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.href);
+                    return null;
+                }
+                return r.json();
+            })
             .then(function(data) {
+                if (!data) return;
                 btn.disabled = false;
                 if (!data.success) return;
                 btn.classList.toggle('wishlisted', data.wishlisted);

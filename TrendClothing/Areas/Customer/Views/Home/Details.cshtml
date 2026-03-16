@@ -412,6 +412,53 @@
     </div>
 </div>
 
+
+@* ── RELATED PRODUCTS ── *@
+@if (ViewBag.RelatedProducts != null)
+{
+    var related = ViewBag.RelatedProducts as List<TrendClothing.Models.Product>;
+    if (related != null && related.Any())
+    {
+        <div style="padding:40px 0 60px;border-top:1px solid var(--tc-border);">
+            <div class="tc-container">
+                <h2 style="font-family:var(--tc-font-display);font-size:1.5rem;margin-bottom:24px;">You may also like</h2>
+                <div class="tc-grid-4">
+                    @foreach (var rp in related)
+                    {
+                        <div class="tc-product-card">
+                            <div class="tc-product-card__img-wrap">
+                                <a href="/Customer/Home/Details/@rp.Id" style="display:block;">
+                                    <img src="@rp.ImageUrl" alt="@rp.Name" class="tc-product-card__img" loading="lazy" />
+                                </a>
+                                @if (rp.DiscountPrice > 0 && rp.DiscountPrice < rp.Price)
+                                {
+                                    var rpct = (int)(((rp.Price - rp.DiscountPrice) / rp.Price) * 100);
+                                    <span class="tc-product-card__badge">@rpct% OFF</span>
+                                }
+                            </div>
+                            <div class="tc-product-card__body">
+                                <div class="tc-product-card__brand">@rp.Brand?.Name</div>
+                                <div class="tc-product-card__name">@rp.Name</div>
+                                <div class="tc-product-card__price-row">
+                                    @if (rp.DiscountPrice > 0 && rp.DiscountPrice < rp.Price)
+                                    {
+                                        <span class="tc-product-card__price">&#8377; @rp.DiscountPrice</span>
+                                        <span class="tc-product-card__price-old">&#8377; @rp.Price</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tc-product-card__price">&#8377; @rp.Price</span>
+                                    }
+                                </div>
+                                <a href="/Customer/Home/Details/@rp.Id" class="tc-product-card__cta">View Details</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}
 @section Scripts {
 <script>
     /* ─── VARIANTS JS (unchanged from original) ─── */
@@ -516,8 +563,16 @@
             },
             body: 'variantId=' + variantId + '&count=' + count
         })
-        .then(function(r) { return r.json(); })
+        .then(function(r) {
+            // ✅ FIX: Login nahi hai to login page pe bhejo
+            if (r.status === 401 || r.redirected && r.url.indexOf('/Login') > -1) {
+                window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                return null;
+            }
+            return r.json();
+        })
         .then(function(data) {
+            if (!data) return;
             btn.disabled    = false;
             btn.textContent = "+ Add to Cart";
             if (data.cartCount !== undefined) {
@@ -526,7 +581,7 @@
             }
             var toast = document.getElementById('toast');
             if (toast) {
-                toast.textContent    = data.message;
+                toast.textContent      = data.message;
                 toast.style.background = data.success ? '#0d6efd' : '#c1440e';
                 toast.classList.add('show');
                 setTimeout(function() { toast.classList.remove('show'); }, 3000);
@@ -662,7 +717,13 @@
             },
             body: 'productId=' + productId
         })
-        .then(function(r) { return r.json(); })
+        .then(function(r) {
+            if (r.status === 401 || r.redirected && r.url.indexOf('/Login') > -1) {
+                window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
+                return null;
+            }
+            return r.json();
+        })
         .then(function(data) {
             btn.disabled = false;
             if (!data.success) return;

@@ -39,6 +39,9 @@ namespace TrendClothing.Data
         // ✅ NEW: Product Reviews
         public DbSet<ProductReview> ProductReviews { get; set; }
 
+        // ✅ NEW: Coupons
+        public DbSet<Coupon> Coupons { get; set; }
+
         // ✅ FIX: Removed old "brands" and "colors" (lowercase) DbSet names
         // (were inconsistently named — now all PascalCase)
 

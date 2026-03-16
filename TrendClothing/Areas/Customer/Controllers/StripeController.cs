@@ -77,6 +77,15 @@ namespace TrendClothing.Areas.Customer.Controllers
             HttpContext.Session.SetString("Order_State", address.State);
             HttpContext.Session.SetString("Order_Postal", address.PostalCode);
 
+            // ✅ Coupon discount session se lo
+            var couponCode = HttpContext.Session.GetString("CouponCode");
+            var couponDiscount = 0.0;
+            if (!string.IsNullOrEmpty(couponCode) &&
+                double.TryParse(HttpContext.Session.GetString("CouponDiscount"), out var disc))
+            {
+                couponDiscount = disc;
+            }
+
             var domain = Request.Scheme + "://" + Request.Host.Value;
             var options = new SessionCreateOptions
             {
@@ -102,6 +111,32 @@ namespace TrendClothing.Areas.Customer.Controllers
                         }
                     }
                 });
+            }
+
+            // ✅ Coupon hai toh: saare line items hata do, ek single discounted total daalo
+            if (couponDiscount > 0)
+            {
+                var originalTotal = cartList.Sum(c => c.ProductVariant.Price * c.Count);
+                var discountedTotal = Math.Max(0, originalTotal - couponDiscount);
+
+                // Saare individual items replace karo ek summary line se
+                options.LineItems = new List<SessionLineItemOptions>
+                {
+                    new SessionLineItemOptions
+                    {
+                        Quantity = 1,
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency  = "inr",
+                            UnitAmount = (long)(discountedTotal * 100),
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name        = $"TrendClothing Order ({cartList.Count} items)",
+                                Description = $"Coupon '{couponCode}' applied — ₹{couponDiscount:N0} off"
+                            }
+                        }
+                    }
+                };
             }
 
             var service = new SessionService();
@@ -164,6 +199,15 @@ namespace TrendClothing.Areas.Customer.Controllers
                 return RedirectToAction("Summary", "Cart");
             }
 
+            // ✅ Coupon session se read karo Success action mein
+            var couponCode = HttpContext.Session.GetString("CouponCode") ?? "";
+            var couponDiscount = 0.0;
+            if (!string.IsNullOrEmpty(couponCode) &&
+                double.TryParse(HttpContext.Session.GetString("CouponDiscount"), out var couponDisc))
+            {
+                couponDiscount = couponDisc;
+            }
+
             var orderHeader = new OrderHeader
             {
                 ApplicationUserId = userId,
@@ -174,7 +218,9 @@ namespace TrendClothing.Areas.Customer.Controllers
                 DueDate = DateTime.UtcNow.AddDays(7).ToString("yyyy-MM-dd"),
                 OrderStatus = SD.OrderStatusApproved,
                 PaymentStatus = SD.PaymentStatusApproved,
-                OrderTotal = cartList.Sum(c => c.ProductVariant.Price * c.Count),
+                OrderTotal = cartList.Sum(c => c.ProductVariant.Price * c.Count) - couponDiscount,
+                CouponCode = string.IsNullOrEmpty(couponCode) ? null : couponCode,
+                CouponDiscount = couponDiscount,
                 Carrier = "Stripe",
                 TrackingNumber = "NA",
                 TransactionId = stripeSessionId ?? "Stripe-Paid",
@@ -312,6 +358,8 @@ namespace TrendClothing.Areas.Customer.Controllers
 
             HttpContext.Session.SetInt32(SD.Ss_cartSessionCount, 0);
             HttpContext.Session.Remove("Order_Name");
+            HttpContext.Session.Remove("CouponCode");
+            HttpContext.Session.Remove("CouponDiscount");
             HttpContext.Session.Remove("Order_Street");
             HttpContext.Session.Remove("Order_City");
             HttpContext.Session.Remove("Order_State");

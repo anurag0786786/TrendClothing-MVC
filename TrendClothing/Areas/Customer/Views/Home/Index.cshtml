@@ -3,6 +3,50 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <style>
+        .tc-card-rating {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(17,17,16,0.75);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+            .tc-card-rating .star {
+                color: #f59e0b;
+            }
+
+            .tc-card-rating.no-rating {
+                color: rgba(255,255,255,0.6);
+                font-weight: 400;
+            }
+
+        .tc-card-wl-row-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--tc-radius-sm);
+            border: 1.5px solid var(--tc-border-dark);
+            background: var(--tc-surface);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+            .tc-card-wl-row-btn:hover, .tc-card-wl-row-btn.wishlisted {
+                background: #fde8e0;
+                border-color: #f0a090;
+            }
+    </style>
 }
 
 @* ── HERO ── *@
@@ -128,6 +172,11 @@
 </section>
 
 @* ── NEW ARRIVALS ── *@
+@{
+    var homeReviews = ViewBag.HomeReviews as Dictionary<int, double> ?? new Dictionary<int, double>();
+    var homeWishlist = ViewBag.HomeWishlist as HashSet<int> ?? new HashSet<int>();
+}
+@Html.AntiForgeryToken()
 @if (Model != null && Model.Any())
 {
     <section class="tc-section-gap tc-container" id="new-arrivals">
@@ -142,17 +191,32 @@
         </div>
 
         <div class="tc-grid-4">
-            @foreach (var product in Model.Take(8))
+            @foreach (var product in Model)
             {
+                homeReviews.TryGetValue(product.Id, out double homeAvg);
+                bool homeIsWl = homeWishlist.Contains(product.Id);
                 <div class="tc-product-card">
                     <div class="tc-product-card__img-wrap">
-                        <img src="@product.ImageUrl" alt="@product.Name" class="tc-product-card__img" />
+                        @* ✅ FIX: Clickable image + lazy loading *@
+                        <a asp-action="Details" asp-route-id="@product.Id" style="display:block;">
+                            <img src="@product.ImageUrl" alt="@product.Name"
+                                 class="tc-product-card__img"
+                                 loading="lazy" />
+                        </a>
                         @if (product.DiscountPrice > 0 && product.DiscountPrice < product.Price)
                         {
                             var pct = (int)(((product.Price - product.DiscountPrice) / product.Price) * 100);
                             <span class="tc-product-card__badge">@pct% OFF</span>
                         }
-                        <span class="tc-product-card__action">+</span>
+                        @* ✅ Rating badge *@
+                        @if (homeAvg > 0)
+                        {
+                            <div class="tc-card-rating"><span class="star">★</span> @homeAvg</div>
+                        }
+                        else
+                        {
+                            <div class="tc-card-rating no-rating">No rating</div>
+                        }
                     </div>
                     <div class="tc-product-card__body">
                         <div class="tc-product-card__brand">@product.Brand?.Name</div>
@@ -168,9 +232,24 @@
                                 <span class="tc-product-card__price">&#8377; @product.Price</span>
                             }
                         </div>
-                        <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta">
-                            Add collections +
-                        </a>
+                        @* ✅ View Details + Wishlist row *@
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <a asp-action="Details" asp-route-id="@product.Id" class="tc-product-card__cta" style="flex:1;">
+                                View Details
+                            </a>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <button type="button"
+                                        class="tc-card-wl-row-btn @(homeIsWl ? "wishlisted" : "")"
+                                        data-pid="@product.Id"
+                                        onclick="catWlToggle(this)"
+                                        title="@(homeIsWl ? "Remove from wishlist" : "Add to wishlist")">
+                                    <svg viewBox="0 0 24 24" width="15" height="15" stroke="#c1440e" fill="@(homeIsWl ? "#c1440e" : "none")" stroke-width="2">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             }
@@ -195,3 +274,29 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        var __token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        function catWlToggle(btn) {
+            var pid = btn.getAttribute('data-pid');
+            btn.disabled = true;
+            fetch('/Customer/Wishlist/Toggle', {
+                method:'POST',
+                headers:{'Content-Type':'application/x-www-form-urlencoded','RequestVerificationToken':__token},
+                body:'productId='+pid
+            })
+            .then(function(r){return r.json();})
+            .then(function(d){
+                btn.disabled=false;
+                if(!d.success)return;
+                btn.classList.toggle('wishlisted',d.wishlisted);
+                var svg=btn.querySelector('svg');
+                if(svg)svg.setAttribute('fill',d.wishlisted?'#c1440e':'none');
+                var t=document.getElementById('toast');
+                if(t){t.textContent=d.message;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+            })
+            .catch(function(){btn.disabled=false;});
+        }
+    </script>
+}
