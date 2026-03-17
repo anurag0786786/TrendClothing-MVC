@@ -1,0 +1,140 @@
+﻿@* Areas/Admin/Views/BulkUpload/UpdateImages.cshtml *@
+@using TrendClothing.DataAccess.Repository.IRepository
+@inject IUnitofWork _unitOfWork
+@{
+    ViewData["Title"] = "Bulk Image Update";
+}
+
+@{
+    // Bina image wale products load karo
+    var noImageProducts = _unitOfWork.product.GetAll(
+        p => p.ImageUrl == null || p.ImageUrl == "",
+        IncludeProperties: "Brand,Category"
+    ).OrderBy(p => p.Name).ToList();
+
+    var allProducts = _unitOfWork.product.GetAll(
+        IncludeProperties: "Brand,Category"
+    ).OrderBy(p => p.Name).ToList();
+}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 style="font-family:var(--tc-font-display,serif);">🖼️ Bulk Image Update</h2>
+            <p class="text-muted mb-0" style="font-size:14px;">
+                @noImageProducts.Count products bina image ke hain — ek saath sab update karo
+            </p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-dark btn-sm">← Bulk Upload</a>
+    </div>
+
+    @if (TempData["ImgSuccess"] != null)
+    {
+        <div class="alert alert-success">@TempData["ImgSuccess"]</div>
+    }
+    @if (TempData["ImgError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ImgError"]</div>
+    }
+
+    @* OPTION 1: Product Name se Image match karo *@
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h5 class="mb-1">📁 Images Upload karo — Name se Auto-Match</h5>
+            <p class="text-muted mb-3" style="font-size:13px;">
+                Image file ka naam = Product naam (spaces ko _ ya - se replace karo)<br />
+                Example: Product "Black Shirt" → image file naam: <code>Black Shirt.jpg</code> ya <code>Black_Shirt.jpg</code>
+            </p>
+
+            <form asp-action="UpdateImages" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <input type="file" name="images" accept="image/*" multiple
+                           class="form-control" id="bulkImgInput"
+                           onchange="previewBulkImages(this)" required />
+                    <div class="form-text">Multiple images select karo — system automatically product naam se match karega</div>
+                </div>
+
+                <div id="bulkImgPreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;"></div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="overwriteExisting" id="overwrite" />
+                    <label class="form-check-label" for="overwrite" style="font-size:13px;">
+                        Already image wale products bhi overwrite karo
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-dark px-4">
+                    🚀 Upload & Match Images
+                </button>
+            </form>
+        </div>
+    </div>
+
+    @* Products without images list *@
+    @if (noImageProducts.Any())
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center"
+                 style="background:#fff8e8;border-bottom:1px solid #fde68a;">
+                <strong>⚠️ Products bina image ke (@noImageProducts.Count)</strong>
+                <span style="font-size:12px;color:#666;">Image filename = Product naam rakhna</span>
+            </div>
+            <div class="card-body p-0" style="max-height:400px;overflow-y:auto;">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Brand</th>
+                            <th>Expected filename</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in noImageProducts)
+                        {
+                            <tr>
+                                <td style="font-size:12px;color:#999;">@p.Id</td>
+                                <td style="font-size:13px;font-weight:500;">@p.Name</td>
+                                <td style="font-size:12px;">@p.Category?.Name</td>
+                                <td style="font-size:12px;">@p.Brand?.Name</td>
+                                <td>
+                                    <code style="font-size:11px;">@(p.Name).jpg</code>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success">
+            ✅ Saare products ki images set hain!
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function previewBulkImages(input) {
+            var preview = document.getElementById('bulkImgPreview');
+            preview.innerHTML = '';
+            Array.from(input.files).forEach(function(file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var div = document.createElement('div');
+                    div.style.textAlign = 'center';
+                    div.innerHTML =
+                        '<img src="' + e.target.result + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #ddd;" />' +
+                        '<div style="font-size:10px;color:#666;margin-top:2px;max-width:56px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + file.name + '">' + file.name + '</div>';
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+}

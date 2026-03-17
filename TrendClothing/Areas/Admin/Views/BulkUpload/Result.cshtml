@@ -1,0 +1,90 @@
+﻿@* Areas/Admin/Views/BulkUpload/Result.cshtml *@
+@{
+    ViewData["Title"] = "Upload Result";
+}
+
+@{
+    var successList = (TempData["BulkSuccess"] as string ?? "").Split("||", StringSplitOptions.RemoveEmptyEntries).ToList();
+    var errorList = (TempData["BulkErrors"] as string ?? "").Split("||", StringSplitOptions.RemoveEmptyEntries).ToList();
+    var total = TempData["BulkTotal"] ?? 0;
+}
+
+<div class="container-fluid px-4 py-4">
+    <h2 style="font-family:var(--tc-font-display,serif);margin-bottom:24px;">📊 Upload Result</h2>
+
+    @* Summary *@
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 text-white" style="background:#111110;">
+                <div class="card-body text-center">
+                    <div style="font-size:2rem;font-weight:700;">@total</div>
+                    <div style="font-size:13px;opacity:.8;">Total Rows</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 text-white" style="background:#2d6a4f;">
+                <div class="card-body text-center">
+                    <div style="font-size:2rem;font-weight:700;">@successList.Count</div>
+                    <div style="font-size:13px;opacity:.8;">Successfully Added</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 text-white" style="background:#c1440e;">
+                <div class="card-body text-center">
+                    <div style="font-size:2rem;font-weight:700;">@errorList.Count</div>
+                    <div style="font-size:13px;opacity:.8;">Failed Rows</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <div>
+                <a asp-action="Index" class="btn btn-dark btn-sm d-block mb-2">📤 Upload Another File</a>
+                <a asp-area="Admin" asp-controller="Product" asp-action="Index"
+                   class="btn btn-outline-dark btn-sm d-block">📦 View All Products</a>
+            </div>
+        </div>
+    </div>
+
+    @* Success rows *@
+    @if (successList.Any())
+    {
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header" style="background:#f0faf4;border-bottom:1px solid #c3e6cb;">
+                <strong style="color:#2d6a4f;">✅ Successfully Added (@successList.Count products)</strong>
+            </div>
+            <div class="card-body p-0" style="max-height:300px;overflow-y:auto;">
+                <ul class="list-group list-group-flush">
+                    @foreach (var s in successList)
+                    {
+                        <li class="list-group-item" style="font-size:13px;">@s</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+
+    @* Error rows *@
+    @if (errorList.Any())
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-header" style="background:#fff5f5;border-bottom:1px solid #f5c6cb;">
+                <strong style="color:#c1440e;">❌ Failed Rows (@errorList.Count) — Fix karke dobara upload karo</strong>
+            </div>
+            <div class="card-body p-0" style="max-height:300px;overflow-y:auto;">
+                <ul class="list-group list-group-flush">
+                    @foreach (var e in errorList)
+                    {
+                        <li class="list-group-item" style="font-size:13px;color:#c1440e;">@e</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
+
+    @if (!successList.Any() && !errorList.Any())
+    {
+        <div class="alert alert-warning">Koi data nahi mila file mein.</div>
+    }
+</div>

@@ -1,0 +1,144 @@
+﻿@* Areas/Admin/Views/BulkUpload/Index.cshtml *@
+@using TrendClothing.DataAccess.Repository.IRepository
+@inject IUnitofWork _unitOfWork
+@{
+    ViewData["Title"] = "Bulk Upload Products";
+}
+@{
+    var dbCategories = _unitOfWork.category.GetAll().Select(c => c.Name).ToList();
+    var dbBrands = _unitOfWork.brand.GetAll().Select(b => b.Name).ToList();
+    var dbProductTypes = _unitOfWork.productType.GetAll().Select(t => t.Name).ToList();
+}
+
+<div class="container-fluid px-4">
+    <div class="my-4">
+        <h2 style="font-family:var(--tc-font-display,serif);">📦 Bulk Upload Products</h2>
+        <p class="text-muted" style="font-size:14px;">CSV + Images ek saath upload karo</p>
+    </div>
+
+    @if (TempData["BulkError"] != null)
+    {
+        <div class="alert alert-danger">@TempData["BulkError"]</div>
+    }
+
+    <div class="row g-4">
+
+        @* LEFT — Upload Form *@
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="mb-1">Upload CSV + Images</h5>
+                    <p class="text-muted mb-3" style="font-size:13px;">CSV file mein product data, images alag select karo</p>
+
+                    <form asp-action="Upload" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        @* CSV File *@
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                📄 CSV File <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" name="csvFile" accept=".csv"
+                                   class="form-control" required />
+                            <div class="form-text">
+                                <a asp-action="DownloadTemplate" class="text-dark fw-semibold">
+                                    ⬇️ Template download karo
+                                </a>
+                                — pehle template dekho, phir data fill karo
+                            </div>
+                        </div>
+
+                        @* Images *@
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                🖼️ Product Images <span class="text-muted">(optional)</span>
+                            </label>
+                            <input type="file" name="images" accept="image/*"
+                                   multiple class="form-control"
+                                   id="imageInput"
+                                   onchange="showSelectedImages(this)" />
+                            <div class="form-text">
+                                Multiple images select kar sakte ho — CSV mein jo filename likha hai woh image ka naam hona chahiye
+                            </div>
+                            <div id="imagePreview" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+                        </div>
+
+                        @* How to match *@
+                        <div style="background:#f8f9fa;border-radius:8px;padding:14px;margin-bottom:20px;font-size:13px;">
+                            <strong>🔗 Image aur CSV match kaise hoga?</strong><br />
+                            CSV mein <code>Image Filename</code> column mein exactly wahi naam likho<br />
+                            jo image file ka naam hai. Example:<br />
+                            CSV: <code>shirt1.jpg</code> → Image file ka naam bhi: <code>shirt1.jpg</code>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark px-4">
+                            📤 Upload & Process
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @* RIGHT — Valid Values *@
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h6 class="mb-3">✅ Valid Values (exactly copy karo)</h6>
+
+                    <div style="font-size:13px;line-height:1.9;">
+                        <strong>Categories</strong><br />
+                        @foreach (var c in dbCategories)
+                        {
+                            <code class="me-1">@c</code>
+                        }
+
+                        <br /><br />
+                        <strong>Brands</strong><br />
+                        @foreach (var b in dbBrands)
+                        {
+                            <code class="me-1">@b</code>
+                        }
+
+                        <br /><br />
+                        <strong>Product Types</strong><br />
+                        @foreach (var t in dbProductTypes)
+                        {
+                            <code class="me-1">@t</code>
+                        }
+
+                        <br /><br />
+                        <strong>Required Columns (*)</strong><br />
+                        Name, Description, Price, Category, Brand, Product Type
+
+                        <br /><br />
+                        <strong>Optional Columns</strong><br />
+                        Discount Price, Image Filename, Is Active
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showSelectedImages(input) {
+            var preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            if (!input.files.length) return;
+
+            Array.from(input.files).forEach(function(file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var div = document.createElement('div');
+                    div.style.cssText = 'text-align:center;';
+                    div.innerHTML =
+                        '<img src="' + e.target.result + '" style="width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid #ddd;" />' +
+                        '<div style="font-size:10px;color:#666;margin-top:3px;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + file.name + '">' + file.name + '</div>';
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+}
