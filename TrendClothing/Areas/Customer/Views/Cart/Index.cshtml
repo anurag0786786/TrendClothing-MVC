@@ -186,7 +186,7 @@
             btn.disabled = true;
             cartPost('/Customer/Cart/Plus', 'id=' + id, function(data) {
                 btn.disabled = false;
-                if (!data.success) { showToast(data.message || 'Max stock reached', 'red'); return; }
+                if (!data.success) { showToast(data.message || 'Max stock reached', 'error'); return; }
                 document.getElementById('qty-' + id).textContent = data.newCount;
                 if (data.newCount >= stock) btn.disabled = true;
                 recalcTotal();
@@ -210,6 +210,7 @@
             item.classList.add('removing');
             cartPost('/Customer/Cart/Remove', 'id=' + id, function(data) {
                 if (data.success) {
+                    showToast('Item removed from cart', 'cart');
                     setTimeout(function() {
                         item.remove();
                         recalcTotal();
@@ -220,18 +221,12 @@
                     }, 300);
                 } else {
                     item.classList.remove('removing');
+                    showToast('Could not remove item. Try again.', 'error');
                 }
             });
         }
 
-        function showToast(msg, color) {
-            var t = document.getElementById('toast');
-            if (!t) return;
-            t.textContent = msg;
-            t.style.background = color || '#0d6efd';
-            t.classList.add('show');
-            setTimeout(function(){ t.classList.remove('show'); }, 3000);
-        }
+        // showToast is globally available from site.js
 
         function sendVerificationEmail() {
             document.getElementById("verifyEmailForm").submit();

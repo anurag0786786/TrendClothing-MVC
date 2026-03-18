@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="~/css/tc-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
 
     @RenderSection("Styles", required: false)
@@ -393,21 +392,26 @@
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @if (TempData["ToastMessage"] != null)
+    @{
+        var _toastMsg   = TempData["ToastMessage"]?.ToString();
+        var _toastColor = TempData["ToastColor"]?.ToString() ?? "";
+        var _toastType  = (_toastColor.Contains("198754") || _toastColor.Contains("green")) ? "success"
+                        : (_toastColor.Contains("red") || _toastColor.Contains("c1440e") || _toastColor.Contains("b91c")) ? "error"
+                        : (_toastColor.Contains("warning") || _toastColor.Contains("orange")) ? "warning"
+                        : "success";
+    }
+    @if (_toastMsg != null)
     {
         <script>
-            (function () {
-                var t = document.getElementById('toast');
-                if (t) { t.textContent = '@Html.Raw(TempData["ToastMessage"])'; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
-            })();
+            document.addEventListener('DOMContentLoaded', function () {
+                showToast('@Html.Raw(_toastMsg.Replace("'", "\'"))', '@_toastType');
+            });
         </script>
     }
 

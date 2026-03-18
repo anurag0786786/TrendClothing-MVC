@@ -393,12 +393,7 @@
                 if (!data.success) return;
                 btn.classList.toggle('wishlisted', data.wishlisted);
                 btn.title = data.wishlisted ? 'Remove from wishlist' : 'Add to wishlist';
-                var toast = document.getElementById('toast');
-                if (toast) {
-                    toast.textContent = data.message;
-                    toast.classList.add('show');
-                    setTimeout(function(){ toast.classList.remove('show'); }, 3000);
-                }
+                showToast(data.message, data.wishlisted ? 'success' : 'info');
             })
             .catch(function() { btn.disabled = false; });
         }

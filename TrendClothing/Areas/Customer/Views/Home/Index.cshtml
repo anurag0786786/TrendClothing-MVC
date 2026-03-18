@@ -461,8 +461,7 @@
                 btn.classList.toggle('wishlisted', d.wishlisted);
                 var svg = btn.querySelector('svg');
                 if (svg) svg.setAttribute('fill', d.wishlisted ? '#c1440e' : 'none');
-                var t = document.getElementById('toast');
-                if (t) { t.textContent = d.message; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+                showToast(d.message, d.wishlisted ? 'success' : 'info');
             })
             .catch(() => btn.disabled = false);
         }

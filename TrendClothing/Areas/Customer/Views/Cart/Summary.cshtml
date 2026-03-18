@@ -217,11 +217,13 @@
             if (!d.success) {
                 msg.textContent = d.message;
                 msg.style.color = '#c1440e';
+                showToast(d.message || 'Invalid coupon code', 'error');
                 return;
             }
             appliedDiscount = d.discount;
             msg.textContent = d.message;
             msg.style.color = '#2d6a4f';
+            showToast('🎉 Coupon applied! You saved ₹' + d.discount.toFixed(0), 'success');
 
             // Show discount breakdown
             document.getElementById('discountRow').style.display = 'block';
@@ -249,6 +251,7 @@
             document.getElementById('couponMsg').textContent = '';
             document.getElementById('discountRow').style.display = 'none';
             document.getElementById('removeCouponBtn').style.display = 'none';
+            showToast('Coupon removed', 'info');
         });
     }
 
